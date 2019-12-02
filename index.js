@@ -16,7 +16,10 @@ class Helix {
         if(!params.client_id) return console.error({ error: "Client ID is required" });
 
         Helix.prototype.client_id = params.client_id;
-        Helix.prototype.headers = { "Client-ID": params.client_id };
+        Helix.prototype.headers = { 
+            "Client-ID": params.client_id,
+            "Accept": "application/vnd.twitchtv.v5+json"
+        };
         Helix.prototype.disableWarns = params.disableWarns;
 
         if(params.access_token) Helix.prototype.access_token = params.access_token;
@@ -62,10 +65,8 @@ class Helix {
     }
 
     async getFollowers(user_id, count = 20, after = "") {
-        const response = await syncRequest({
-            url: `https://api.twitch.tv/helix/users/follows?to_id=${user_id}&first=${count}&after=${after}`,
-            headers: { "Client-ID": this.client_id }
-        });
+        const url = `https://api.twitch.tv/helix/users/follows?to_id=${user_id}&first=${count}&after=${after}`;
+        const response = await syncRequest({ url, headers: this.header });
         return response;
     }
 

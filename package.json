@@ -1,15 +1,16 @@
 {
   "name": "simple-helix-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The Simple Helix API allows developers to easily develop applications for Twitch",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "InfiniteHorror",
   "license": "ISC",
   "dependencies": {
     "request": "^2.88.0",
     "tmi.js": "^1.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PurpleHorrorRus/simple-helix-api"
   }
 }
