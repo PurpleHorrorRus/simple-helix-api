@@ -36,13 +36,8 @@ class Helix {
     }
 
     async getChannel(user_id) {
-        const response = await syncRequest({
-            url: `https://api.twitch.tv/kraken/channels/${user_id}`,
-            headers: {
-                "Client-ID": this.client_id,
-                "Accept": "application/vnd.twitchtv.v5+json"
-            }
-        });
+        const url = `https://api.twitch.tv/kraken/channels/${user_id}`;
+        const response = await syncRequest({ url, headers: this.headers });
         return response;
     }
 
@@ -121,10 +116,8 @@ class Helix {
     }
 
     async getTopGames(count = 100) {
-        const response = await syncRequest({
-            url: `https://api.twitch.tv/helix/games/top?first=${count}`,
-            headers: this.headers
-        });
+        const url = `https://api.twitch.tv/helix/games/top?first=${count}`;
+        const response = await syncRequest({ url, headers: this.headers });
         return response.data;
     }
 

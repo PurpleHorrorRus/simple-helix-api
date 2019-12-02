@@ -118,6 +118,7 @@ await Helix.updateStream(id, title, game);
 | game  | String | true     | Game on the stream |
 
 ### Create Chatbot
+
 Create chatbot to receive messages from Twitch Chat
 
 You must [**get oauth token**](https://twitchapps.com/tmi/)
@@ -138,7 +139,9 @@ bot.on("chat", (channel, user, message) => {
 | user_name    | String | true     | The name of the channel from which the bot will receive messages            |
 
 # Issues
+
 You can report of any issues [here](https://github.com/PurpleHorrorRus/simple-helix-api/issues)
 
 # Contributing
+
 You can follow me on [Twitch](https://twitch.tv/InfiniteHorror) :)
