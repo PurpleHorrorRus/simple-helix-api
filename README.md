@@ -17,11 +17,11 @@ const Helix = new Helix({
 });
 ```
 Params for Helix:
-| Param       | Required |  Default | Description |
-| ------------- |:------------------:| :---------------: | :----- |
-| access_token     | false | null | Access Token that provide by Twitch
-| client_id     | true |   null | Client ID of your application
-| disableWarns  | false | false | Disabled warnings in console
+| Param         | Required           |  Default  | Description      |
+| ------------- |:------------------:| :-------: | :--------------- |
+| access_token  | false | null       | Access Token                 |
+| client_id     | true  | null       | Client ID of application     |
+| disableWarns  | false | false      | Disabled warnings in console |
 
 Then you can get profile ID
 ```javascript
@@ -61,11 +61,11 @@ Get first N followers from the end
 ```javascript
 const followers = await Helix.getFollowers(id, count, after);
 ```
-| Param | Type   | Required | Default | Max | Description  |
-| ----- | :--:   | :------: | :-----: | :-: | :----------: |
-| id    | Number | true     | null    | -   | ID of user   |
-| count | Number | false    | 20      | 100 | Number of count of followers that you can get
-| after | String | false    | null    | -   | Pangination cursor (offset)
+| Param | Type   | Required | Default | Max | Description                                    |
+| ----- | :--:   | :------: | :-----: | :-: | :----------:                                   |
+| id    | Number | true     | null    | -   | ID of user                                     |
+| count | Number | false    | 20      | 100 | Number of count of followers that you can get  |
+| after | String | false    | null    | -   | Pangination cursor (offset)                    |
 
 ### Get All Followers
 Return an array of all followers. The lead time depends on the number of followers on your channel
@@ -97,9 +97,9 @@ Get the top 100 most viewed games on Twitch at the moment
 ```javascript
 const top = await Helix.getTopGames(count);
 ```
-| Param | Type | Required | Default | Max | Description |
-| :---: | :--: | :------: | :-----: | :-: | :---------: |
-| count | Number | false  | 100     | 100 | Number of games |
+| Param | Type   | Required | Default | Max | Description     |
+| :---: | :--:   | :------: | :-----: | :-: | :---------:     |
+| count | Number | false  | 100       | 100 | Number of games |
 
 # Other
 
@@ -130,11 +130,11 @@ bot.on("chat", (channel, user, message) => {
     return;
 });
 ```
-| Param | Type   | Required | Description        |
-| :---: | :--:   | :------: |:---------:         |
-| bot_name    | String | true     | The name of the channel for the bot (you can specify your account nickname) |
-| ouath_token | String | true     | OAuth Token that you receive       |
-| user_name  | String | true     | The name of the channel from which the bot will receive messages |
+| Param        | Type   | Required | Description                                                                 |
+| :---:        | :--:   | :------: |:---------:                                                                  |
+| bot_name     | String | true     | The name of the channel for the bot (you can specify your account nickname) |
+| ouath_token  | String | true     | OAuth Token that you receive                                                |
+| user_name    | String | true     | The name of the channel from which the bot will receive messages            |
 
 # Issues
 You can report of any issues [here](https://github.com/PurpleHorrorRus/simple-helix-api/issues)
