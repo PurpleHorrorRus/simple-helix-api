@@ -124,6 +124,11 @@ You must [**get oauth token**](https://twitchapps.com/tmi/)
 ```javascript
 const oauth_token = "XXXXXX";
 const bot = Helix.createChatBot(bot_name, oauth_token, user_name);
+bot.on("chat", (channel, user, message) => {
+    const nickname = user["display-name"];
+    console.log(`${username}: ${message}`);
+    return;
+});
 ```
 | Param | Type   | Required | Description        |
 | :---: | :--:   | :------: |:---------:         |
