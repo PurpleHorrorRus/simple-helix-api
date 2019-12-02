@@ -17,6 +17,7 @@ const Helix = new Helix({
 });
 ```
 Params for Helix:
+
 | Param         | Required           |  Default  | Description      |
 | ------------- |:------------------:| :-------: | :--------------- |
 | access_token  | false | null       | Access Token                 |
