@@ -11,7 +11,7 @@ npm install --save simple-helix-api
 **Creating Helix object**
 ```javascript
 const HelixAPI = require("simple-helix-api");
-const Helix = new Helix({
+const Helix = new HelixAPI({
     access_token: "xxx",
     cliend_id: "xxx"
 });
@@ -24,10 +24,9 @@ Params for Helix:
 | client_id     | true  | null       | Client ID of application     |
 | disableWarns  | false | false      | Disabled warnings in console |
 
-Then you can get profile ID
+Then you can get your profile ID before start working with API
 ```javascript
-const user = await Helix.getUser("InfiniteHorror");
-const { id } = user;
+const { id } = await Helix.getUser(username);
 ```
 
 ## Common methods
@@ -63,7 +62,7 @@ Get first N followers from the end
 const followers = await Helix.getFollowers(id, count, after);
 ```
 | Param | Type   | Required | Default | Max | Description                                    |
-| ----- | :--:   | :------: | :-----: | :-: | :----------:                                   |
+| ----- | :--:   | :------: | :-----: | :-: | :----------                                    |
 | id    | Number | true     | null    | -   | ID of user                                     |
 | count | Number | false    | 20      | 100 | Number of count of followers that you can get  |
 | after | String | false    | null    | -   | Pangination cursor (offset)                    |
@@ -99,7 +98,7 @@ Get the top 100 most viewed games on Twitch at the moment
 const top = await Helix.getTopGames(count);
 ```
 | Param | Type   | Required | Default | Max | Description     |
-| :---: | :--:   | :------: | :-----: | :-: | :---------:     |
+| :---: | :--:   | :------: | :-----: | :-: | :---------      |
 | count | Number | false  | 100       | 100 | Number of games |
 
 # Other
@@ -109,13 +108,36 @@ const top = await Helix.getTopGames(count);
 
 Update broadcast information
 ```javascript
-await Helix.updateStream(id, title, game);
+const response = await Helix.updateStream(id, title, game);
 ```
+
 | Param | Type   | Required | Description        |
-| :---: | :--:   | :------: |:---------:         |
+| :---: | :--:   | :------: |:---------          |
 | id    | Number | true     | User ID            |
 | title | String | true     | Stream title       |
 | game  | String | true     | Game on the stream |
+
+### Create Stream Marker
+Creating stream marker with description
+```javascript
+await Helix.createMarker(id, description);
+```
+
+| Param | Type   | Required | Description                          |
+| :---: | :--:   | :------: |:---------                            |
+| id    | Number | true     | User ID                              |
+| description | String | false | Marker description (can be empty) |
+
+### Get Stream Markers
+Return an array with markers of specified VOD
+```javascript
+await Helix.createMarker(id, video_id);
+```
+
+| Param | Type   | Required | Description                                           |
+| :---: | :--:   | :------: |:---------                                             |
+| id    | Number | true     | User ID                                               |
+| video_id | String | false | ID of the VOD/video whose stream markers are returned |
 
 ### Create Chatbot
 
@@ -133,7 +155,7 @@ bot.on("chat", (channel, user, message) => {
 });
 ```
 | Param        | Type   | Required | Description                                                                 |
-| :---:        | :--:   | :------: |:---------:                                                                  |
+| :---:        | :--:   | :------: |:---------                                                                  |
 | bot_name     | String | true     | The name of the channel for the bot (you can specify your account nickname) |
 | ouath_token  | String | true     | OAuth Token that you receive                                                |
 | user_name    | String | true     | The name of the channel from which the bot will receive messages            |

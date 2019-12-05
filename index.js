@@ -23,10 +23,9 @@ class Helix {
         Helix.prototype.disableWarns = params.disableWarns;
 
         if(params.access_token) Helix.prototype.access_token = params.access_token;
-        else {
+        else
             if(!params.disableWarns) 
                 console.warn("You not set up access token");
-        }	
     };
 
     async getUser(user) {
@@ -113,6 +112,37 @@ class Helix {
             }
         });
         return { success: response.status == title && response.game == game };
+    }
+
+    async createMarker(id, description = "") {
+        if(!this.access_token) return console.error({ error: "You must to provide access token to create stream marker" });
+        const response = await syncRequest({
+            url: "https://api.twitch.tv/helix/streams/markers",
+            method: "PUT",
+            json: { user_id: id, description },
+            headers: {
+                "Client-ID": this.client_id,
+                "Content-type": "application/json",
+                "Authorization": `OAuth ${this.access_token}`
+            }
+        });
+        if(response.error) return { status: "error" };
+        return Object.assign({ status: "success" }, response);
+    }
+
+    async getMarkers(id, video_id) {
+        if(!this.access_token) return console.error({ error: "You must to provide access token to get stream markers" });
+        const response = await syncRequest({
+            url: "https://api.twitch.tv/helix/streams/markers",
+            method: "GET",
+            json: { user_id: id, video_id },
+            headers: {
+                "Client-ID": this.client_id,
+                "Content-type": "application/json",
+                "Authorization": `OAuth ${this.access_token}`
+            }
+        });
+        return response;
     }
 
     async getTopGames(count = 100) {
