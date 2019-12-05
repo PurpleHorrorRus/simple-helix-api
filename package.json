@@ -1,6 +1,6 @@
 {
   "name": "simple-helix-api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "The Simple Helix API allows developers to easily develop applications for Twitch",
   "main": "index.js",
   "author": "InfiniteHorror",
@@ -13,5 +13,11 @@
     "type": "git",
     "url": "https://github.com/PurpleHorrorRus/simple-helix-api"
   },
-  "keywords": ["Twitch", "Helix", "Helix API", "Broadcasts", "Streams"]
+  "keywords": [
+    "Twitch",
+    "Helix",
+    "Helix API",
+    "Broadcasts",
+    "Streams"
+  ]
 }
