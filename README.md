@@ -155,7 +155,7 @@ bot.on("chat", (channel, user, message) => {
 });
 ```
 | Param        | Type   | Required | Description                                                                 |
-| :---:        | :--:   | :------: |:---------                                                                  |
+| :---:        | :--:   | :------: |:---------                                                                   |
 | bot_name     | String | true     | The name of the channel for the bot (you can specify your account nickname) |
 | ouath_token  | String | true     | OAuth Token that you receive                                                |
 | user_name    | String | true     | The name of the channel from which the bot will receive messages            |
