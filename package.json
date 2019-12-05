@@ -12,5 +12,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PurpleHorrorRus/simple-helix-api"
-  }
+  },
+  "keywords": ["Twitch", "Helix", "Helix API", "Broadcasts", "Streams"]
 }
