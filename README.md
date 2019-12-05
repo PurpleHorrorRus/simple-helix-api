@@ -131,7 +131,7 @@ await Helix.createMarker(id, description);
 ### Get Stream Markers
 Return an array with markers of specified VOD
 ```javascript
-await Helix.createMarker(id, video_id);
+await Helix.getMarkers(id, video_id);
 ```
 
 | Param | Type   | Required | Description                                           |
