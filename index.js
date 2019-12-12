@@ -3,8 +3,9 @@ const request = require("request");
 const syncRequest = params => {
     return new Promise((resolve, reject) => {
         params.url = encodeURI(params.url);
-        request(params, (err, response, body) => {
-            if(err) return reject(err);
+        request(params, (err, response) => {
+            const { body } = response;
+            if(err) throw reject(err);
             try { return resolve(JSON.parse(body)); } catch(e) { return resolve(body); }
         });
     });
@@ -36,8 +37,7 @@ class Helix {
 
     async getChannel(user_id) {
         const url = `https://api.twitch.tv/kraken/channels/${user_id}`;
-        const response = await syncRequest({ url, headers: this.headers });
-        return response;
+        return await syncRequest({ url, headers: this.headers });
     }
 
     async getStream(user) {
@@ -60,8 +60,7 @@ class Helix {
 
     async getFollowers(user_id, count = 20, after = "") {
         const url = `https://api.twitch.tv/helix/users/follows?to_id=${user_id}&first=${count}&after=${after}`;
-        const response = await syncRequest({ url, headers: this.header });
-        return response;
+        return await syncRequest({ url, headers: this.headers });
     }
 
     async getAllFollowers(user_id) {
@@ -69,10 +68,12 @@ class Helix {
             const response = await this.getFollowers(user_id, 100);
             const count = response.total;
             let list = response.data;
+            let { cursor } = response.pagination;
             let interval = setInterval(async () => {
                 if(list.length < count) {
-                    const _response = await this.getFollowers(user_id, 100, response.pagination.cursor);
-                    list = list.concat(_response.data);
+                    const _response = await this.getFollowers(user_id, 100, cursor);
+                    cursor = _response.pagination.cursor;
+                    return list = list.concat(_response.data);
                 } else {
                     clearInterval(interval);
                     return resolve(list);
@@ -83,17 +84,14 @@ class Helix {
     }
 
     async getFollowersCount(user_id) {
-        const response = await syncRequest({
-            url: `https://api.twitch.tv/helix/users/follows?to_id=${user_id}`,
-            headers: this.headers
-        });
+        const url = `https://api.twitch.tv/helix/users/follows?to_id=${user_id}`;
+        const response = await syncRequest({ url, headers: this.headers });
         return response.total;
     }
 
     async getViewers(user) {
         user = user.toLowerCase();
-        const response = await syncRequest(`https://tmi.twitch.tv/group/user/${user}/chatters`);
-        return response;
+        return await syncRequest(`https://tmi.twitch.tv/group/user/${user}/chatters`);
     }
     
     async updateStream(id, title, game) {
@@ -105,11 +103,7 @@ class Helix {
                 "channel[status]": title,
                 "channel[game]": game
             },
-            headers: {
-                "Client-ID": this.client_id,
-                "Accept": "application/vnd.twitchtv.v5+json",
-                "Authorization": `OAuth ${this.access_token}`
-            }
+            headers: Object.assign(this.headers, { "Authorization": `OAuth ${this.access_token}` })
         });
         return { success: response.status == title && response.game == game };
     }
@@ -120,11 +114,7 @@ class Helix {
             url: "https://api.twitch.tv/helix/streams/markers",
             method: "PUT",
             json: { user_id: id, description },
-            headers: {
-                "Client-ID": this.client_id,
-                "Content-type": "application/json",
-                "Authorization": `OAuth ${this.access_token}`
-            }
+            headers: Object.assign(this.headers, { "Authorization": `OAuth ${this.access_token}` })
         });
         if(response.error) return { status: "error" };
         return Object.assign({ status: "success" }, response);
@@ -136,11 +126,7 @@ class Helix {
             url: "https://api.twitch.tv/helix/streams/markers",
             method: "GET",
             json: { user_id: id, video_id },
-            headers: {
-                "Client-ID": this.client_id,
-                "Content-type": "application/json",
-                "Authorization": `OAuth ${this.access_token}`
-            }
+            headers: Object.assign(this.headers, { "Authorization": `OAuth ${this.access_token}` })
         });
         return response;
     }
