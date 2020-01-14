@@ -29,6 +29,7 @@ Params for Helix:
 | ------------- |:------------------:| :-------: | :--------------- |
 | access_token  | false | null       | Access Token                 |
 | client_id     | true  | null       | Client ID of application     |
+| increaseRate  | false | false      | Use Bearer instead of OAuth to increase Rate Limit |
 | disableWarns  | false | false      | Disabled warnings in console |
 
 Then you can get your profile ID before start working with API
@@ -36,6 +37,12 @@ Then you can get your profile ID before start working with API
 ```javascript
 const { id } = await Helix.getUser(username);
 ```
+
+## Increase Rate
+
+This option uses Bearer authorization instead of OAuth, which allows you to increase the number of requests per minute to 800 instead of 30.
+
+ If you want to use this, you need to know that methods like ```updateStream(), createMarker()``` force OAuth authorization.
 
 ## Common methods
 
@@ -104,7 +111,7 @@ const count = await Helix.getFollowersCount(id);
 
 ### Get Viewers
 
-Get viewers splitted by categories (broadcaster, admins, staff, moderators, vips, viewers). 
+Get viewers splitted by categories (broadcaster, admins, staff, moderators, vips, viewers).
 Attention! This method used username instead of user ID
 
 ```javascript
