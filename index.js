@@ -33,29 +33,28 @@ class Helix {
                 OAuth: `OAuth ${params.access_token}`,
                 Bearer: `Bearer ${params.access_token}`
             };
+
+            Helix.prototype.increaseRate = params.increaseRate || true;
             if(params.increaseRate) {
-                Helix.prototype.increaseRate = true;
                 Helix.prototype.headers = Object.assign(Helix.prototype.headers, { "Authorization": Helix.prototype.auth.Bearer });
             } else Helix.prototype.headers = Object.assign(Helix.prototype.headers, { "Authorization": Helix.prototype.auth.OAuth });
         }
         else {
-            if(!params.disableWarns) 
+            if(!params.disableWarns) {
                 console.warn("You not set up access token");
-            if(params.increaseRate)
+            }
+            if(params.increaseRate) {
                 console.warn("To increase the rate you need to provide access_token");
+            }
         }
             
     };
 
     handleError(error) { throw error; }
-    oauth() {
-        let headers = this.headers;
-        headers["Authorization"] = this.auth.OAuth;
-        return headers;
-    }
 
     async getUser(user) {
-        const url = `https://api.twitch.tv/helix/users?${Number(user) ? "id" : "login"}=${user}`;
+        const type = typeof user === "number" ? "id" : "login";
+        const url = `https://api.twitch.tv/helix/users?${type}=${user}`;
         const response = await syncRequest({ url, headers: this.headers }).catch(this.handleError);
         return response.data[0];
     }
@@ -130,7 +129,7 @@ class Helix {
                     game
                 }
             },
-            headers: this.oauth()
+            headers: this.headers
         }).catch(this.handleError);
         return { success: response.status == title && response.game == game };
     }
@@ -141,7 +140,7 @@ class Helix {
             url: "https://api.twitch.tv/helix/streams/markers",
             method: "PUT",
             json: { user_id: id, description },
-            headers: this.oauth()
+            headers: this.headers
         }).catch(this.handleError);
         if(response.error) return { status: "error", error: response.error };
         return Object.assign({ status: "success" }, response);
@@ -153,7 +152,7 @@ class Helix {
             url: "https://api.twitch.tv/helix/streams/markers",
             method: "GET",
             json: { user_id: id, video_id },
-            headers: this.oauth()
+            headers: this.headers
         }).catch(this.handleError);
     }
 
