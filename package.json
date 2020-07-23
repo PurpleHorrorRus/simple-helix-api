@@ -6,7 +6,7 @@
   "author": "InfiniteHorror",
   "license": "ISC",
   "dependencies": {
-    "request": "^2.88.0",
+    "node-fetch": "^2.6.0",
     "tmi.js": "^1.5.0"
   },
   "repository": {
