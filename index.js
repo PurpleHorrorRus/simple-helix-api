@@ -55,13 +55,6 @@ class Helix {
             if (params.increaseRate)
                 console.warn("To increase the rate you need to provide access_token");
         }
-        
-        Helix.prototype.endpoints = {
-            users: "https://api.twitch.tv/helix/users",
-            streams: "https://api.twitch.tv/helix/streams",
-            games: "https://api.twitch.tv/helix/games",
-            metadata: "https://api.twitch.tv/helix/streams/metadata"
-        };
     };
 
     handleError (error) { throw error; }
