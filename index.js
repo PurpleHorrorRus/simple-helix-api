@@ -136,7 +136,7 @@ class Helix {
             after
         });
 
-        return await this.requestEndpoint("follows", query);
+        return await this.requestEndpoint("users/follows", query);
     }
 
     async getAllFollowers (user_id) {
@@ -202,7 +202,7 @@ class Helix {
         if (!this.access_token) {
             return console.error({ error: "You must to provide access token to create stream marker" });
         }
-        
+
         const response = await syncRequest({
             url: "https://api.twitch.tv/helix/streams/markers",
             method: "PUT",
