@@ -129,7 +129,6 @@ class Helix {
         );
 
         const response = await this.requestEndpoint("games", query).catch(this.handleError);
-        console.log(response);
         return response.data[0];
     }
 
