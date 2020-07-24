@@ -3,25 +3,19 @@ const { encode } = require("querystring");
 
 const syncRequest = params => {
     return new Promise((resolve, reject) => {
-        const url = 
-            typeof params === "string"
-            ? params
-            : params.url;
-
-        delete params.url;
-        
-        params = params || {};
-
-        fetch(url, params)
-            .then(result => result.json())
-            .then(json => {
-                if (json.status === 429) {
-                    return reject(new Error("Too Many Requests"));
+        fetch(params.url, params)
+            .then(result => {
+                if (result.status === 200) {
+                    return result.json();
+                } else {
+                    return reject({
+                        status: result.status,
+                        statusText: result.statusText
+                    });
                 }
-
-                return resolve(json);
             })
-            .catch(reject);
+            .then(resolve)
+            .catch(reject)
     });
 };
 
@@ -46,18 +40,31 @@ class Helix {
             };
             if (params.increaseRate) {
                 Helix.prototype.increaseRate = true;
-                Helix.prototype.headers = Object.assign(Helix.prototype.headers, { "Authorization": Helix.prototype.auth.Bearer });
-            } else Helix.prototype.headers = Object.assign(Helix.prototype.headers, { "Authorization": Helix.prototype.auth.OAuth });
+                Helix.prototype.headers = Object.assign(Helix.prototype.headers, { 
+                    Authorization: Helix.prototype.auth.Bearer 
+                });
+            } else {
+                Helix.prototype.headers = Object.assign(Helix.prototype.headers, { 
+                    Authorization: Helix.prototype.auth.OAuth 
+                });
+            }
         }
         else {
-            if (!params.disableWarns) 
+            if (!params.disableWarns) {
                 console.warn("You not set up access token");
-            if (params.increaseRate)
+            }
+
+            if (params.increaseRate) {
                 console.warn("To increase the rate you need to provide access_token");
+            }
         }
     };
 
-    handleError (error) { throw error; }
+    handleError (error) { 
+        console.error(error);
+        return new Error(error);
+    }
+
     oauth () {
         const headers = { ...this.headers };
         headers.Authorization = this.auth.OAuth;
@@ -73,7 +80,7 @@ class Helix {
             url: `https://api.twitch.tv/helix/${endpoint}?${query}`,
             headers: this.headers,
             ...params
-        })
+        }).catch(this.handleError);
     }
 
     async getUser (user) {
@@ -103,6 +110,13 @@ class Helix {
         return response.data[0] || { error: "You must start stream to get stream data or wait for Twitch to announce you online" };
     }
 
+    async getStreams (params = {}) {
+        const query = encode(params);
+        
+        const response = await this.requestEndpoint("streams", query).catch(this.handleError);
+        return response;
+    }
+
     async getStreamMeta (user) {
         const query = encode(
             Number(user)
@@ -127,7 +141,7 @@ class Helix {
 
     async getFollowers (user_id, count = 20, after = "") {
         if (count > 100) {
-            return console.error("You can't fetch more than 100 followers per request");
+            return this.handleError("You can't fetch more than 100 followers per request");
         }
 
         const query = encode({
@@ -139,7 +153,7 @@ class Helix {
         return await this.requestEndpoint("users/follows", query);
     }
 
-    async getAllFollowers (user_id) {
+    getAllFollowers (user_id) {
         return new Promise(async (resolve, reject) => {
             const count = await this.getFollowersCount(user_id);
             let list = [];
@@ -167,22 +181,92 @@ class Helix {
 
     async getFollowersCount (user_id) {
         const query = encode({ to_id: user_id });
+
         const { total } = await this.requestEndpoint("users/follows", query).catch(this.handleError);
         return total;
     }
 
     async getViewers (user) {
         user = user.toLowerCase();
-        return await syncRequest(`https://tmi.twitch.tv/group/user/${user}/chatters`).catch(this.handleError);
+        return await syncRequest({
+            url: `https://tmi.twitch.tv/group/user/${user}/chatters`
+        }).catch(this.handleError);
+    }
+
+    async getCheermotes (user_id) {
+        const query = encode({ broadcaster_id: user_id });
+
+        const { data } = await this.requestEndpoint("bits/cheermotes", query).catch(this.handleError);
+        return data;
+    }
+
+    async getBitsLeaderboard (params = {}) {
+        const query = encode(params);
+
+        const data = await this.requestEndpoint("bits/leaderboard", query).catch(this.handleError);
+        return data;
+    }
+
+    async getBannedUsers (user_id, params = {}) {
+        const query = encode({
+            broadcaster_id: user_id,
+            ...params
+        });
+
+        const data = await this.requestEndpoint("moderation/banned", query).catch(this.handleError);
+        return data;
+    }
+
+    async getModerators (user_id, params) {
+        const query = encode({
+            broadcaster_id: user_id,
+            ...params
+        });
+
+        const data = await this.requestEndpoint("moderation/moderators", query).catch(this.handleError);
+        return data;
+    }
+
+    async searchCategories (category, params = {}) {
+        if (category.length) {
+            const query = encode({
+                query: category,
+                ...params
+            });
+
+            const data = await this.requestEndpoint("search/categories", query).catch(this.handleError);
+            return data;
+        }
+    }
+
+    async searchChannels (channel, params = {}) {
+        if (channel.length) {
+            const query = encode({
+                query: channel,
+                ...params
+            });
+
+            const data = await this.requestEndpoint("search/channels", query).catch(this.handleError);
+            return data;
+        }
+    }
+
+    async getStreamKey (user_id) {
+        const query = encode({
+            broadcaster_id: user_id
+        });
+
+        const { data } = await this.requestEndpoint("streams/key", query).catch(this.handleError);
+        return data.stream_key;
     }
     
-    async updateStream (id, title, game) {
+    async updateStream (user_id, title, game) {
         if (!this.access_token) {
-            return console.error({ error: "You must to provide access token to update stream" });
+            return this.handleError("You must to provide access token to update stream");
         }
 
         const response = await syncRequest({
-            url: `https://api.twitch.tv/kraken/channels/${id}`,
+            url: `https://api.twitch.tv/kraken/channels/${user_id}`,
             method: "PUT",
             json: {
                 channel: {
@@ -198,16 +282,69 @@ class Helix {
         };
     }
 
-    async createMarker (id, description = "") {
+    async createClip (user_id, has_delay = false) {
+        const query = encode({
+            broadcaster_id: user_id,
+            has_delay
+        });
+        
+        const { data } = await this.requestEndpoint("clips", query, { method: "POST" }).catch(this.handleError);
+        const [clip] = data;
+
+        return clip;
+    }
+
+    async getClips (user_id, params = { first: 20 }) {
+            if (params.first > 100) {
+                return this.handleError("You can't fetch more than 100 clips per request");
+            }
+
+            const query = encode({
+                broadcaster_id: user_id,
+                ...params
+            });
+
+            const data = await this.requestEndpoint("clips", query).catch(this.handleError);
+            return data;
+    }
+
+    getAllClips (user_id) {
+        return new Promise(async resolve => {
+            let cursor = "";
+
+            const get = async () => {
+                const { data, pagination } = await this.getClips(user_id, {
+                    first: 100,
+                    after: cursor
+                }).catch(this.handleError);
+                
+                cursor = pagination.cursor;
+                return data;
+            };
+
+            let clips = await get();
+
+            while (cursor) {
+                clips = [
+                    ...clips,
+                    ...await get().catch(this.handleError)
+                ];
+            }
+
+            return resolve(clips);
+        });
+    }
+
+    async createMarker (user_id, description = "") {
         if (!this.access_token) {
-            return console.error({ error: "You must to provide access token to create stream marker" });
+            return this.handleError("You must to provide access token to create stream marker");
         }
 
         const response = await syncRequest({
             url: "https://api.twitch.tv/helix/streams/markers",
             method: "PUT",
             json: { 
-                user_id: id, 
+                user_id: user_id, 
                 description 
             },
             headers: this.oauth()
@@ -226,13 +363,16 @@ class Helix {
         };
     }
 
-    async getMarkers (id, video_id) {
-        if (!this.access_token) return console.error({ error: "You must to provide access token to get stream markers" });
+    async getMarkers (user_id, video_id) {
+        if (!this.access_token) {
+            return this.handleError("You must to provide access token to get stream markers");
+        }
+
         return await syncRequest({
             url: "https://api.twitch.tv/helix/streams/markers",
             method: "GET",
             json: { 
-                user_id: id, 
+                user_id, 
                 video_id 
             },
             headers: this.oauth()
@@ -243,6 +383,31 @@ class Helix {
         const url = `https://api.twitch.tv/helix/games/top?first=${count}`;
         const { data } = await syncRequest({ url, headers: this.headers }).catch(this.handleError);
         return data;
+    }
+
+    async startCommercial (user_id, length = 30) {
+        if (!this.access_token) {
+            return this.handleError("You must to provide access token to start commercial");
+        }
+
+        const isValidLength =
+            length >= 30  &&
+            length <= 180 &&
+            length % 30 === 0
+
+        if (!isValidLength) {
+            return this.handleError("You must to specify valid length of commercial (30, 60, 90, 120, 150, 180)");
+        }
+
+        return await syncRequest({
+            url: "https://api.twitch.tv/helix/channels/commercial",
+            method: "POST",
+            json: { 
+                broadcaster_id: user_id,
+                length
+            },
+            headers: this.headers
+        }).catch(this.handleError);
     }
 
     createChatBot (username, password, channel) {
