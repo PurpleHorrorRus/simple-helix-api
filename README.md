@@ -4,10 +4,10 @@ Simple Helix API makes easy to develop applications for Twitch in couple lines o
 
 # Installation
 
-Install with npm:
+Install with yarn:
 
 ```shell
-npm install --save simple-helix-api
+yarn add simple-helix-api
 ```
 
 # Usage
@@ -15,12 +15,11 @@ npm install --save simple-helix-api
 **Creating Helix object**
 
 ```javascript
-const HelixAPI = require("simple-helix-api");
+const HelixAPI = require("simple-helix-api"); // also you can user es6 import
 const Helix = new HelixAPI({
     access_token: "xxx",
     cliend_id: "xxx"
 });
-
 ```
 
 Params for Helix:
@@ -46,7 +45,9 @@ This option uses Bearer authorization instead of OAuth, which allows you to incr
 
 ## Common methods
 
-Common methods do not require an access token
+Common methods do not require an access token.
+
+The fields indicates as ```params?``` are optional by default. You can read about all available optional params [here](https://dev.twitch.tv/docs/api/reference)
 
 ### Get User
 
@@ -63,12 +64,34 @@ Get channel info like title, game and others
 const channel = await Helix.getChannel(id);
 ```
 
+### Get Clips
+Gets clip information by clip ID (one or more), broadcaster ID (one only), or game ID (one only)
+
+```javascript
+const clips = await Helix.getClips(user_id, params?);
+```
+
+### Get All Clips
+Gets all clips of channel
+
+```javascript
+const all_clips = await Helix.getAllClips(user_id);
+```
+
 ### Get Stream
 
 Get broadcast information (example usage: realtime viewers count)
 
 ```javascript
 const stream = await Helix.getStream(id);
+```
+
+### Get Streams
+
+Gets information about active streams. Streams are returned sorted by number of current viewers, in descending order. Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
+
+```javascript
+const streams = await Helix.getStreams(id);
 ```
 
 ### Get Stream Meta
@@ -84,7 +107,7 @@ const meta = await Helix.getStreamMeta(id);
 Get first N followers from the end
 
 ```javascript
-const followers = await Helix.getFollowers(id, count, after);
+const followers = await Helix.getFollowers(id, count?, after?);
 ```
 
 | Param | Type   | Required | Default | Max | Description                                    |
@@ -118,6 +141,22 @@ Attention! This method used username instead of user ID
 const viewers = await Helix.getViewers(user_name);
 ```
 
+### Search Categories
+
+Returns a list of games or categories that match the query via name either entirely or partially
+
+```javascript
+const game = await Helix.searchCategories("League of", params?);
+```
+
+### Search Channels
+
+Returns a list of channels (users who have streamed within the past 6 months) that match the query via channel name or description either entirely or partially. Results include both live and offline channels
+
+```javascript
+const game = await Helix.searchChannels("InfiniteHorror", params?);
+```
+
 ### Get Game
 
 Get game by this ID or name
@@ -131,12 +170,53 @@ const game = await Helix.getGame("Overwatch");
 Get the top 100 most viewed games on Twitch at the moment
 
 ```javascript
-const top = await Helix.getTopGames(count);
+const top = await Helix.getTopGames(count?);
 ```
 
 | Param | Type   | Required | Default | Max | Description     |
 | :---: | :--:   | :------: | :-----: | :-: | :---------      |
 | count | Number | false  | 100       | 100 | Number of games |
+
+### Get Banned Users
+
+Returns all banned and timed-out users in a channel
+
+```javascript
+const game = await Helix.getBannedUsers(id, params?);
+```
+
+### Get Moderators
+
+Returns all moderators in a channel
+
+```javascript
+const moderators = await Helix.getModerators(id, params?);
+```
+
+### Get Stream Key
+
+Gets the channel stream key for a user
+
+```javascript
+const key = await Helix.getStreamKey(id);
+```
+
+### Get Bits Leaderboard
+
+Gets a ranked list of Bits leaderboard information for an authorized broadcaster
+
+```javascript
+const leaders = await Helix.getBitsLeaderboard(params?);
+```
+
+### Get Bits Leaderboard
+
+Retrieves the list of available Cheermotes, animated emotes to which viewers can assign Bits, to cheer in chat. Cheermotes returned are available throughout Twitch, in all Bits-enabled channels
+
+```javascript
+const leaders = await Helix.getCheermotes(id);
+```
+
 
 # Other
 
@@ -156,12 +236,39 @@ const response = await Helix.updateStream(id, title, game);
 | title | String | true     | Stream title       |
 | game  | String | true     | Game on the stream |
 
+
+### Create Clip
+
+Creating 15 seconds length clip
+
+```javascript
+const clip = await Helix.createClip(id, has_delay?);
+```
+
+| Param | Type   | Required | Description                          |
+| :---: | :--:   | :------: |:---------                            |
+| id    | Number | true     | User ID                              |
+| has_delay | Boolean | false | If false, the clip is captured from the live stream when the API is called; otherwise, a delay is added before the clip is captured (to account for the brief delay between the broadcaster’s stream and the viewer’s experience of that stream). |
+
+### Start Commercial 
+
+Starts a commercial on a specified channel
+
+```javascript
+const commercial = await Helix.startCommercial(id, length?);
+```
+
+| Param | Type   | Required | Description                          |
+| :---: | :--:   | :------: |:---------                            |
+| id    | Number | true     | User ID                              |
+| length | Number | false | Desired length of the commercial in seconds. Valid options are 30, 60, 90, 120, 150, 180 |
+
 ### Create Stream Marker
 
 Creating stream marker with description
 
 ```javascript
-const marker = await Helix.createMarker(id, description);
+const marker = await Helix.createMarker(id, description?);
 ```
 
 | Param | Type   | Required | Description                          |
@@ -174,7 +281,7 @@ const marker = await Helix.createMarker(id, description);
 Return an array with markers of specified VOD
 
 ```javascript
-const markers = await Helix.getMarkers(id, video_id);
+const markers = await Helix.getMarkers(id, video_id?);
 ```
 
 | Param | Type   | Required | Description                                           |
