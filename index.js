@@ -67,6 +67,7 @@ class Helix {
 
     oauth () {
         const headers = { ...this.headers };
+        headers["Content-Type"] = "application/json";
         headers.Authorization = this.auth.OAuth;
         return headers;
     }
@@ -268,17 +269,17 @@ class Helix {
         const response = await syncRequest({
             url: `https://api.twitch.tv/kraken/channels/${user_id}`,
             method: "PUT",
-            json: {
+            body: JSON.stringify({
                 channel: {
                     status: title,
                     game
                 }
-            },
+            }),
             headers: this.oauth()
         }).catch(this.handleError);
 
         return { 
-            success: response.status == title && response.game == game 
+            success: response.status === title && response.game === game 
         };
     }
 
@@ -343,10 +344,10 @@ class Helix {
         const response = await syncRequest({
             url: "https://api.twitch.tv/helix/streams/markers",
             method: "PUT",
-            json: { 
+            body: JSON.stringify({ 
                 user_id: user_id, 
                 description 
-            },
+            }),
             headers: this.oauth()
         }).catch(this.handleError);
         
@@ -371,10 +372,10 @@ class Helix {
         return await syncRequest({
             url: "https://api.twitch.tv/helix/streams/markers",
             method: "GET",
-            json: { 
+            body: JSON.stringify({ 
                 user_id, 
                 video_id 
-            },
+            }),
             headers: this.oauth()
         }).catch(this.handleError);
     }
@@ -402,10 +403,10 @@ class Helix {
         return await syncRequest({
             url: "https://api.twitch.tv/helix/channels/commercial",
             method: "POST",
-            json: { 
+            body: JSON.stringify({ 
                 broadcaster_id: user_id,
                 length
-            },
+            }),
             headers: this.headers
         }).catch(this.handleError);
     }
