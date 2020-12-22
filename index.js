@@ -67,7 +67,7 @@ class Helix {
                 "channel:manage:redemptions", "channel:read:hype_train", "channel:read:redemptions",
                 "channel:read:stream_key", "channel:read:subscriptions", "clips:edit",
                 "moderation:read", "user:edit", "user:edit:follows", "user:read:broadcast",
-                "user:read:email"
+                "user:read:email", "channel_editor", "chat_login", "openid"
             ];
         } else {
             if (!Array.isArray(scopes)) {
