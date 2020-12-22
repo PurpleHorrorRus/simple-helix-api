@@ -12,13 +12,29 @@ yarn add simple-helix-api
 
 # Usage
 
+**Get link to fetching access token if you haven't**
+```javascript
+const params = {
+    client_id: "xxx",
+    redirect_uri: "xxx"
+};
+
+const scopes = "all"; // You can use an array of scopes
+
+const HelixAPI = require("simple-helix-api");
+const Helix = new HelixAPI(params);
+
+const link = Helix.getAuthLink(params.client_id, params.redirect_uri, scopes);
+console.log(link);
+```
+
 **Creating Helix object**
 
 ```javascript
-const HelixAPI = require("simple-helix-api"); // also you can user es6 import
+const HelixAPI = require("simple-helix-api");
 const Helix = new HelixAPI({
     access_token: "xxx",
-    cliend_id: "xxx"
+    client_id: "xxx"
 });
 ```
 
@@ -28,7 +44,6 @@ Params for Helix:
 | ------------- |:------------------:| :-------: | :--------------- |
 | access_token  | false | null       | Access Token                 |
 | client_id     | true  | null       | Client ID of application     |
-| increaseRate  | false | false      | Use Bearer instead of OAuth to increase Rate Limit |
 | disableWarns  | false | false      | Disabled warnings in console |
 
 Then you can get your profile ID before start working with API
@@ -36,12 +51,6 @@ Then you can get your profile ID before start working with API
 ```javascript
 const { id } = await Helix.getUser(username);
 ```
-
-## Increase Rate
-
-This option uses Bearer authorization instead of OAuth, which allows you to increase the number of requests per minute to 800 instead of 30.
-
- If you want to use this, you need to know that methods like ```updateStream(), createMarker()``` force OAuth authorization.
 
 ## Common methods
 
@@ -65,14 +74,14 @@ const channel = await Helix.getChannel(id);
 ```
 
 ### Get Clips
-Gets clip information by clip ID (one or more), broadcaster ID (one only), or game ID (one only)
+Get clip information by clip ID (one or more), broadcaster ID (one only), or game ID (one only)
 
 ```javascript
 const clips = await Helix.getClips(user_id, params?);
 ```
 
 ### Get All Clips
-Gets all clips of channel
+Get all clips of channel
 
 ```javascript
 const all_clips = await Helix.getAllClips(user_id);
@@ -88,7 +97,7 @@ const stream = await Helix.getStream(id);
 
 ### Get Streams
 
-Gets information about active streams. Streams are returned sorted by number of current viewers, in descending order. Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
+Get information about active streams. Streams are returned sorted by number of current viewers, in descending order. Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
 
 ```javascript
 const streams = await Helix.getStreams(id);
@@ -195,7 +204,7 @@ const moderators = await Helix.getModerators(id, params?);
 
 ### Get Stream Key
 
-Gets the channel stream key for a user
+Get the channel stream key for a user
 
 ```javascript
 const key = await Helix.getStreamKey(id);
@@ -203,7 +212,7 @@ const key = await Helix.getStreamKey(id);
 
 ### Get Bits Leaderboard
 
-Gets a ranked list of Bits leaderboard information for an authorized broadcaster
+Get a ranked list of Bits leaderboard information for an authorized broadcaster
 
 ```javascript
 const leaders = await Helix.getBitsLeaderboard(params?);

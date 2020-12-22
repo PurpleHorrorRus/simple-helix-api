@@ -1,61 +1,43 @@
 const fetch = require("node-fetch");
 const { encode } = require("querystring");
 
-const syncRequest = params => {
-    return new Promise((resolve, reject) => {
-        fetch(params.url, params)
-            .then(result => {
-                if (result.status === 200) {
-                    return result.json();
-                } else {
-                    return reject({
-                        status: result.status,
-                        statusText: result.statusText
-                    });
-                }
-            })
-            .then(resolve)
-            .catch(reject)
-    });
+const syncRequest = async params => {
+    const response = await fetch(params.url, params);
+
+    if (response.status === 200) {
+        return response.json();
+    } else {
+        return new Error(response.statusText);
+    }
 };
 
 class Helix {
-    constructor(params) {
+    constructor (params) {
         if (!params.client_id) {
             return console.error({ error: "Client ID is required" });
         }
 
-        Helix.prototype.client_id = params.client_id;
-        Helix.prototype.headers = { 
+        this.client_id = params.client_id;
+        this.headers = { 
             "Client-ID": params.client_id,
             "Accept": "application/vnd.twitchtv.v5+json"
         };
-        Helix.prototype.disableWarns = params.disableWarns;
+
+        this.disableWarns = params.disableWarns;
+        this.redirect_uri = params.redirect_uri || "";
 
         if (params.access_token) {
-            Helix.prototype.access_token = params.access_token;
-            Helix.prototype.auth = {
+            this.access_token = params.access_token;
+            this.auth = {
                 OAuth: `OAuth ${params.access_token}`,
                 Bearer: `Bearer ${params.access_token}`
             };
-            if (params.increaseRate) {
-                Helix.prototype.increaseRate = true;
-                Helix.prototype.headers = Object.assign(Helix.prototype.headers, { 
-                    Authorization: Helix.prototype.auth.Bearer 
-                });
-            } else {
-                Helix.prototype.headers = Object.assign(Helix.prototype.headers, { 
-                    Authorization: Helix.prototype.auth.OAuth 
-                });
-            }
+
+            this.headers.Authorization = this.auth.Bearer;
         }
         else {
             if (!params.disableWarns) {
                 console.warn("You not set up access token");
-            }
-
-            if (params.increaseRate) {
-                console.warn("To increase the rate you need to provide access_token");
             }
         }
     };
@@ -72,16 +54,54 @@ class Helix {
         return headers;
     }
 
-    async requestEndpoint (endpoint, query, params) {
+    getAuthLink (client_id = this.client_id, redirect_uri = this.redirect_uri, scopes = "all") {
+        if (client_id.length === 0 || redirect_uri.length === 0) {
+            console.error("You must to specify client_id and redirect_uri");
+            return;
+        }
+
+        if (scopes === "all") {
+            scopes = [
+                "analytics:read:extensions", "analytics:read:games", "bits:read",
+                "channel:edit:commercial", "channel:manage:broadcast", "channel:manage:extensions",
+                "channel:manage:redemptions", "channel:read:hype_train", "channel:read:redemptions",
+                "channel:read:stream_key", "channel:read:subscriptions", "clips:edit",
+                "moderation:read", "user:edit", "user:edit:follows", "user:read:broadcast",
+                "user:read:email"
+            ];
+        } else {
+            if (!Array.isArray(scopes)) {
+                this.handleError("Scopes list must be an array or 'all' value");
+                return;
+            }
+        }
+
+        const params = {
+            client_id,
+            redirect_uri,
+            response_type: "token"
+        };
+
+        if (scopes.length > 0) {
+            params.scope = scopes.join(" ");
+        }
+
+        const query = encode(params);
+        return `https://id.twitch.tv/oauth2/authorize?${query}`;
+    }
+
+    async requestEndpoint (endpoint, query = "", params = {}) {
         query = typeof query === "object"
             ? encode(query)
             : query;
 
-        return await syncRequest({
+        const response = await syncRequest({
             url: `https://api.twitch.tv/helix/${endpoint}?${query}`,
             headers: this.headers,
             ...params
         }).catch(this.handleError);
+
+        return response;
     }
 
     async getUser (user) {
@@ -97,7 +117,8 @@ class Helix {
 
     async getChannel (user_id) {
         const url = `https://api.twitch.tv/kraken/channels/${user_id}`;
-        return await syncRequest({ url, headers: this.headers }).catch(this.handleError);;
+        const response = await syncRequest({ url, headers: this.headers }).catch(this.handleError);
+        return response;
     }
 
     async getStream (user) {
@@ -108,7 +129,7 @@ class Helix {
         );
 
         const response = await this.requestEndpoint("streams", query).catch(this.handleError);
-        return response.data[0] || { error: "You must start stream to get stream data or wait for Twitch to announce you online" };
+        return response.data[0] || this.handleError("You must start stream to get stream data or wait for Twitch to announce you online");
     }
 
     async getStreams (params = {}) {
@@ -126,7 +147,7 @@ class Helix {
         );
 
         const response = await this.requestEndpoint("streams/metadata", query).catch(this.handleError);
-        return response.data[0] || { error: "You must start stream to get stream data or wait for Twitch to announce you online" };
+        return response.data[0] || this.handleError("You must start stream to get stream data or wait for Twitch to announce you online");
     }
 
     async getGame (game) {
@@ -151,33 +172,26 @@ class Helix {
             after
         });
 
-        return await this.requestEndpoint("users/follows", query);
+        const response = await this.requestEndpoint("users/follows", query);
+        return response;
     }
 
-    getAllFollowers (user_id) {
-        return new Promise(async (resolve, reject) => {
-            const count = await this.getFollowersCount(user_id);
-            let list = [];
-            let cursor = "";
+    async getAllFollowers (user_id) {
+        const count = await this.getFollowersCount(user_id);
+        let list = [];
+        let cursor = "";
+        
+        while (list.length < count) {
+            const response = await this.getFollowers(user_id, 100, cursor).catch(this.handleError);
+            cursor = response.pagination.cursor;
 
-            const get = async () => {
-                const response = await this.getFollowers(user_id, 100, cursor).catch(reject);
-                cursor = response.pagination.cursor;
-                list = [
-                    ...list,
-                    ...response.data
-                ];
-                if (list.length < count) { 
-                    return get();
-                }
-                else { 
-                    return resolve(list);
-                }
-            };
+            list = [
+                ...list,
+                ...response.data
+            ];
+        }
 
-            return get();
-        });
-
+        return list;
     }
 
     async getFollowersCount (user_id) {
@@ -189,9 +203,9 @@ class Helix {
 
     async getViewers (user) {
         user = user.toLowerCase();
-        return await syncRequest({
-            url: `https://tmi.twitch.tv/group/user/${user}/chatters`
-        }).catch(this.handleError);
+        const url = `https://tmi.twitch.tv/group/user/${user}/chatters`;
+        const response = await syncRequest({ url }).catch(this.handleError);
+        return response;
     }
 
     async getCheermotes (user_id) {
@@ -253,12 +267,9 @@ class Helix {
     }
 
     async getStreamKey (user_id) {
-        const query = encode({
-            broadcaster_id: user_id
-        });
-
+        const query = encode({ broadcaster_id: user_id });
         const { data } = await this.requestEndpoint("streams/key", query).catch(this.handleError);
-        return data.stream_key;
+        return data[0].stream_key;
     }
     
     async updateStream (user_id, title, game) {
@@ -290,9 +301,7 @@ class Helix {
         });
         
         const { data } = await this.requestEndpoint("clips", query, { method: "POST" }).catch(this.handleError);
-        const [clip] = data;
-
-        return clip;
+        return data[0];
     }
 
     async getClips (user_id, params = { first: 20 }) {
@@ -309,31 +318,29 @@ class Helix {
             return data;
     }
 
-    getAllClips (user_id) {
-        return new Promise(async resolve => {
-            let cursor = "";
+    async getAllClips (user_id) {
+        let cursor = "";
 
-            const get = async () => {
-                const { data, pagination } = await this.getClips(user_id, {
-                    first: 100,
-                    after: cursor
-                }).catch(this.handleError);
-                
-                cursor = pagination.cursor;
-                return data;
-            };
+        const get = async () => {
+            const { data, pagination } = await this.getClips(user_id, {
+                first: 100,
+                after: cursor
+            }).catch(this.handleError);
+            
+            cursor = pagination.cursor;
+            return data;
+        };
 
-            let clips = await get();
+        let clips = await get();
 
-            while (cursor) {
-                clips = [
-                    ...clips,
-                    ...await get().catch(this.handleError)
-                ];
-            }
+        while (cursor) {
+            clips = [
+                ...clips,
+                ...await get().catch(this.handleError)
+            ];
+        }
 
-            return resolve(clips);
-        });
+        return clips;
     }
 
     async createMarker (user_id, description = "") {
@@ -341,16 +348,15 @@ class Helix {
             return this.handleError("You must to provide access token to create stream marker");
         }
 
-        const response = await syncRequest({
-            url: "https://api.twitch.tv/helix/streams/markers",
+        const response = await this.requestEndpoint("streams/markers", null, {
             method: "PUT",
             body: JSON.stringify({ 
                 user_id: user_id, 
                 description 
             }),
             headers: this.oauth()
-        }).catch(this.handleError);
-        
+        });
+
         if (response.error) {
             return { 
                 status: "error", 
@@ -369,8 +375,7 @@ class Helix {
             return this.handleError("You must to provide access token to get stream markers");
         }
 
-        return await syncRequest({
-            url: "https://api.twitch.tv/helix/streams/markers",
+        const response = await this.requestEndpoint("streams/markers", null, {
             method: "GET",
             body: JSON.stringify({ 
                 user_id, 
@@ -378,11 +383,12 @@ class Helix {
             }),
             headers: this.oauth()
         }).catch(this.handleError);
+
+        return response;
     }
 
     async getTopGames (count = 100) {
-        const url = `https://api.twitch.tv/helix/games/top?first=${count}`;
-        const { data } = await syncRequest({ url, headers: this.headers }).catch(this.handleError);
+        const { data } = await this.requestEndpoint("games/top", { first: count }).catch(this.handleError);
         return data;
     }
 
@@ -400,15 +406,16 @@ class Helix {
             return this.handleError("You must to specify valid length of commercial (30, 60, 90, 120, 150, 180)");
         }
 
-        return await syncRequest({
-            url: "https://api.twitch.tv/helix/channels/commercial",
+        const response = await this.requestEndpoint("channels/commercial", null, {
             method: "POST",
             body: JSON.stringify({ 
                 broadcaster_id: user_id,
                 length
             }),
             headers: this.headers
-        }).catch(this.handleError);
+        });
+
+        return response;
     }
 
     createChatBot (username, password, channel) {
@@ -418,6 +425,7 @@ class Helix {
             identity: { username, password },
             channels: [channel]
         });
+
         client.connect();
         return client;
     }
