@@ -54,6 +54,12 @@ class Helix {
         return headers;
     }
 
+    /**
+    * Generates an authorization link
+    * @param {String} client_id 
+    * @param {String} redirect_uri 
+    * @param {Array} scopes 
+    */
     getAuthLink (client_id = this.client_id, redirect_uri = this.redirect_uri, scopes = "all") {
         if (client_id.length === 0 || redirect_uri.length === 0) {
             console.error("You must to specify client_id and redirect_uri");
@@ -104,6 +110,10 @@ class Helix {
         return response;
     }
 
+    /**
+    * Get information about user (example usage: id, profile image, offline image, view count, broadcaster type)
+    * @param {Number | String} user 
+    */
     async getUser (user) {
         const query = encode(
             Number(user)
@@ -115,12 +125,20 @@ class Helix {
         return response.data[0];
     }
 
+    /**
+     * Get channel info like title, game and others
+     * @param {Number} user_id 
+     */
     async getChannel (user_id) {
         const url = `https://api.twitch.tv/kraken/channels/${user_id}`;
         const response = await syncRequest({ url, headers: this.headers }).catch(this.handleError);
         return response;
     }
 
+    /**
+     * Get broadcast information (example usage: realtime viewers count)
+     * @param {Number | String} user 
+     */
     async getStream (user) {
         const query = encode(
             Number(user)
@@ -132,6 +150,10 @@ class Helix {
         return response.data[0] || this.handleError("You must start stream to get stream data or wait for Twitch to announce you online");
     }
 
+    /**
+     * Get information about active streams. Streams are returned sorted by number of current viewers, in descending order. Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
+     * @param {Object} params 
+     */
     async getStreams (params = {}) {
         const query = encode(params);
         
@@ -139,6 +161,10 @@ class Helix {
         return response;
     }
 
+    /**
+     * Get broadcast meta information
+     * @param {Number | String} user 
+     */
     async getStreamMeta (user) {
         const query = encode(
             Number(user)
@@ -150,6 +176,10 @@ class Helix {
         return response.data[0] || this.handleError("You must start stream to get stream data or wait for Twitch to announce you online");
     }
 
+    /**
+     * Get game by this ID or name
+     * @param {Number | String} game 
+     */
     async getGame (game) {
         const query = encode(
             Number(game)
@@ -176,6 +206,10 @@ class Helix {
         return response;
     }
 
+    /**
+     * Return an array of all followers. The lead time depends on the number of followers on your channel
+     * @param {Number} user_id 
+     */
     async getAllFollowers (user_id) {
         const count = await this.getFollowersCount(user_id);
         let list = [];
@@ -194,6 +228,10 @@ class Helix {
         return list;
     }
 
+    /**
+     * Get number of followers count
+     * @param {Number} user_id 
+     */
     async getFollowersCount (user_id) {
         const query = encode({ to_id: user_id });
 
@@ -201,6 +239,10 @@ class Helix {
         return total;
     }
 
+    /**
+     * Get viewers splitted by categories (broadcaster, admins, staff, moderators, vips, viewers). Attention! This method used username instead of user ID
+     * @param {String} user 
+     */
     async getViewers (user) {
         user = user.toLowerCase();
         const url = `https://tmi.twitch.tv/group/user/${user}/chatters`;
