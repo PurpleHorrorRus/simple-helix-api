@@ -130,9 +130,10 @@ class Helix {
      * @param {Number} user_id 
      */
     async getChannel (user_id) {
-        const url = `https://api.twitch.tv/kraken/channels/${user_id}`;
-        const response = await syncRequest({ url, headers: this.headers }).catch(this.handleError);
-        return response;
+        return await syncRequest({ 
+            url: `https://api.twitch.tv/kraken/channels/${user_id}`, 
+            headers: this.headers 
+        }).catch(this.handleError);
     }
 
     /**
@@ -156,9 +157,7 @@ class Helix {
      */
     async getStreams (params = {}) {
         const query = encode(params);
-        
-        const response = await this.requestEndpoint("streams", query).catch(this.handleError);
-        return response;
+        return await this.requestEndpoint("streams", query).catch(this.handleError);
     }
 
     /**
@@ -201,9 +200,8 @@ class Helix {
             first: count,
             after
         });
-
-        const response = await this.requestEndpoint("users/follows", query);
-        return response;
+        
+        return await this.requestEndpoint("users/follows", query);
     }
 
     /**
@@ -211,11 +209,10 @@ class Helix {
      * @param {Number} user_id 
      */
     async getAllFollowers (user_id) {
-        const count = await this.getFollowersCount(user_id);
         let list = [];
         let cursor = "";
         
-        while (list.length < count) {
+        while (cursor) {
             const response = await this.getFollowers(user_id, 100, cursor).catch(this.handleError);
             cursor = response.pagination.cursor;
 
@@ -233,10 +230,9 @@ class Helix {
      * @param {Number} user_id 
      */
     async getFollowersCount (user_id) {
-        const query = encode({ to_id: user_id });
-
-        const { total } = await this.requestEndpoint("users/follows", query).catch(this.handleError);
-        return total;
+        const query = encode({ to_id: user_id })
+        const response = await this.requestEndpoint("users/follows", query).catch(this.handleError);
+        return response.total;
     }
 
     /**
@@ -246,8 +242,7 @@ class Helix {
     async getViewers (user) {
         user = user.toLowerCase();
         const url = `https://tmi.twitch.tv/group/user/${user}/chatters`;
-        const response = await syncRequest({ url }).catch(this.handleError);
-        return response;
+        return await syncRequest({ url }).catch(this.handleError)
     }
 
     async getCheermotes (user_id) {
@@ -259,9 +254,7 @@ class Helix {
 
     async getBitsLeaderboard (params = {}) {
         const query = encode(params);
-
-        const data = await this.requestEndpoint("bits/leaderboard", query).catch(this.handleError);
-        return data;
+        return await this.requestEndpoint("bits/leaderboard", query).catch(this.handleError);
     }
 
     async getBannedUsers (user_id, params = {}) {
@@ -270,8 +263,7 @@ class Helix {
             ...params
         });
 
-        const data = await this.requestEndpoint("moderation/banned", query).catch(this.handleError);
-        return data;
+        return await this.requestEndpoint("moderation/banned", query).catch(this.handleError);
     }
 
     async getModerators (user_id, params) {
@@ -280,8 +272,7 @@ class Helix {
             ...params
         });
 
-        const data = await this.requestEndpoint("moderation/moderators", query).catch(this.handleError);
-        return data;
+        return await this.requestEndpoint("moderation/moderators", query).catch(this.handleError);
     }
 
     async searchCategories (category, params = {}) {
@@ -291,8 +282,7 @@ class Helix {
                 ...params
             });
 
-            const data = await this.requestEndpoint("search/categories", query).catch(this.handleError);
-            return data;
+            return await this.requestEndpoint("search/categories", query).catch(this.handleError);
         }
     }
 
@@ -303,8 +293,7 @@ class Helix {
                 ...params
             });
 
-            const data = await this.requestEndpoint("search/channels", query).catch(this.handleError);
-            return data;
+            return await this.requestEndpoint("search/channels", query).catch(this.handleError);
         }
     }
 
@@ -356,8 +345,7 @@ class Helix {
                 ...params
             });
 
-            const data = await this.requestEndpoint("clips", query).catch(this.handleError);
-            return data;
+            return await this.requestEndpoint("clips", query).catch(this.handleError);
     }
 
     async getAllClips (user_id) {
@@ -417,7 +405,7 @@ class Helix {
             return this.handleError("You must to provide access token to get stream markers");
         }
 
-        const response = await this.requestEndpoint("streams/markers", null, {
+        return await this.requestEndpoint("streams/markers", null, {
             method: "GET",
             body: JSON.stringify({ 
                 user_id, 
@@ -425,8 +413,6 @@ class Helix {
             }),
             headers: this.oauth()
         }).catch(this.handleError);
-
-        return response;
     }
 
     async getTopGames (count = 100) {
@@ -448,7 +434,7 @@ class Helix {
             return this.handleError("You must to specify valid length of commercial (30, 60, 90, 120, 150, 180)");
         }
 
-        const response = await this.requestEndpoint("channels/commercial", null, {
+        return await this.requestEndpoint("channels/commercial", null, {
             method: "POST",
             body: JSON.stringify({ 
                 broadcaster_id: user_id,
@@ -456,8 +442,6 @@ class Helix {
             }),
             headers: this.headers
         });
-
-        return response;
     }
 
     createChatBot (username, password, channel) {
