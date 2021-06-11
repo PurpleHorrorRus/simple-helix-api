@@ -200,7 +200,7 @@ class Helix {
             first: count,
             after
         });
-        
+
         return await this.requestEndpoint("users/follows", query);
     }
 
@@ -245,6 +245,10 @@ class Helix {
         return await syncRequest({ url }).catch(this.handleError)
     }
 
+    /**
+     * Get cheermotes by user id
+     * @param {Number} user 
+     */
     async getCheermotes (user_id) {
         const query = encode({ broadcaster_id: user_id });
 
@@ -252,11 +256,20 @@ class Helix {
         return data;
     }
 
+    /**
+     * Get cheers leaderboard
+     * @param {Object} params 
+     */
     async getBitsLeaderboard (params = {}) {
         const query = encode(params);
         return await this.requestEndpoint("bits/leaderboard", query).catch(this.handleError);
     }
 
+    /**
+     * Get list of banned users
+     * @param {Number} user_id 
+     * @param {Object | null} params
+     */
     async getBannedUsers (user_id, params = {}) {
         const query = encode({
             broadcaster_id: user_id,
@@ -266,6 +279,11 @@ class Helix {
         return await this.requestEndpoint("moderation/banned", query).catch(this.handleError);
     }
 
+    /**
+     * Get list of moderators of user
+     * @param {Number} user_id
+     * @param {Object | null} params
+     */
     async getModerators (user_id, params) {
         const query = encode({
             broadcaster_id: user_id,
@@ -275,6 +293,11 @@ class Helix {
         return await this.requestEndpoint("moderation/moderators", query).catch(this.handleError);
     }
 
+    /**
+     * Search category by the part of the name
+     * @param {String} category 
+     * @param {Object | null} params
+     */
     async searchCategories (category, params = {}) {
         if (category.length) {
             const query = encode({
@@ -286,6 +309,11 @@ class Helix {
         }
     }
 
+    /**
+     * Search users by the part of the channel name
+     * @param {String} channel 
+     * @param {Object | null} params
+     */
     async searchChannels (channel, params = {}) {
         if (channel.length) {
             const query = encode({
@@ -297,12 +325,22 @@ class Helix {
         }
     }
 
+    /**
+     * Get own stream key
+     * @param {Number} user_id 
+     */
     async getStreamKey (user_id) {
         const query = encode({ broadcaster_id: user_id });
         const { data } = await this.requestEndpoint("streams/key", query).catch(this.handleError);
         return data[0].stream_key;
     }
     
+    /**
+     * Update stream title and category
+     * @param {Number} user_id
+     * @param {String} title
+     * @param {String} game 
+     */
     async updateStream (user_id, title, game) {
         if (!this.access_token) {
             return this.handleError("You must to provide access token to update stream");
@@ -325,6 +363,11 @@ class Helix {
         };
     }
 
+    /**
+     * Create clip
+     * @param {Number} user_id
+     * @param {Boolean} has_delay
+     */
     async createClip (user_id, has_delay = false) {
         const query = encode({
             broadcaster_id: user_id,
@@ -335,6 +378,11 @@ class Helix {
         return data[0];
     }
 
+    /**
+     * Get clips
+     * @param {Number} user_id
+     * @param {Object | null} params
+     */
     async getClips (user_id, params = { first: 20 }) {
             if (params.first > 100) {
                 return this.handleError("You can't fetch more than 100 clips per request");
@@ -348,6 +396,10 @@ class Helix {
             return await this.requestEndpoint("clips", query).catch(this.handleError);
     }
 
+    /**
+     * Get all clips of channel
+     * @param {Number} user_id
+     */
     async getAllClips (user_id) {
         let cursor = "";
 
@@ -373,6 +425,11 @@ class Helix {
         return clips;
     }
 
+    /**
+     * Create stream marker
+     * @param {Number} user_id
+     * @param {String | null} description
+     */
     async createMarker (user_id, description = "") {
         if (!this.access_token) {
             return this.handleError("You must to provide access token to create stream marker");
@@ -400,6 +457,11 @@ class Helix {
         };
     }
 
+    /**
+     * Get VOD markers
+     * @param {Number} user_id 
+     * @param {Number} video_id
+     */
     async getMarkers (user_id, video_id) {
         if (!this.access_token) {
             return this.handleError("You must to provide access token to get stream markers");
@@ -415,11 +477,20 @@ class Helix {
         }).catch(this.handleError);
     }
 
+    /**
+     * Get actual top of games on Twitch
+     * @param {Number} count 
+     */
     async getTopGames (count = 100) {
         const { data } = await this.requestEndpoint("games/top", { first: count }).catch(this.handleError);
         return data;
     }
 
+    /**
+     * Starts commercial. Available length values: 30, 60, 90, 120, 150, 180 (in seconds)
+     * @param {Number} user_id 
+     * @param {Number} length 
+     */
     async startCommercial (user_id, length = 30) {
         if (!this.access_token) {
             return this.handleError("You must to provide access token to start commercial");
@@ -444,6 +515,12 @@ class Helix {
         });
     }
 
+    /**
+     * Create chatbot. See tmi.js docs for details
+     * @param {String} username 
+     * @param {String} password 
+     * @param {String} channel 
+     */
     createChatBot (username, password, channel) {
         const tmi = require("tmi.js");
         const client = new tmi.client({
