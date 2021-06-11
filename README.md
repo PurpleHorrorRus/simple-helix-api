@@ -100,7 +100,7 @@ const stream = await Helix.getStream(id);
 Get information about active streams. Streams are returned sorted by number of current viewers, in descending order. Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
 
 ```javascript
-const streams = await Helix.getStreams(id);
+const streams = await Helix.getStreams(params?);
 ```
 
 ### Get Stream Meta
