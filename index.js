@@ -212,7 +212,7 @@ class Helix {
         let list = [];
         let cursor = "";
         
-        while (cursor) {
+        while (cursor !== undefined) {
             const response = await this.getFollowers(user_id, 100, cursor).catch(this.handleError);
             cursor = response.pagination.cursor;
 
