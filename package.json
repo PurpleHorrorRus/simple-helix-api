@@ -21,6 +21,7 @@
     "Streams"
   ],
   "devDependencies": {
+    "eslint": "^7.28.0",
     "jest": "^27.0.4"
   }
 }
