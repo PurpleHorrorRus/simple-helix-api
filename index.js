@@ -34,6 +34,12 @@ class Helix {
             };
 
             this.headers.Authorization = this.auth.Bearer;
+
+            this.OAuthHeaders = {
+                ...this.headers,
+                "Content-Type": "application/json",
+                Authorization: this.auth.OAuth
+            };
         }
         else {
             if (!params.disableWarns) {
@@ -43,15 +49,7 @@ class Helix {
     };
 
     handleError (error) { 
-        console.error(error);
-        return new Error(error);
-    }
-
-    oauth () {
-        const headers = { ...this.headers };
-        headers["Content-Type"] = "application/json";
-        headers.Authorization = this.auth.OAuth;
-        return headers;
+        throw new Error(error);
     }
 
     /**
@@ -101,13 +99,11 @@ class Helix {
             ? encode(query)
             : query;
 
-        const response = await syncRequest({
+        return await syncRequest({
             url: `https://api.twitch.tv/helix/${endpoint}?${query}`,
             headers: this.headers,
             ...params
         }).catch(this.handleError);
-
-        return response;
     }
 
     /**
@@ -115,14 +111,8 @@ class Helix {
     * @param {Number | String} user 
     */
     async getUser (user) {
-        const query = encode(
-            Number(user)
-                ? { id: user }
-                : { login: user }
-        );
-
-        const response = await this.requestEndpoint("users", query).catch(this.handleError);
-        return response.data[0];
+        const { data } = await this.requestEndpoint("users", Number(user) ? { id: user } : { login: user }).catch(this.handleError);
+        return data[0];
     }
 
     /**
@@ -141,13 +131,12 @@ class Helix {
      * @param {Number | String} user 
      */
     async getStream (user) {
-        const query = encode(
+        const response = await this.requestEndpoint("streams", 
             Number(user)
                 ? { user_id: user }
                 : { user_login: user }
-        );
+        ).catch(this.handleError);
 
-        const response = await this.requestEndpoint("streams", query).catch(this.handleError);
         return response.data[0] || this.handleError("You must start stream to get stream data or wait for Twitch to announce you online");
     }
 
@@ -156,8 +145,7 @@ class Helix {
      * @param {Object} params 
      */
     async getStreams (params = {}) {
-        const query = encode(params);
-        return await this.requestEndpoint("streams", query).catch(this.handleError);
+        return await this.requestEndpoint("streams", params).catch(this.handleError);
     }
 
     /**
@@ -165,13 +153,12 @@ class Helix {
      * @param {Number | String} user 
      */
     async getStreamMeta (user) {
-        const query = encode(
+        const response = await this.requestEndpoint("streams/metadata",
             Number(user)
                 ? { user_id: user }
                 : { user_login: user }
-        );
+        ).catch(this.handleError);
 
-        const response = await this.requestEndpoint("streams/metadata", query).catch(this.handleError);
         return response.data[0] || this.handleError("You must start stream to get stream data or wait for Twitch to announce you online");
     }
 
@@ -180,13 +167,12 @@ class Helix {
      * @param {Number | String} game 
      */
     async getGame (game) {
-        const query = encode(
+        const response = await this.requestEndpoint("games", 
             Number(game)
                 ? { game_id: game }
                 : { name: game }
-        );
+        ).catch(this.handleError);
 
-        const response = await this.requestEndpoint("games", query).catch(this.handleError);
         return response.data[0];
     }
 
@@ -195,13 +181,11 @@ class Helix {
             return this.handleError("You can't fetch more than 100 followers per request");
         }
 
-        const query = encode({
+        return await this.requestEndpoint("users/follows", {
             to_id: user_id,
             first: count,
             after
         });
-
-        return await this.requestEndpoint("users/follows", query);
     }
 
     /**
@@ -214,7 +198,7 @@ class Helix {
         
         while (cursor !== undefined) {
             const response = await this.getFollowers(user_id, 100, cursor).catch(this.handleError);
-            cursor = response.pagination.cursor;
+            cursor = response.pagination?.cursor;
 
             list = [
                 ...list,
@@ -230,9 +214,8 @@ class Helix {
      * @param {Number} user_id 
      */
     async getFollowersCount (user_id) {
-        const query = encode({ to_id: user_id })
-        const response = await this.requestEndpoint("users/follows", query).catch(this.handleError);
-        return response.total;
+        const { total } = await this.requestEndpoint("users/follows", { to_id: user_id }).catch(this.handleError);
+        return total;
     }
 
     /**
@@ -240,9 +223,9 @@ class Helix {
      * @param {String} user 
      */
     async getViewers (user) {
-        user = user.toLowerCase();
-        const url = `https://tmi.twitch.tv/group/user/${user}/chatters`;
-        return await syncRequest({ url }).catch(this.handleError)
+        return await syncRequest({ 
+            url: `https://tmi.twitch.tv/group/user/${user.toLowerCase()}/chatters`
+        }).catch(this.handleError)
     }
 
     /**
@@ -250,9 +233,7 @@ class Helix {
      * @param {Number} user 
      */
     async getCheermotes (user_id) {
-        const query = encode({ broadcaster_id: user_id });
-
-        const { data } = await this.requestEndpoint("bits/cheermotes", query).catch(this.handleError);
+        const { data } = await this.requestEndpoint("bits/cheermotes", { broadcaster_id: user_id }).catch(this.handleError);
         return data;
     }
 
@@ -261,8 +242,7 @@ class Helix {
      * @param {Object} params 
      */
     async getBitsLeaderboard (params = {}) {
-        const query = encode(params);
-        return await this.requestEndpoint("bits/leaderboard", query).catch(this.handleError);
+        return await this.requestEndpoint("bits/leaderboard", params).catch(this.handleError);
     }
 
     /**
@@ -271,12 +251,10 @@ class Helix {
      * @param {Object | null} params
      */
     async getBannedUsers (user_id, params = {}) {
-        const query = encode({
+        return await this.requestEndpoint("moderation/banned", {
             broadcaster_id: user_id,
             ...params
-        });
-
-        return await this.requestEndpoint("moderation/banned", query).catch(this.handleError);
+        }).catch(this.handleError);
     }
 
     /**
@@ -285,12 +263,10 @@ class Helix {
      * @param {Object | null} params
      */
     async getModerators (user_id, params) {
-        const query = encode({
+        return await this.requestEndpoint("moderation/moderators", {
             broadcaster_id: user_id,
             ...params
-        });
-
-        return await this.requestEndpoint("moderation/moderators", query).catch(this.handleError);
+        }).catch(this.handleError);
     }
 
     /**
@@ -299,13 +275,11 @@ class Helix {
      * @param {Object | null} params
      */
     async searchCategories (category, params = {}) {
-        if (category.length) {
-            const query = encode({
+        if (category.length > 0) {
+            return await this.requestEndpoint("search/categories", {
                 query: category,
                 ...params
-            });
-
-            return await this.requestEndpoint("search/categories", query).catch(this.handleError);
+            }).catch(this.handleError);
         }
     }
 
@@ -315,13 +289,11 @@ class Helix {
      * @param {Object | null} params
      */
     async searchChannels (channel, params = {}) {
-        if (channel.length) {
-            const query = encode({
+        if (channel.length > 0) {
+            return await this.requestEndpoint("search/channels", {
                 query: channel,
                 ...params
-            });
-
-            return await this.requestEndpoint("search/channels", query).catch(this.handleError);
+            }).catch(this.handleError);
         }
     }
 
@@ -330,8 +302,7 @@ class Helix {
      * @param {Number} user_id 
      */
     async getStreamKey (user_id) {
-        const query = encode({ broadcaster_id: user_id });
-        const { data } = await this.requestEndpoint("streams/key", query).catch(this.handleError);
+        const { data } = await this.requestEndpoint("streams/key", { broadcaster_id: user_id }).catch(this.handleError);
         return data[0].stream_key;
     }
     
@@ -355,7 +326,7 @@ class Helix {
                     game
                 }
             }),
-            headers: this.oauth()
+            headers: this.OAuthHeaders
         }).catch(this.handleError);
 
         return { 
@@ -369,12 +340,10 @@ class Helix {
      * @param {Boolean} has_delay
      */
     async createClip (user_id, has_delay = false) {
-        const query = encode({
+        const { data } = await this.requestEndpoint("clips", {
             broadcaster_id: user_id,
             has_delay
-        });
-        
-        const { data } = await this.requestEndpoint("clips", query, { method: "POST" }).catch(this.handleError);
+        }, { method: "POST" }).catch(this.handleError);
         return data[0];
     }
 
@@ -384,16 +353,14 @@ class Helix {
      * @param {Object | null} params
      */
     async getClips (user_id, params = { first: 20 }) {
-            if (params.first > 100) {
-                return this.handleError("You can't fetch more than 100 clips per request");
-            }
+        if (params.first > 100) {
+            return this.handleError("You can't fetch more than 100 clips per request");
+        }
 
-            const query = encode({
-                broadcaster_id: user_id,
-                ...params
-            });
-
-            return await this.requestEndpoint("clips", query).catch(this.handleError);
+        return await this.requestEndpoint("clips", {
+            broadcaster_id: user_id,
+            ...params
+        }).catch(this.handleError);
     }
 
     /**
@@ -404,18 +371,17 @@ class Helix {
         let cursor = "";
 
         const get = async () => {
-            const { data, pagination } = await this.getClips(user_id, {
+            const response = await this.getClips(user_id, {
                 first: 100,
                 after: cursor
             }).catch(this.handleError);
             
-            cursor = pagination.cursor;
-            return data;
+            cursor = response.pagination?.cursor;
+            return response.data;
         };
 
         let clips = await get();
-
-        while (cursor) {
+        while (cursor !== undefined) {
             clips = [
                 ...clips,
                 ...await get().catch(this.handleError)
@@ -441,7 +407,7 @@ class Helix {
                 user_id: user_id, 
                 description 
             }),
-            headers: this.oauth()
+            headers: this.OAuthHeaders
         });
 
         if (response.error) {
@@ -473,7 +439,7 @@ class Helix {
                 user_id, 
                 video_id 
             }),
-            headers: this.oauth()
+            headers: this.OAuthHeaders
         }).catch(this.handleError);
     }
 
