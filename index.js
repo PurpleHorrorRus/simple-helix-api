@@ -33,6 +33,10 @@ class Helix {
             throw this.handleError("Access Token is required");
         }
 
+        if (params.language) {
+            this.language = params.language;
+        }
+
         this.client_id = params.client_id;
         this.redirect_uri = params.redirect_uri || "";
         this.headers = { 
@@ -72,8 +76,7 @@ class Helix {
 
     getAuthLink (client_id = this.client_id, redirect_uri = this.redirect_uri, scopes = "all") {
         if (client_id.length === 0 || redirect_uri.length === 0) {
-            console.error("You must to specify client_id and redirect_uri");
-            return;
+            return this.handleError("You must to specify client_id and redirect_uri");
         }
 
         if (scopes === "all") {
@@ -105,6 +108,15 @@ class Helix {
         }
 
         return `https://id.twitch.tv/oauth2/authorize?${encode(params)}`;
+    }
+
+    async updateStream(broadcaster_id, title, game) {
+        if (!broadcaster_id || !title || !game) {
+            return this.handleError("You must to specify all fields");
+        }
+
+        const { id } = await this.games.get(game);
+        return await this.channel.modify(broadcaster_id, id, this.language, title);
     }
 }
 
