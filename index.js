@@ -33,10 +33,7 @@ class Helix {
             throw this.handleError("Access Token is required");
         }
 
-        if (params.language) {
-            this.language = params.language;
-        }
-
+        this.language = params.language || "en";
         this.client_id = params.client_id;
         this.redirect_uri = params.redirect_uri || "";
         this.headers = { 
