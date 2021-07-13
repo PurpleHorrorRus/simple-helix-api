@@ -29,42 +29,41 @@ class Helix {
             return this.handleError("Client ID is required");
         }
 
-        if (!params.access_token) {
-            throw this.handleError("Access Token is required");
-        }
-
-        this.language = params.language || "en";
         this.client_id = params.client_id;
         this.redirect_uri = params.redirect_uri || "";
-        this.headers = { 
-            "Authorization": `Bearer ${params.access_token}`,
-            "Client-Id": params.client_id,
-            "Accept": "application/vnd.twitchtv.v5+json",
-            "Content-Type": "application/json",
-        };
+        this.language = params.language || "en";
+        
+        if (params.access_token) {
+            this.headers = { 
+                "Authorization": `Bearer ${params.access_token}`,
+                "Client-Id": params.client_id,
+                "Accept": "application/vnd.twitchtv.v5+json",
+                "Content-Type": "application/json",
+            };
 
-        this.channel = new Channel(this.headers);
-        this.clips = new Clips(this.headers);
-        this.rewards = new Rewards(this.headers);
-        this.commercial = new Commercial(this.headers);
-        this.analytics = new Analytics(this.headers);
-        this.emotes = new Emotes(this.headers);
-        this.badges = new Badges(this.headers);
-        this.games = new Games(this.headers);
-        this.events = new Events(this.headers);
-        this.moderation = new Moderation(this.headers);
-        this.polls = new Polls(this.headers);
-        this.predictions = new Predictions(this.headers);
-        this.schedule = new Schedule(this.headers);
-        this.search = new Search(this.headers);
-        this.stream = new Stream(this.headers);
-        this.markers = new Markers(this.headers);
-        this.subscriptions = new Subscriptions(this.headers);
-        this.tags = new Tags(this.headers);
-        this.teams = new Teams(this.headers);
-        this.users = new Users(this.headers);
-        this.videos = new Videos(this.headers);
-        this.other = new Other(this.headers);
+            this.channel = new Channel(this.headers);
+            this.clips = new Clips(this.headers);
+            this.rewards = new Rewards(this.headers);
+            this.commercial = new Commercial(this.headers);
+            this.analytics = new Analytics(this.headers);
+            this.emotes = new Emotes(this.headers);
+            this.badges = new Badges(this.headers);
+            this.games = new Games(this.headers);
+            this.events = new Events(this.headers);
+            this.moderation = new Moderation(this.headers);
+            this.polls = new Polls(this.headers);
+            this.predictions = new Predictions(this.headers);
+            this.schedule = new Schedule(this.headers);
+            this.search = new Search(this.headers);
+            this.stream = new Stream(this.headers);
+            this.markers = new Markers(this.headers);
+            this.subscriptions = new Subscriptions(this.headers);
+            this.tags = new Tags(this.headers);
+            this.teams = new Teams(this.headers);
+            this.users = new Users(this.headers);
+            this.videos = new Videos(this.headers);
+            this.other = new Other(this.headers);
+        }
     };
 
     handleError (error) { 
@@ -108,6 +107,10 @@ class Helix {
     }
 
     async updateStream(broadcaster_id, title, game) {
+        if (!this.headers) {
+            return this.handleError("Provide access_token");
+        }
+
         if (!broadcaster_id || !title || !game) {
             return this.handleError("You must to specify all fields");
         }
