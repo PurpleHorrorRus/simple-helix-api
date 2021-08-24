@@ -5,8 +5,6 @@ const Clips = require("./lib/requests/clips");
 const Commercial = require("./lib/requests/commercial");
 const Analytics = require("./lib/requests/analytics");
 const Rewards = require("./lib/requests/rewards");
-const Emotes = require("./lib/requests/emotes");
-const Badges = require("./lib/requests/badges");
 const Games = require("./lib/requests/games");
 const Events = require("./lib/requests/events");
 const Moderation = require("./lib/requests/moderation");
@@ -22,6 +20,7 @@ const Teams = require("./lib/requests/teams");
 const Users = require("./lib/requests/users");
 const Videos = require("./lib/requests/videos");
 const Other = require("./lib/requests/other");
+const Chat = require("./lib/requests/chat");
 
 class Helix {
     constructor (params) {
@@ -46,8 +45,7 @@ class Helix {
             this.rewards = new Rewards(this.headers);
             this.commercial = new Commercial(this.headers);
             this.analytics = new Analytics(this.headers);
-            this.emotes = new Emotes(this.headers);
-            this.badges = new Badges(this.headers);
+            this.chat = new Chat(this.headers);
             this.games = new Games(this.headers);
             this.events = new Events(this.headers);
             this.moderation = new Moderation(this.headers);

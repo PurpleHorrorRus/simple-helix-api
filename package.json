@@ -1,26 +1,26 @@
 {
-  "name": "simple-helix-api",
-  "version": "2.0.0",
-  "description": "The Simple Helix API allows developers to easily develop applications for Twitch",
-  "main": "index.js",
-  "author": "InfiniteHorror",
-  "license": "ISC",
-  "dependencies": {
-    "node-fetch": "^2.6.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/PurpleHorrorRus/simple-helix-api"
-  },
-  "keywords": [
-    "Twitch",
-    "Helix",
-    "Helix API",
-    "Broadcasts",
-    "Streams"
-  ],
-  "devDependencies": {
-    "eslint": "^7.32.0",
-    "jest": "^27.0.6"
-  }
+    "name": "simple-helix-api",
+    "version": "2.0.1",
+    "description": "The Simple Helix API allows developers to easily develop applications for Twitch",
+    "main": "index.js",
+    "author": "InfiniteHorror",
+    "license": "ISC",
+    "dependencies": {
+        "node-fetch": "^2.6.1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/PurpleHorrorRus/simple-helix-api"
+    },
+    "keywords": [
+        "Twitch",
+        "Helix",
+        "Helix API",
+        "Broadcasts",
+        "Streams"
+    ],
+    "devDependencies": {
+        "eslint": "^7.32.0",
+        "jest": "^27.0.6"
+    }
 }
