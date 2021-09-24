@@ -6,7 +6,7 @@
     "author": "InfiniteHorror",
     "license": "ISC",
     "dependencies": {
-        "node-fetch": "^2.6.1"
+        "node-fetch": "2.6.1"
     },
     "repository": {
         "type": "git",
@@ -21,6 +21,6 @@
     ],
     "devDependencies": {
         "eslint": "^7.32.0",
-        "jest": "^27.0.6"
+        "jest": "^27.2.1"
     }
 }
