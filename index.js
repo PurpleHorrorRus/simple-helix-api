@@ -1,5 +1,3 @@
-const { encode } = require("querystring");
-
 const Channel = require("./lib/requests/channel");
 const Clips = require("./lib/requests/clips");
 const Commercial = require("./lib/requests/commercial");
@@ -84,9 +82,12 @@ class Helix {
                 "channel:read:hype_train", "channel:read:polls", "channel:read:predictions",
                 "channel:read:redemptions", "channel:read:stream_key", "channel:read:subscriptions", "channel:moderate", 
 
+                "moderation:read", "moderator:manage:automod", "moderator:manage:chat_settings",
+                "moderator:manage:banned_users", "moderator:read:blocked_terms", "moderator:manage:blocked_terms",
+                "moderator:read:automod_settings", "moderator:manage:automod_settings", "moderator:read:chat_settings",
+
                 "whispers:read", "whispers:edit",
                 "chat:read", "chat:edit", "clips:edit", 
-                "moderation:read", "moderator:manage:automod", 
                 "user:edit", "user:edit:follows", "user:manage:blocked_users", "user:read:blocked_users", "user:read:broadcast", "user:read:email", "user:read:follows", "user:read:subscriptions", 
                 "channel_editor", "openid"
             ];
@@ -106,7 +107,7 @@ class Helix {
             params.scope = scopes.join(" ");
         }
 
-        return `https://id.twitch.tv/oauth2/authorize?${encode(params)}`;
+        return `https://id.twitch.tv/oauth2/authorize?${new URLSearchParams(params).toString()}`;
     }
 
     async updateStream(broadcaster_id, title, game) {
