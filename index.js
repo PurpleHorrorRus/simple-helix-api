@@ -66,12 +66,8 @@ class Helix {
         throw new Error(error);
     }
 
-    getAuthLink (client_id = this.client_id, redirect_uri = this.redirect_uri, scopes = "all") {
-        if (client_id.length === 0 || redirect_uri.length === 0) {
-            return this.handleError("You must to specify client_id and redirect_uri");
-        }
-
-        if (scopes === "all") {
+    getAuthLink (scopes = []) {
+        if (scopes.length === 0) {
             scopes = [
                 "analytics:read:extensions", "analytics:read:games", 
                 "bits:read", 
@@ -91,21 +87,16 @@ class Helix {
                 "user:edit", "user:edit:follows", "user:manage:blocked_users", "user:read:blocked_users", "user:read:broadcast", "user:read:email", "user:read:follows", "user:read:subscriptions", 
                 "channel_editor", "openid"
             ];
-        } else {
-            if (!Array.isArray(scopes)) {
-                return this.handleError("Scopes list must be an array or 'all' value");
-            }
+        } else if (!Array.isArray(scopes)) {
+            return this.handleError("Scopes list must be an array");
         }
 
         const params = {
-            client_id,
-            redirect_uri,
-            response_type: "token"
+            client_id: this.client_id,
+            redirect_uri: this.redirect_uri,
+            response_type: "token",
+            scope: scopes.join(" ")
         };
-
-        if (scopes.length > 0) {
-            params.scope = scopes.join(" ");
-        }
 
         return `https://id.twitch.tv/oauth2/authorize?${new URLSearchParams(params).toString()}`;
     }
