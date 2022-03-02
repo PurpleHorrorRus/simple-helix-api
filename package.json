@@ -1,6 +1,6 @@
 {
     "name": "simple-helix-api",
-    "version": "2.1.2",
+    "version": "2.1.3",
     "description": "The Simple Helix API allows developers to easily develop applications for Twitch",
     "main": "index.js",
     "author": "InfiniteHorror",
