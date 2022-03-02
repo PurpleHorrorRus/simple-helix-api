@@ -72,25 +72,7 @@ class Helix {
 
     getAuthLink (scopes = []) {
         if (scopes.length === 0) {
-            scopes = [
-                "analytics:read:extensions", "analytics:read:games", 
-                "bits:read", 
-
-                "channel:edit:commercial", "channel:manage:broadcast", "channel:manage:extensions",
-                "channel:manage:polls", "channel:manage:predictions", "channel:manage:redemptions",
-                "channel:manage:schedule", "channel:manage:videos", "channel:read:editors",
-                "channel:read:hype_train", "channel:read:polls", "channel:read:predictions",
-                "channel:read:redemptions", "channel:read:stream_key", "channel:read:subscriptions", "channel:moderate", 
-
-                "moderation:read", "moderator:manage:automod", "moderator:manage:chat_settings",
-                "moderator:manage:banned_users", "moderator:read:blocked_terms", "moderator:manage:blocked_terms",
-                "moderator:read:automod_settings", "moderator:manage:automod_settings", "moderator:read:chat_settings",
-
-                "whispers:read", "whispers:edit",
-                "chat:read", "chat:edit", "clips:edit", 
-                "user:edit", "user:edit:follows", "user:manage:blocked_users", "user:read:blocked_users", "user:read:broadcast", "user:read:email", "user:read:follows", "user:read:subscriptions", 
-                "channel_editor", "openid"
-            ];
+            scopes = require("./lib/scopes.json");
         } else if (!Array.isArray(scopes)) {
             return this.handleError("Scopes list must be an array");
         }
