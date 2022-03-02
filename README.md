@@ -6,7 +6,7 @@ The library was created following the Twitch API documentation as much as possib
 All requests are divided into categories for ease of use. Below is a list of current categories supported by package.
 
 ```
-analytics, channel, chat, clips, commercial, events, games, markers, moderation, other, polls, predictions, rewards, schedule, search, streams, subscriptions, tags, teams, users, videos
+analytics, automod, channel, chat, clips, commercial, events, games, markers, moderation, other, polls, predictions, rewards, schedule, search, soundtrack, streams, subscriptions, tags, teams, users, videos
 ```
 
 In addition, some requests that are associated with a list of something (a list of users, categories, clips, etc.) have one request in order to get a complete list.
