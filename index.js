@@ -1,24 +1,26 @@
+const Analytics = require("./lib/requests/analytics");
+const Automod = require("./lib/requests/automod");
 const Channel = require("./lib/requests/channel");
+const Chat = require("./lib/requests/chat");
 const Clips = require("./lib/requests/clips");
 const Commercial = require("./lib/requests/commercial");
-const Analytics = require("./lib/requests/analytics");
-const Rewards = require("./lib/requests/rewards");
-const Games = require("./lib/requests/games");
 const Events = require("./lib/requests/events");
+const Games = require("./lib/requests/games");
+const Markers = require("./lib/requests/markers");
 const Moderation = require("./lib/requests/moderation");
+const Other = require("./lib/requests/other");
 const Polls = require("./lib/requests/polls");
 const Predictions = require("./lib/requests/predictions");
+const Rewards = require("./lib/requests/rewards");
 const Schedule = require("./lib/requests/schedule");
 const Search = require("./lib/requests/search");
+const Soundtrack = require("./lib/requests/soundtrack");
 const Stream = require("./lib/requests/stream");
-const Markers = require("./lib/requests/markers");
 const Subscriptions = require("./lib/requests/subscriptions");
 const Tags = require("./lib/requests/tags");
 const Teams = require("./lib/requests/teams");
 const Users = require("./lib/requests/users");
 const Videos = require("./lib/requests/videos");
-const Other = require("./lib/requests/other");
-const Chat = require("./lib/requests/chat");
 
 class Helix {
     constructor (params) {
@@ -38,27 +40,29 @@ class Helix {
                 "Content-Type": "application/json",
             };
 
-            this.channel = new Channel(this.headers);
-            this.clips = new Clips(this.headers);
-            this.rewards = new Rewards(this.headers);
-            this.commercial = new Commercial(this.headers);
             this.analytics = new Analytics(this.headers);
+            this.automod = new Automod(this.headers);
+            this.channel = new Channel(this.headers);
             this.chat = new Chat(this.headers);
-            this.games = new Games(this.headers);
+            this.clips = new Clips(this.headers);
+            this.commercial = new Commercial(this.headers);
             this.events = new Events(this.headers);
+            this.games = new Games(this.headers);
+            this.markers = new Markers(this.headers);
             this.moderation = new Moderation(this.headers);
+            this.other = new Other(this.headers);
             this.polls = new Polls(this.headers);
             this.predictions = new Predictions(this.headers);
+            this.rewards = new Rewards(this.headers);
             this.schedule = new Schedule(this.headers);
             this.search = new Search(this.headers);
+            this.soundtrack = new Soundtrack(this.headers);
             this.stream = new Stream(this.headers);
-            this.markers = new Markers(this.headers);
             this.subscriptions = new Subscriptions(this.headers);
             this.tags = new Tags(this.headers);
             this.teams = new Teams(this.headers);
             this.users = new Users(this.headers);
             this.videos = new Videos(this.headers);
-            this.other = new Other(this.headers);
         }
     };
 
