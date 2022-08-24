@@ -80,6 +80,6 @@ class Users extends Static {
     async updateExtensions() {
         return await this.requestEndpoint("users/extensions", {}, { method: "PUT" });
     }
-};
+}
 
 export default Users;

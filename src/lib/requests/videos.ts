@@ -44,6 +44,6 @@ class Videos extends Static {
             method: "DELETE"
         });
     }
-};
+}
 
 export default Videos;

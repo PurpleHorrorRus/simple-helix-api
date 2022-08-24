@@ -22,6 +22,6 @@ class Commercial extends Static {
             length: Math.max(Math.min(length, 180), 30)
         }, { method: "POST" })
     }
-};
+}
 
 export default Commercial;

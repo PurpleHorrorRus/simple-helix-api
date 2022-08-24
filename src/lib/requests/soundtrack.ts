@@ -27,6 +27,6 @@ class Soundtrack extends Static {
     async playlists() {
         return await this.requestEndpoint("soundtrack/playlists");
     }
-};
+}
 
 export default Soundtrack;

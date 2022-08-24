@@ -4,7 +4,7 @@ import Static from "../static";
 
 enum ERRORS { 
     MISSING_EXTENSION_ID = "You must to specify extension_id"
-};
+}
 
 class Analytics extends Static {
     constructor(headers: AxiosRequestHeaders) {
@@ -34,6 +34,6 @@ class Analytics extends Static {
 
         return await this.requestEndpoint("extensions/transactions", { extension_id, ...data });
     }
-};
+}
 
 export default Analytics;

@@ -67,6 +67,6 @@ class Chat extends Static {
             ignoreStatus: true
         });
     }
-};
+}
 
 export default Chat;

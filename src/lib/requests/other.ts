@@ -11,6 +11,6 @@ class Other extends Static {
         user = user.toLowerCase();
         return await this.request(`https://tmi.twitch.tv/group/user/${user}/chatters`);
     }
-};
+}
 
 export default Other;

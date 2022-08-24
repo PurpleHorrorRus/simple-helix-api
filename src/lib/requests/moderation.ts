@@ -112,6 +112,6 @@ class Moderation extends Static {
             id
         }, { method: "DELETE" });
     }
-};
+}
 
 export default Moderation;

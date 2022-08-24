@@ -19,6 +19,6 @@ class Clips extends Static {
     async all(broadcaster_id: number, limit: number) {
         return await this.requestAll(broadcaster_id, this, "get", limit);
     }
-};
+}
 
 export default Clips;

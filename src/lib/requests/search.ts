@@ -28,6 +28,6 @@ class Search extends Static {
     async allChannels(query: string, limit = Infinity) {
         return await this.requestAll(query, this, "channels", limit);
     }
-};
+}
 
 export default Search;

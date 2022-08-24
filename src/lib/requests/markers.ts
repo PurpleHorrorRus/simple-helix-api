@@ -38,6 +38,6 @@ class Markers extends Static {
 
         return await this.requestEndpoint("streams/markers", { user_id, video_id, ...params });
     }
-};
+}
 
 export default Markers;

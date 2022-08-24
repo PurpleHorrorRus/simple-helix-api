@@ -101,6 +101,6 @@ class Static {
     handleError (error: string) {
         throw new Error(error);
     }
-};
+}
 
 export default Static;

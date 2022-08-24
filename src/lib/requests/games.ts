@@ -24,6 +24,6 @@ class Games extends Static {
     async top() {
         return await this.requestEndpoint("games/top");
     }
-};
+}
 
 export default Games;

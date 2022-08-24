@@ -57,7 +57,7 @@ class Predictions extends Static {
 
         if (~outcomes.findIndex(item => !item.title)) {
             return this.handleError(this.ERRORS.INVALID_OUTCOME_ITEM);
-        };
+        }
 
         outcomes = outcomes.map(o => ({
             title: o.title.substring(0, predictionsConfig.OUTCOMES_ITEM_TITLE_LENGTH)
@@ -119,6 +119,6 @@ class Predictions extends Static {
     async all(broadcaster_id: number, limit = Infinity) {
         return await this.requestAll(broadcaster_id, this, "get", limit, 20);
     }
-};
+}
 
 export default Predictions;

@@ -27,10 +27,9 @@ import Videos from "./lib/requests/videos";
 import Static from "./lib/static";
 
 type HelixInitParams = {
-    client_id: string,
+    client_id: string
     access_token?: string
-    redirect_uri?: string,
-    language?: string;
+    language?: string
 };
 
 class Helix extends Static {
@@ -68,7 +67,6 @@ class Helix extends Static {
         super({});
 
         this.client_id = params.client_id;
-        this.redirect_uri = params.redirect_uri || "";
         this.language = params.language || "";
         
         if (params.access_token) {
@@ -103,23 +101,22 @@ class Helix extends Static {
             this.users = new Users(this.headers);
             this.videos = new Videos(this.headers);
         }
-    };
+    }
 
-    getAuthLink (scopes = []) {
+    async getAuthLink (scopes: string[] = [], redirect_uri: string) {
         if (scopes.length === 0) {
-            scopes = require("./lib/scopes.json");
+            scopes = await import("./lib/scopes.json");
         } else if (!Array.isArray(scopes)) {
             return this.handleError("Scopes list must be an array");
         }
 
-        //@ts-ignore
-        const query = new URLSearchParams({
-            client_id: this.client_id,
-            redirect_uri: this.redirect_uri,
-            response_type: "token",
-            scope: scopes.join(" ")
-        }).toString();
+        const params = new URLSearchParams();
+        params.set("client_id", this.client_id);
+        params.set("redirect_uri", redirect_uri);
+        params.set("response_type", "token");
+        params.set("scope", scopes.join(" "));
 
+        const query = params.toString();
         return `https://id.twitch.tv/oauth2/authorize?${query}`;
     }
 

@@ -25,6 +25,6 @@ class Teams extends Static {
         id ? params.id = id : params.name = name;
         return await this.requestEndpoint("teams", params);
     }
-};
+}
 
 export default Teams;

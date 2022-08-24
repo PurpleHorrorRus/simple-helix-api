@@ -35,6 +35,6 @@ class Automod extends Static {
             ignoreStatus: true
         });
     }
-};
+}
 
 export default Automod;

@@ -29,6 +29,6 @@ class Subscriptions extends Static {
             user_id
         });
     }
-};
+}
 
 export default Subscriptions;

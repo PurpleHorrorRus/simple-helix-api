@@ -34,6 +34,6 @@ class Stream extends Static {
     async allFollowedStreams(user_id: number, limit = Infinity) {
         return await this.requestAll(user_id, this, "followedStreams", limit);
     }
-};
+}
 
 export default Stream;

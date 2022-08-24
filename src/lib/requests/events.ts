@@ -18,6 +18,6 @@ class Events extends Static {
     async moderator(broadcaster_id: number, params = {}) {
         return await this.requestCustom("moderation/moderators", broadcaster_id, params);
     }
-};
+}
 
 export default Events;

@@ -55,7 +55,7 @@ class Polls extends Static {
 
         if (~choices.findIndex(item => !item.title)) {
             return this.handleError(this.ERRORS.INVALID_CHOICE_ITEM);
-        };
+        }
 
         choices = choices.map(o => ({
             title: o.title.substring(0, pollConfig.MAX_CHOICE_ITEM_TITLE_LENGTH)
@@ -100,6 +100,6 @@ class Polls extends Static {
     async all(broadcaster_id: number, limit = Infinity) {
         return await this.requestAll(broadcaster_id, this, "get", limit);
     }
-};
+}
 
 export default Polls;

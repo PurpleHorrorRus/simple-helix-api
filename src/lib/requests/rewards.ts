@@ -116,6 +116,6 @@ class Rewards extends Static {
             data: { status }
         });
     }
-};
+}
 
 export default Rewards;

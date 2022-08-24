@@ -120,6 +120,6 @@ class Schedule extends Static {
     async all(broadcaster_id: number, limit = Infinity) {
         return await this.requestAll(broadcaster_id, this, "get", limit);
     }
-};
+}
 
 export default Schedule;

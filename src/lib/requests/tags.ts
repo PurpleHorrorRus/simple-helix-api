@@ -42,6 +42,6 @@ class Tags extends Static {
     async all(limit = Infinity) {
         return await this.requestAll(1, this, "getTags", limit);
     }
-};
+}
 
 export default Tags;

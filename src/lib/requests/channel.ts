@@ -47,6 +47,6 @@ class Channel extends Static {
     async editors(broadcaster_id: number) {
         return await this.requestCustom("channels/editors", broadcaster_id);
     }
-};
+}
 
 export default Channel;
