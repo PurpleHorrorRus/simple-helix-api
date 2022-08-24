@@ -26,16 +26,6 @@ import Videos from "./lib/requests/videos";
 
 import Static from "./lib/static";
 
-// const Schedule = require("./lib/requests/schedule");
-// const Search = require("./lib/requests/search");
-// const Soundtrack = require("./lib/requests/soundtrack");
-// const Stream = require("./lib/requests/stream");
-// const Subscriptions = require("./lib/requests/subscriptions");
-// const Tags = require("./lib/requests/tags");
-// const Teams = require("./lib/requests/teams");
-// const Users = require("./lib/requests/users");
-// const Videos = require("./lib/requests/videos");
-
 type HelixInitParams = {
     client_id: string,
     access_token?: string
