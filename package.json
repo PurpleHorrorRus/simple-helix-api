@@ -9,6 +9,16 @@
         "axios": "^0.27.2",
         "node-fetch": "2.6.7"
     },
+    "devDependencies": {
+        "@types/jest": "^28.1.8",
+        "eslint": "^8.22.0",
+        "jest": "^28.1.3",
+        "ts-jest": "^28.0.8",
+        "typescript": "^4.7.4"
+    },
+    "resolutions": {
+        "minimist": "^1.2.6"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/PurpleHorrorRus/simple-helix-api"
@@ -24,12 +34,5 @@
         "lint": "eslint . --ext .ts",
         "build": "tsc",
         "test": "jest"
-    },
-    "devDependencies": {
-        "@types/jest": "^28.1.8",
-        "eslint": "^8.22.0",
-        "jest": "^28.1.3",
-        "ts-jest": "^28.0.8",
-        "typescript": "^4.7.4"
     }
 }
