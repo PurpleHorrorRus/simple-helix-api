@@ -6,8 +6,7 @@
     "author": "purplehorrorrus <purplehorrorrus@gmail.com>",
     "license": "MIT",
     "dependencies": {
-        "axios": "^0.27.2",
-        "node-fetch": "2.6.7"
+        "axios": "^0.27.2"
     },
     "devDependencies": {
         "@types/jest": "^28.1.8",
