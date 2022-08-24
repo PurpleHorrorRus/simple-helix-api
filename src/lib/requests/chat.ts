@@ -1,7 +1,9 @@
-const Static = require("../static");
+import { AxiosRequestHeaders } from "axios";
+
+import Static from "../static";
 
 class Chat extends Static {
-    constructor(headers) {
+    constructor(headers: AxiosRequestHeaders) {
         super(headers);
         
         this.ERRORS = {
@@ -12,14 +14,14 @@ class Chat extends Static {
     }
 
     async globalEmotes() {
-        return await this.requestCustom("chat/emotes/global");
+        return await this.requestCustom("chat/emotes/global", 0);
     }
 
-    async emotes(broadcaster_id) {
+    async emotes(broadcaster_id: number) {
         return await this.requestCustom("chat/emotes", broadcaster_id);
     }
 
-    async emoteSets(emote_set_id) {
+    async emoteSets(emote_set_id: number) {
         if (!emote_set_id) {
             return this.handleError(this.ERRORS.MISSING_EMOTE_SET_ID);
         }
@@ -31,15 +33,16 @@ class Chat extends Static {
         return await this.requestEndpoint("chat/badges/global");
     }
 
-    async badges(broadcaster_id) {
+    async badges(broadcaster_id: number) {
         return await this.requestCustom("chat/badges", broadcaster_id);
     }
 
-    async settings(broadcaster_id, moderator_id = null) {
-        return await this.requestCustom("chat/settings", broadcaster_id, moderator_id ? { moderator_id } : null);
+    async settings(broadcaster_id: number, moderator_id?: number) {
+        const params = moderator_id ? { moderator_id } : undefined;
+        return await this.requestCustom("chat/settings", broadcaster_id, params);
     }
 
-    async updateSettings(broadcaster_id, moderator_id, settings) {
+    async updateSettings(broadcaster_id: number, moderator_id: number, settings: any) {
         if (!moderator_id) {
             return this.handleError(this.ERRORS.MISSING_MODERATOR_ID);
         }
@@ -60,10 +63,10 @@ class Chat extends Static {
 
         return await this.requestCustom("chat/settings", broadcaster_id, { moderator_id }, {
             method: "PATCH",
-            body: settings,
+            data: settings,
             ignoreStatus: true
         });
     }
 };
 
-module.exports = Chat;
+export default Chat;

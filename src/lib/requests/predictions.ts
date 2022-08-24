@@ -1,4 +1,6 @@
-const Static = require("../static");
+import { AxiosRequestHeaders } from "axios";
+
+import Static from "../static";
 
 // Do not change this values. 
 const predictionsConfig = {
@@ -10,8 +12,14 @@ const predictionsConfig = {
     MAX_TIMEOUT: 1800
 };
 
+type TOutcome = {
+    title: string;
+};
+
+type TStatus = "ACTIVE" | "RESOLVED" | "CANCELED" | "LOCKED";
+
 class Predictions extends Static {
-    constructor(headers) {
+    constructor(headers: AxiosRequestHeaders) {
         super(headers);
 
         this.ERRORS = {
@@ -30,7 +38,7 @@ class Predictions extends Static {
     /**
     * Check poll limitations: https://dev.twitch.tv/docs/api/reference#create-prediction
     */
-     async create(broadcaster_id, title, outcomes, prediction_window = predictionsConfig.MIN_TIMEOUT) {
+     async create(broadcaster_id: number, title: string, outcomes: TOutcome[], prediction_window = predictionsConfig.MIN_TIMEOUT) {
         if (!broadcaster_id) {
             return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
         }
@@ -51,26 +59,23 @@ class Predictions extends Static {
             return this.handleError(this.ERRORS.INVALID_OUTCOME_ITEM);
         };
 
-        title = title.substring(0, predictionsConfig.MAX_TITLE_LENGTH);
-
         outcomes = outcomes.map(o => ({
             title: o.title.substring(0, predictionsConfig.OUTCOMES_ITEM_TITLE_LENGTH)
         }));
 
-        prediction_window = Math.max(Math.min(prediction_window, predictionsConfig.MAX_TIMEOUT), predictionsConfig.MIN_TIMEOUT);
+         return await this.requestEndpoint("predictions", {}, {
+             method: "POST",
 
-        return await this.requestEndpoint("predictions", {}, {
-            method: "POST",
-            body: {
+             data: {
                 broadcaster_id,
-                title,
+                title: title.substring(0, predictionsConfig.MAX_TITLE_LENGTH),
                 outcomes,
-                prediction_window
+                prediction_window: Math.max(Math.min(prediction_window, predictionsConfig.MAX_TIMEOUT), predictionsConfig.MIN_TIMEOUT)
             }
-        });
+         });
     }
 
-    async end(broadcaster_id, id, status, params = {}) {
+    async end(broadcaster_id: number, id: number, status: TStatus, winning_outcome_id?: number) {
         if (!broadcaster_id) {
             return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
         }
@@ -83,37 +88,37 @@ class Predictions extends Static {
             return this.handleError(this.ERRORS.MISSING_STATUS);
         }
 
-        if (status === "RESOLVED" && !params.winning_outcome_id) {
+        if (status === "RESOLVED" && !winning_outcome_id) {
             return this.handleError(this.ERRORS.MISSING_RESOLVED_OUTCOME_ID);
         }
 
-        if (status !== "RESOLVED" && params.winning_outcome_id) {
+        if (status !== "RESOLVED" && winning_outcome_id) {
             return this.handleError(this.ERRORS.STATUS_OUTCOME_MISMATCH);
         }
 
-        const results = {
+        const results: any = {
             broadcaster_id,
             id,
             status
         };
 
         if (status === "RESOLVED") {
-            results.winning_outcome_id = params.winning_outcome_id;
+            results.winning_outcome_id = winning_outcome_id;
         }
 
         return await this.requestEndpoint("predictions", {}, {
             method: "PATCH",
-            body: results
+            data: results
         });
     }
 
-    async get(broadcaster_id, params = {}) {
+    async get(broadcaster_id: number, params = {}) {
         return await this.requestCustom("predictions", broadcaster_id, params);
     }
 
-    async all(broadcaster_id, params = {}) {
-        return await this.requestAll(broadcaster_id, this, "get", params.limit, 20);
+    async all(broadcaster_id: number, limit = Infinity) {
+        return await this.requestAll(broadcaster_id, this, "get", limit, 20);
     }
 };
 
-module.exports = Predictions;
+export default Predictions;

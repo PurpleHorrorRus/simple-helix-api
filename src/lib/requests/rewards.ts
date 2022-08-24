@@ -1,7 +1,14 @@
-const Static = require("../static");
+import { AxiosRequestHeaders } from "axios";
+
+import Static from "../static";
+
+type TReward = {
+    title: string
+    cost: number
+};
 
 class Rewards extends Static {
-    constructor(headers) {
+    constructor(headers: AxiosRequestHeaders) {
         super(headers);
 
         this.ERRORS = {
@@ -12,11 +19,11 @@ class Rewards extends Static {
         };
     }
 
-    async get(broadcaster_id, params = {}) {
+    async get(broadcaster_id: number, params = {}) {
         return await this.requestCustom("channel_points/custom_rewards", broadcaster_id, params);
     }
 
-    async create(broadcaster_id, title, cost, params = {}) {
+    async create(broadcaster_id: number, title: string, cost: number, params = {}) {
         if (!broadcaster_id) {
             return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
         }
@@ -27,7 +34,7 @@ class Rewards extends Static {
 
         const [reward] = await this.requestEndpoint("channel_points/custom_rewards", { broadcaster_id }, {
             method: "POST",
-            body: {
+            data: {
                 title,
                 cost,
                 ...params
@@ -37,7 +44,7 @@ class Rewards extends Static {
         return reward;
     }
 
-    async delete(broadcaster_id, id) {
+    async delete(broadcaster_id: number, id: number) {
         if (!broadcaster_id) {
             return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
         }
@@ -49,7 +56,7 @@ class Rewards extends Static {
         return await this.requestEndpoint("channel_points/custom_rewards", { broadcaster_id, id }, { method: "DELETE" });
     }
 
-    async update(broadcaster_id, id, params = {}) {
+    async update(broadcaster_id: number, id: number, reward: TReward) {
         if (!broadcaster_id) {
             return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
         }
@@ -58,17 +65,17 @@ class Rewards extends Static {
             return this.handleError(this.ERRORS.MISSING_REWARD_ID);
         }
 
-        if (!params.title || !params.cost) {
+        if (!reward.title || !reward.cost) {
             return this.handleError(this.ERRORS.MISSING_TITLE_OR_COST);
         }
 
         return await this.requestEndpoint("channel_points/custom_rewards", { broadcaster_id, id }, {
             method: "PATCH",
-            body: params
+            data: reward
         });
     }
 
-    async redemption(broadcaster_id, reward_id, params = {}) {
+    async redemption(broadcaster_id: number, reward_id: number, params = {}) {
         if (!broadcaster_id) {
             return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
         }
@@ -83,25 +90,11 @@ class Rewards extends Static {
         );
     }
 
-    async all(broadcaster_id, reward_id, params = {}) {
-        let redemptions = [];
-        let cursor = "";
-
-        while (cursor !== undefined) {
-            const response = await this.getRedemption(broadcaster_id, reward_id, {
-                ...params,
-                after: cursor,
-                first: 50
-            });
-
-            redemptions = [...redemptions, ...response.data];
-            cursor = response.pagination?.cursor;
-        }
-        
-        return redemptions;
+    async all(broadcaster_id: number, limit = Infinity) {
+        return await this.requestAll(broadcaster_id, this, "get", limit);
     }
 
-    async updateRedemption(broadcaster_id, id, reward_id, params = {}) {
+    async updateRedemption(broadcaster_id: number, id: number, reward_id: number, status: "FULFILLED" | "CANCELED") {
         if (!broadcaster_id) {
             return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
         }
@@ -110,19 +103,19 @@ class Rewards extends Static {
             return this.handleError(this.ERRORS.MISSING_REWARD_ID);
         }
 
-        if (!params.status) {
+        if (!status) {
             return this.handleError(this.ERRORS.MISSING_STATUS);
         }
 
-        return await this.requestEndpoint(
-            "channel_points/custom_rewards/redemptions",
-            { broadcaster_id, id, reward_id },
-            { 
-                method: "PATCH",
-                body: params
-            }
-        );
+        return await this.requestEndpoint("channel_points/custom_rewards/redemptions", {
+            broadcaster_id,
+            id,
+            reward_id
+        }, { 
+            method: "PATCH",
+            data: { status }
+        });
     }
 };
 
-module.exports = Rewards;
+export default Rewards;

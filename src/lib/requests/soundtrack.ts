@@ -1,7 +1,9 @@
-const Static = require("../static");
+import { AxiosRequestHeaders } from "axios";
+
+import Static from "../static";
 
 class Soundtrack extends Static {
-    constructor(headers) {
+    constructor(headers: AxiosRequestHeaders) {
         super(headers);
 
         this.ERRORS = {
@@ -10,11 +12,11 @@ class Soundtrack extends Static {
         };
     }
 
-    async track(broadcaster_id) {
+    async track(broadcaster_id: number) {
         return await this.requestCustom("soundtrack/current_track", broadcaster_id);
     }
 
-    async playlist(id) {
+    async playlist(id: number) {
         if (!id) {
             return this.handleError(this.ERRORS.PLAYLIST_ID_NOT_SPECIFIED);
         }
@@ -27,4 +29,4 @@ class Soundtrack extends Static {
     }
 };
 
-module.exports = Soundtrack;
+export default Soundtrack;

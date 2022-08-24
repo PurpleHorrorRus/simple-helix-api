@@ -1,7 +1,9 @@
-const Static = require("../static");
+import { AxiosRequestHeaders } from "axios";
+
+import Static from "../static";
 
 class Teams extends Static {
-    constructor(headers) {
+    constructor(headers: AxiosRequestHeaders) {
         super(headers);
 
         this.ERRORS = {
@@ -10,19 +12,19 @@ class Teams extends Static {
         };
     }
 
-    async channel(broadcaster_id) {
+    async channel(broadcaster_id: number) {
         return await this.requestCustom("teams/channel", broadcaster_id);
     }
 
-    async get(id, name) {
+    async get(id: number, name: string) {
         if (!id && !name) {
             return this.handleError(this.ERRORS.MISSING_FIELDS);
         }
 
-        const params = {};
+        const params: any = {};
         id ? params.id = id : params.name = name;
         return await this.requestEndpoint("teams", params);
     }
 };
 
-module.exports = Teams;
+export default Teams;

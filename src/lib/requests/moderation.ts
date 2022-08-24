@@ -1,13 +1,10 @@
-const Static = require("../static");
-const Events = require("./events");
-const Automod = require("./automod");
+import { AxiosRequestHeaders } from "axios";
+
+import Static from "../static";
 
 class Moderation extends Static {
-    constructor(headers) {
+    constructor(headers: AxiosRequestHeaders) {
         super(headers);
-        this.bannedEvents = Events.prototype.banned;
-        this.moderatorEvents = Events.prototype.moderator;
-        this.automod = new Automod(headers);
 
         this.ERRORS = {
             ...this.ERRORS,
@@ -20,7 +17,7 @@ class Moderation extends Static {
         };
     }
 
-    async ban(broadcaster_id, moderator_id, data = {}) {
+    async ban(broadcaster_id: number, moderator_id: number, data: any = {}) {
         if (!moderator_id) {
             return this.handleError(this.ERRORS.MISSING_MODERATOR_ID);
         }
@@ -35,11 +32,11 @@ class Moderation extends Static {
 
         return await this.requestCustom("moderation/bans", broadcaster_id, { moderator_id }, { 
             method: "POST", 
-            body: { data }
+            data: { data }
         });
     }
 
-    async unban(broadcaster_id, moderator_id, user_id) {
+    async unban(broadcaster_id: number, moderator_id: number, user_id: number) {
         if (!moderator_id) {
             return this.handleError(this.ERRORS.MISSING_MODERATOR_ID);
         }
@@ -51,23 +48,23 @@ class Moderation extends Static {
         return await this.requestCustom("moderation/bans", broadcaster_id, { moderator_id, user_id }, { method: "DELETE" });
     }
 
-    async bannedUsers(broadcaster_id, params = {}) {
+    async bannedUsers(broadcaster_id: number, params = {}) {
         return await this.requestCustom("moderation/banned", broadcaster_id, params);
     }
 
-    async allBannedUsers(broadcaster_id, params = {}) {
-        return await this.requestAll(broadcaster_id, this, "bannedUsers", params.limit);
+    async allBannedUsers(broadcaster_id: number, limit = Infinity) {
+        return await this.requestAll(broadcaster_id, this, "bannedUsers", limit);
     }
 
-    async moderators(broadcaster_id, params = {}) {
+    async moderators(broadcaster_id: number, params = {}) {
         return await this.requestCustom("moderation/moderators", broadcaster_id, params);
     }
 
-    async allModerators(broadcaster_id, params = {}) {
-        return await this.requestAll(broadcaster_id, this, "moderators", params.limit);
+    async allModerators(broadcaster_id: number, limit = Infinity) {
+        return await this.requestAll(broadcaster_id, this, "moderators", limit);
     }
 
-    async blockedTerms(broadcaster_id, moderator_id, params = {}) {
+    async blockedTerms(broadcaster_id: number, moderator_id: number, params = {}) {
         if (!moderator_id) {
             return this.handleError(this.ERRORS.MISSING_MODERATOR_ID);
         }
@@ -75,15 +72,18 @@ class Moderation extends Static {
         return await this.requestCustom("moderation/blocked_terms", broadcaster_id, { moderator_id, ...params });
     }
 
-    async allBlockedTerms(broadcaster_id, moderator_id, params = {}) {
+    async allBlockedTerms(broadcaster_id: number, moderator_id: number, limit = Infinity) {
         if (!moderator_id) {
             return this.handleError(this.ERRORS.MISSING_MODERATOR_ID);
         }
 
-        return await this.requestAll({ broadcaster_id, moderator_id }, this, "blockedTerms", params.limit);
+        return await this.requestAll([
+            broadcaster_id,
+            moderator_id
+        ], this, "blockedTerms", limit);
     }
 
-    async addBlockedTerm(broadcaster_id, moderator_id, text) {
+    async addBlockedTerm(broadcaster_id: number, moderator_id: number, text: string) {
         if (!moderator_id) {
             return this.handleError(this.ERRORS.MISSING_MODERATOR_ID);
         }
@@ -94,11 +94,11 @@ class Moderation extends Static {
 
         return await this.requestCustom("moderation/blocked_terms", broadcaster_id, { moderator_id }, {
             method: "POST",
-            body: { text }
+            data: { text }
         });
     }
 
-    async removeBlockedTerm(broadcaster_id, moderator_id, id) {
+    async removeBlockedTerm(broadcaster_id: number, moderator_id: number, id: number) {
         if (!moderator_id) {
             return this.handleError(this.ERRORS.MISSING_MODERATOR_ID);
         }
@@ -108,10 +108,10 @@ class Moderation extends Static {
         }
 
         return await this.requestCustom("moderation/blocked_terms", broadcaster_id, { 
-            moderator_id, 
-            id 
+            moderator_id,
+            id
         }, { method: "DELETE" });
     }
 };
 
-module.exports = Moderation;
+export default Moderation;

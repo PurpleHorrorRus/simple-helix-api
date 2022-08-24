@@ -1,11 +1,12 @@
 {
     "name": "simple-helix-api",
-    "version": "2.1.4",
+    "version": "3.0.0",
     "description": "The Simple Helix API allows developers to easily develop applications for Twitch",
-    "main": "index.js",
-    "author": "InfiniteHorror",
-    "license": "ISC",
+    "main": "dist/index.js",
+    "author": "purplehorrorrus <purplehorrorrus@gmail.com>",
+    "license": "MIT",
     "dependencies": {
+        "axios": "^0.27.2",
         "node-fetch": "2.6.7"
     },
     "repository": {
@@ -19,8 +20,16 @@
         "Broadcasts",
         "Streams"
     ],
+    "scripts": {
+        "lint": "eslint . --ext .ts",
+        "build": "tsc",
+        "test": "jest"
+    },
     "devDependencies": {
-        "eslint": "^8.10.0",
-        "jest": "^27.5.1"
+        "@types/jest": "^28.1.8",
+        "eslint": "^8.22.0",
+        "jest": "^28.1.3",
+        "ts-jest": "^28.0.8",
+        "typescript": "^4.7.4"
     }
 }

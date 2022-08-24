@@ -1,7 +1,9 @@
-const Static = require("../static");
+import { AxiosRequestHeaders } from "axios";
+
+import Static from "../static";
 
 class Markers extends Static {
-    constructor(headers) {
+    constructor(headers: AxiosRequestHeaders) {
         super(headers);
 
         this.ERRORS = {
@@ -10,18 +12,22 @@ class Markers extends Static {
         };
     }
 
-    async create(user_id, params = {}) {
+    async create(user_id: number, params = {}) {
         if (!user_id) {
             return this.handleError(this.ERRORS.MISSING_USER_ID);
         }
 
-        return await this.requestEndpoint("streams/markers", {}, {
+        return await this.requestEndpoint("streams/markers", undefined, {
             method: "POST",
-            body: { user_id, ...params }
+
+            data: {
+                user_id,
+                ...params
+            }
         });
     }
 
-    async get(user_id, video_id, params = {}) {
+    async get(user_id: number, video_id: number, params = {}) {
         if (!user_id) {
             return this.handleError(this.ERRORS.MISSING_USER_ID);
         }
@@ -34,4 +40,4 @@ class Markers extends Static {
     }
 };
 
-module.exports = Markers;
+export default Markers;

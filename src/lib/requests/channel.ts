@@ -1,7 +1,9 @@
-const Static = require("../static");
+import { AxiosRequestHeaders } from "axios";
+
+import Static from "../static";
 
 class Channel extends Static {
-    constructor(headers) {
+    constructor(headers: AxiosRequestHeaders) {
         super(headers);
 
         this.ERRORS = {
@@ -10,19 +12,19 @@ class Channel extends Static {
         };
     }
 
-    async get(broadcaster_id) {
+    async get(broadcaster_id: (string | number)[]) {
         if (Array.isArray(broadcaster_id)) {
-            broadcaster_id = broadcaster_id.map(id => {
+            const broadcaster_ids = broadcaster_id.map(id => {
                 return `broadcaster_id=${id}`;
             }).join("&");
 
-            return await this.requestEndpoint("channels", broadcaster_id, { method: "GET" });
+            return await this.requestEndpoint("channels", broadcaster_ids, { method: "GET" });
         }
 
         return await this.requestCustom("channels", broadcaster_id);
     }
 
-    async modify(broadcaster_id, game_id = "", broadcaster_language = "en", title, delay = 0) {
+    async modify(broadcaster_id: number, game_id: string = "", broadcaster_language: string = "en", title: string, delay: number = 0) {
         if (!broadcaster_id) {
             return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
         }
@@ -33,7 +35,7 @@ class Channel extends Static {
 
         return await this.requestEndpoint("channels", { broadcaster_id }, {
             method: "PATCH",
-            body: {
+            data: {
                 game_id,
                 broadcaster_language,
                 title,
@@ -42,9 +44,9 @@ class Channel extends Static {
         });
     }
 
-    async editors(broadcaster_id) {
+    async editors(broadcaster_id: number) {
         return await this.requestCustom("channels/editors", broadcaster_id);
     }
 };
 
-module.exports = Channel;
+export default Channel;

@@ -1,7 +1,9 @@
-const Static = require("../static");
+import { AxiosRequestHeaders } from "axios";
+
+import Static from "../static";
 
 class Tags extends Static {
-    constructor(headers) {
+    constructor(headers: AxiosRequestHeaders) {
         super(headers);
 
         this.ERRORS = {
@@ -10,11 +12,11 @@ class Tags extends Static {
         };
     }
 
-    async get(broadcaster_id) {
-        return await this.requestCustom("streams/tags", broadcaster_id, {});
+    async get(broadcaster_id: number) {
+        return await this.requestCustom("streams/tags", broadcaster_id);
     }
 
-    async replace(broadcaster_id, tag_ids) {
+    async replace(broadcaster_id: number, tag_ids: string[] | number[]) {
         if (!broadcaster_id) {
             return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
         }
@@ -29,7 +31,7 @@ class Tags extends Static {
 
         return await this.requestEndpoint("streams/tags", { broadcaster_id }, {
             method: "PUT",
-            body: { tag_ids }
+            data: { tag_ids }
         });
     }
 
@@ -37,9 +39,9 @@ class Tags extends Static {
         return await this.requestEndpoint("tags/streams", params);
     }
 
-    async all(params = {}) {
-        return await this.requestAll(1, this, "getTags", params.limit);
+    async all(limit = Infinity) {
+        return await this.requestAll(1, this, "getTags", limit);
     }
 };
 
-module.exports = Tags;
+export default Tags;

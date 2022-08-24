@@ -1,4 +1,6 @@
-const Static = require("../static");
+import { AxiosRequestHeaders } from "axios";
+
+import Static from "../static";
 
 // Do not change this values. 
 const pollConfig = {
@@ -13,8 +15,12 @@ const pollConfig = {
     MAX_TIMEOUT: 1800
 };
 
+type Choice = {
+    title: string
+};
+
 class Polls extends Static {
-    constructor(headers) {
+    constructor(headers: AxiosRequestHeaders) {
         super(headers);
 
         this.ERRORS = {
@@ -30,7 +36,7 @@ class Polls extends Static {
     /**
     * Check poll limitations: https://dev.twitch.tv/docs/api/reference#create-poll
     */
-    async create(broadcaster_id, title, choices, duration = pollConfig.MIN_TIMEOUT) {
+    async create(broadcaster_id: number, title: string, choices: Choice[], duration = pollConfig.MIN_TIMEOUT) {
         if (!broadcaster_id) {
             return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
         }
@@ -51,26 +57,23 @@ class Polls extends Static {
             return this.handleError(this.ERRORS.INVALID_CHOICE_ITEM);
         };
 
-        title = title.substring(0, pollConfig.MAX_TITLE_LENGTH);
-
         choices = choices.map(o => ({
             title: o.title.substring(0, pollConfig.MAX_CHOICE_ITEM_TITLE_LENGTH)
         }));
 
-        duration = Math.max(Math.min(duration, pollConfig.MAX_TIMEOUT), pollConfig.MIN_TIMEOUT);
-
-        return await this.requestEndpoint("polls", {}, {
+        return await this.requestEndpoint("polls", undefined, {
             method: "POST",
-            body: {
+
+            data: {
                 broadcaster_id,
-                title,
+                title: title.substring(0, pollConfig.MAX_TITLE_LENGTH),
                 choices,
-                duration
+                duration: Math.max(Math.min(duration, pollConfig.MAX_TIMEOUT), pollConfig.MIN_TIMEOUT)
             }
         });
     }
 
-    async end(broadcaster_id, id, status = "ARCHIVED") {
+    async end(broadcaster_id: number, id: number, status: "ARCHIVED" | "TERMINATED" = "ARCHIVED") {
         if (!broadcaster_id) {
             return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
         }
@@ -79,9 +82,10 @@ class Polls extends Static {
             return this.handleError(this.ERRORS.MISSING_ID);
         }
 
-        return await this.requestEndpoint("polls", {}, {
+        return await this.requestEndpoint("polls", undefined, {
             method: "PATCH",
-            body: {
+
+            data: {
                 broadcaster_id,
                 id,
                 status
@@ -89,13 +93,13 @@ class Polls extends Static {
         });
     }
 
-    async get(broadcaster_id, params = {}) {
+    async get(broadcaster_id: number, params = {}) {
         return await this.requestCustom("polls", broadcaster_id, params);
     }
 
-    async all(broadcaster_id, params = {}) {
-        return await this.requestAll(broadcaster_id, this, "get", params.limit);
+    async all(broadcaster_id: number, limit = Infinity) {
+        return await this.requestAll(broadcaster_id, this, "get", limit);
     }
 };
 
-module.exports = Polls;
+export default Polls;
