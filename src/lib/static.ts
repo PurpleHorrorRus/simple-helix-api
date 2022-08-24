@@ -26,24 +26,30 @@ class Static {
             ...requestOptions
         });
 
+        const ok = response.status === 200
+            || response.status === 204;
+
         return (
             requestOptions.method !== "PATCH"
             && requestOptions.method !== "DELETE"
             && requestOptions.method !== "PUT") || requestOptions.ignoreStatus
 
-            ? response.status === 200
-                ? response.data
+            ? ok
+                ? (response.data || ok)
                 : this.handleError(response.statusText)
 
-            : (response.status === 200 || response.status === 204);
+            : ok;
     }
 
     async requestEndpoint(endpoint: string, data?: any, requestOptions?: AxiosRequestConfig) {
         const query: string = typeof data === "object"
             ? new URLSearchParams(data).toString()
             : data
+        
+        const body = requestOptions?.data || undefined;
+        delete requestOptions?.data;
 
-        const response = await this.request(`https://api.twitch.tv/helix/${endpoint}?${query}`, undefined, requestOptions)
+        const response = await this.request(`https://api.twitch.tv/helix/${endpoint}?${query}`, body, requestOptions)
             .catch(this.handleError);
 
         return response.pagination?.cursor || !response.data 

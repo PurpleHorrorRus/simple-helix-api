@@ -8,6 +8,8 @@ declare class Moderation extends Static {
     allBannedUsers(broadcaster_id: number, limit?: number): Promise<any>;
     moderators(broadcaster_id: number, params?: {}): Promise<any>;
     allModerators(broadcaster_id: number, limit?: number): Promise<any>;
+    addModerator(broadcaster_id: number, user_id: number): Promise<any>;
+    removeModerator(broadcaster_id: number, user_id: number): Promise<any>;
     blockedTerms(broadcaster_id: number, moderator_id: number, params?: {}): Promise<any>;
     allBlockedTerms(broadcaster_id: number, moderator_id: number, limit?: number): Promise<any>;
     addBlockedTerm(broadcaster_id: number, moderator_id: number, text: string): Promise<any>;

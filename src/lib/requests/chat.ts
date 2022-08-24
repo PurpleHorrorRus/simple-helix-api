@@ -2,6 +2,28 @@ import { AxiosRequestHeaders } from "axios";
 
 import Static from "../static";
 
+type TColor = "blue"
+    | "green"
+    | "orange"
+    | "purple"
+    | "primary";
+
+type TUserColor = "blue"
+    | "blue_violet"
+    | "cadet_blue"
+    | "chocolate"
+    | "coral"
+    | "dodger_blue"
+    | "firebrick"
+    | "golden_rod"
+    | "green"
+    | "hot_pink"
+    | "orange_red"
+    | "red"
+    | "sea_green"
+    | "spring_green"
+    | "yellow_green"
+
 class Chat extends Static {
     constructor(headers: AxiosRequestHeaders) {
         super(headers);
@@ -9,7 +31,8 @@ class Chat extends Static {
         this.ERRORS = {
             ...this.ERRORS,
             MISSING_EMOTE_SET_ID: "You must to specify emote_set_id",
-            INVALID_SETTINGS: "Settings object is invalid"
+            INVALID_SETTINGS: "Settings object is invalid",
+            MISSING_MESSAGE_ID: "You must to specify message_id"
         };
     }
 
@@ -33,8 +56,44 @@ class Chat extends Static {
         return await this.requestEndpoint("chat/badges/global");
     }
 
+    async announcement(broadcaster_id: number, moderator_id: number, message: string, color: TColor = "primary") { 
+        return await this.requestEndpoint("chat/announcements", {
+            broadcaster_id,
+            moderator_id
+        }, {
+            method: "POST",
+            data: {
+                message: message.substring(0, 500),
+                color
+            }
+        });
+    }
+
     async badges(broadcaster_id: number) {
         return await this.requestCustom("chat/badges", broadcaster_id);
+    }
+
+    async delete(broadcaster_id: number, moderator_id: number, message_id: string) {
+        return await this.requestEndpoint("moderation/chat", {
+            broadcaster_id,
+            moderator_id,
+            message_id
+        });
+    }
+
+    async color(user_id: number) {
+        const response = await this.requestEndpoint("chat/color", {
+            user_id
+        });
+
+        return response.color; 
+    }
+
+    async updateColor(user_id: number, color: TUserColor) { 
+        return await this.requestEndpoint("chat/color", {
+            user_id,
+            color
+        }, { method: "PUT" });
     }
 
     async settings(broadcaster_id: number, moderator_id?: number) {
@@ -43,10 +102,6 @@ class Chat extends Static {
     }
 
     async updateSettings(broadcaster_id: number, moderator_id: number, settings: any) {
-        if (!moderator_id) {
-            return this.handleError(this.ERRORS.MISSING_MODERATOR_ID);
-        }
-
         if (!(settings instanceof Object) || Object.keys(settings).length === 0) {
             return this.handleError(this.ERRORS.INVALID_SETTINGS);
         }

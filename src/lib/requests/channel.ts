@@ -47,6 +47,41 @@ class Channel extends Static {
     async editors(broadcaster_id: number) {
         return await this.requestCustom("channels/editors", broadcaster_id);
     }
+
+    async addVip(broadcaster_id: number, user_id: number) {
+        return await this.requestEndpoint("channels/vips", {
+            broadcaster_id,
+            user_id
+        }, { method: "POST" });
+    }
+
+    async removeVip(broadcaster_id: number, user_id: number) {
+        return await this.requestEndpoint("channels/vips", {
+            broadcaster_id,
+            user_id
+        }, { method: "DELETE" });
+    }
+
+    async vips(broadcaster_id: number, params = {}) { 
+        return await this.requestEndpoint("channels/vips", {
+            broadcaster_id,
+            ...params
+        });
+    }
+
+    async allVips(broadcaster_id: number, limit = Infinity) { 
+        return await this.requestAll(broadcaster_id, this, "vips", limit);
+    }
+
+    async whisper(from_user_id: number, to_user_id: number, message: string) {
+        return await this.requestEndpoint("whispers", {
+            from_user_id,
+            to_user_id
+        }, { 
+            method: "POST",
+            data: { message }
+        })
+    }
 }
 
 export default Channel;

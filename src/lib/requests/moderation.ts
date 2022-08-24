@@ -64,6 +64,20 @@ class Moderation extends Static {
         return await this.requestAll(broadcaster_id, this, "moderators", limit);
     }
 
+    async addModerator(broadcaster_id: number, user_id: number) { 
+        return await this.requestEndpoint("moderation/moderators", {
+            broadcaster_id,
+            user_id
+        }, { method: "POST" });
+    }
+
+    async removeModerator(broadcaster_id: number, user_id: number) { 
+        return await this.requestEndpoint("moderation/moderators", {
+            broadcaster_id,
+            user_id
+        }, { method: "DELETE" });
+    }
+
     async blockedTerms(broadcaster_id: number, moderator_id: number, params = {}) {
         if (!moderator_id) {
             return this.handleError(this.ERRORS.MISSING_MODERATOR_ID);
