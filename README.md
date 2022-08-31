@@ -22,15 +22,19 @@ First, you need for Access Token provided by Twitch. With this package you can g
 ```javascript
 const HelixAPI = require("simple-helix-api"); // you can use import
 
+// Create client
 const Helix = new HelixAPI({
-    client_id: "xxxxxxx", // client_id from Twitch Dev Dashboard
-    redirect_uri: "http://localhost...";  // redirect_uri must match to specified in Twitch Dev Dashboard
+    client_id: "xxxxxxx" // client_id from Twitch Dev Dashboard
 });
 
 // List of scopes you need for your application. Left it empty to request all scopes. See scopes list: https://dev.twitch.tv/docs/authentication#scopes
 const scopes = ["chat:read", "channel:manage:predictions", "moderation:read"];
 
-const link = Helix.getAuthLink(scopes);
+// Redirect uri must match to specified in Twitch Dev Dashboard
+const redirect_uri = "http://localhost...";
+
+// Generate auth link
+const link = Helix.getAuthLink(scopes, redirect_uri);
 console.log(link);
 ```
 
@@ -45,12 +49,11 @@ Almost all requests requires an user ID. Get yours, store it and use everywhere.
 **Attetion!** All requests and categories names matches with Twitch API documentation, but recommended to use autocomplete of your favorite code editor to see all categories and requests.
 
 ```javascript
-const HelixAPI = require("simple-helix-api"); // you can use import
+const HelixAPI = require("simple-helix-api");
 
 const Helix = new HelixAPI({
     access_token: "xxxxxxx", // Your personal Access Token provided by Twitch. If you don't have one, see step above.
-    client_id: "xxxxxxx", // Client ID from Twitch Dev Dashboard
-    redirect_uri: "http://localhost...";  // Redirect URL must match to specified in Twitch Dev Dashboard
+    client_id: "xxxxxxx" // Client ID from Twitch Dev Dashboard
 });
 
 (async () => {
@@ -67,7 +70,7 @@ There is a several examples of requests you can use with this package. Be aware 
 ### Update stream title and category
 
 ```javascript
-const game = await Helix.games.getByName("League of Legends");
+const game = await Helix.games.get("League of Legends");
 const updated = await Helix.channel.modify(user_id, game.id, "en", "Title has been changed with simple-helix-api");
 ```
 
