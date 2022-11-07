@@ -88,7 +88,16 @@ class EventSub extends Static {
     public listen(): EventSub { 
         this.client.onmessage = message => {
             const data = JSON.parse(message.data);
-            this.events.emit(data.payload.subscription.type, data.payload.event);
+
+            switch (data.metadata.message_type) { 
+                case "notification": { 
+                    return this.events.emit(data.metadata.subscription_type, data.payload?.event);
+                }
+                    
+                default: { 
+                    return this.events.emit(data.metadata.message_type, data.payload);
+                }
+            }
         }
 
         return this;
