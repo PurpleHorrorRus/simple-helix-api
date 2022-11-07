@@ -153,9 +153,6 @@ const EventSubClient = await Helix.EventSub.connect(events);
 EventSubClient.on("channel.follow", data => {
     console.log(`Thank you for following, ${data.user_name}`);
 });
-
-// Listen events
-EventSubClient.listen();
 ```
 
 # Contribution
