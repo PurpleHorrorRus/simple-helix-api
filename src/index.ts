@@ -64,19 +64,17 @@ class Helix extends Static {
     videos: Videos;
 
     constructor(params: HelixInitParams) {
-        super({});
+        super({
+            "Authorization": `Bearer ${params.access_token}`,
+            "Client-Id": params.client_id,
+            "Accept": "application/vnd.twitchtv.v5+json",
+            "Content-Type": "application/json"
+        });
 
         this.client_id = params.client_id;
         this.language = params.language || "";
         
         if (params.access_token) {
-            this.headers = {
-                "Authorization": `Bearer ${params.access_token}`,
-                "Client-Id": params.client_id,
-                "Accept": "application/vnd.twitchtv.v5+json",
-                "Content-Type": "application/json",
-            };
-
             this.analytics = new Analytics(this.headers);
             this.automod = new Automod(this.headers);
             this.channel = new Channel(this.headers);

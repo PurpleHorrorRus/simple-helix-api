@@ -1,11 +1,12 @@
-import axios, { AxiosRequestHeaders, AxiosRequestConfig } from "axios";
+import { AxiosStatic, AxiosRequestHeaders, AxiosRequestConfig } from "axios";
+const axios = require("axios") as AxiosStatic;
 
 export type TRequestConfig = AxiosRequestConfig & {
     ignoreStatus?: boolean
 }
 
 class Static {
-    headers: AxiosRequestHeaders;
+    headers: any;
 
     ERRORS: {
         [x: string]: string
@@ -14,7 +15,7 @@ class Static {
         MISSING_MODERATOR_ID: "You must to specify moderator_id"
     }
 
-    constructor (headers: AxiosRequestHeaders) {
+    constructor (headers: any) {
         this.headers = headers;
     }
 
@@ -22,7 +23,7 @@ class Static {
         const response = await axios({
             url,
             data,
-            headers: this.headers,
+            headers: this.headers as AxiosRequestHeaders,
             ...requestOptions
         });
 
@@ -41,7 +42,7 @@ class Static {
             : ok;
     }
 
-    async requestEndpoint(endpoint: string, data?: any, requestOptions?: AxiosRequestConfig) {
+    async requestEndpoint(endpoint: string, data?: any, requestOptions?: AxiosRequestConfig, raw = false) {
         const query: string = typeof data === "object"
             ? new URLSearchParams(data).toString()
             : data
@@ -51,6 +52,10 @@ class Static {
 
         const response = await this.request(`https://api.twitch.tv/helix/${endpoint}?${query}`, body, requestOptions)
             .catch(this.handleError);
+        
+        if (raw) {
+            return response.data;
+        }
 
         return response.pagination?.cursor || !response.data 
             ? response 
