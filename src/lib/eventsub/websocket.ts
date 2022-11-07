@@ -17,7 +17,8 @@ class EventSub extends Static {
         session_id: 0
     };
 
-    public client: Websocket; 
+    public client: Websocket;
+    public subscribedEvents: EventSubEvent[] = [];
     public readonly events = new EventEmitter();
     public readonly WebsocketEvents = {
         CONNECTED: "connected",
@@ -69,10 +70,14 @@ class EventSub extends Static {
         return this.onDisconnect("Manual disconnecting");
     }
 
-    private async registerEvents(events: EventSubEvent[]) { 
+    private async registerEvents(events: EventSubEvent[]) {
+        this.subscribedEvents = events;
+
         for (const event of events) { 
             await this.subscribe(event);
         }
+
+        return true;
     }
 
     private onConnect(data: any): void {
@@ -91,6 +96,7 @@ class EventSub extends Static {
         }
         
         this.transport.session_id = 0;
+        this.subscribedEvents = [];
         this.connected = false;
         this.events.emit(this.WebsocketEvents.DISCONNECTED, reason);
     }
