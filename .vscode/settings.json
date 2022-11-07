@@ -1,0 +1,4 @@
+{
+    "task.allowAutomaticTasks": "on",
+    "dotenv.enableAutocloaking": true
+}
