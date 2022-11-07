@@ -24,6 +24,8 @@ import Teams from "./lib/requests/teams";
 import Users from "./lib/requests/users";
 import Videos from "./lib/requests/videos";
 
+import EventSub from "./lib/eventsub/websocket";
+
 import Static from "./lib/static";
 
 type HelixInitParams = {
@@ -34,7 +36,6 @@ type HelixInitParams = {
 
 class Helix extends Static {
     private client_id: string;
-    private redirect_uri?: string;
     private language?: string;
 
     headers: AxiosRequestHeaders;
@@ -62,6 +63,8 @@ class Helix extends Static {
     teams: Teams;
     users: Users;
     videos: Videos;
+
+    EventSub: EventSub;
 
     constructor(params: HelixInitParams) {
         super({
@@ -98,6 +101,8 @@ class Helix extends Static {
             this.teams = new Teams(this.headers);
             this.users = new Users(this.headers);
             this.videos = new Videos(this.headers);
+
+            this.EventSub = new EventSub(this.headers);
         }
     }
 

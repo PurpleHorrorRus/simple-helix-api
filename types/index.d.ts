@@ -22,6 +22,7 @@ import Tags from "./lib/requests/tags";
 import Teams from "./lib/requests/teams";
 import Users from "./lib/requests/users";
 import Videos from "./lib/requests/videos";
+import EventSub from "./lib/eventsub/websocket";
 import Static from "./lib/static";
 declare type HelixInitParams = {
     client_id: string;
@@ -30,7 +31,6 @@ declare type HelixInitParams = {
 };
 declare class Helix extends Static {
     private client_id;
-    private redirect_uri?;
     private language?;
     headers: AxiosRequestHeaders;
     analytics: Analytics;
@@ -56,6 +56,7 @@ declare class Helix extends Static {
     teams: Teams;
     users: Users;
     videos: Videos;
+    EventSub: EventSub;
     constructor(params: HelixInitParams);
     getAuthLink(scopes: string[] | undefined, redirect_uri: string): Promise<string | void>;
     updateStream(broadcaster_id: number, title: string, game: string): Promise<any>;

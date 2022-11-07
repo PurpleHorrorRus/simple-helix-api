@@ -28,6 +28,7 @@ class Static {
         });
 
         const ok = response.status === 200
+            || response.status === 202
             || response.status === 204;
 
         return (

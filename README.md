@@ -117,6 +117,46 @@ const clips = await Helix.clips.all(user_id);
 console.log(clips);
 ```
 
+# EventSub Websocket
+
+Since 3.1.0 you can receive realtime notifications using Websocket.
+
+You can check all events on [this page](https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscribe).
+
+### Example
+
+```javascript
+const HelixAPI = require("simple-helix-api"); // you can use import
+
+// Init Helix instance
+const Helix = new HelixAPI({
+    access_token: "xxxxxxx",
+    client_id: "xxxxxxx"
+});
+
+// List of conditions. Each event can have different from each other conditions, so please check Twitch docs.
+const conditions = [{
+    broadcaster_user_id: String("user_id here") // User ID and other numbers must be converted to string for condition
+}];
+
+// List of events
+const events = [
+    new EventSubEvent("channel.update", conditions[0]),
+    new EventSubEvent("channel.follow", conditions[0])
+];
+
+// Create EventSub client
+const EventSubClient = await Helix.EventSub.connect(events);
+
+// Register listeners for events
+EventSubClient.on("channel.follow", data => {
+    console.log(`Thank you for following, ${data.user_name}`);
+});
+
+// Listen events
+EventSubClient.listen();
+```
+
 # Contribution
 Sometimes I may miss some changes in the Twitch API, so I will be glad of any help. Feel free to fork and share PR's.
 

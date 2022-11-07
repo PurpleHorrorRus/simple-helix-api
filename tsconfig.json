@@ -1,6 +1,5 @@
 {
     "compileOnSave": true,
-
     "compilerOptions": {
         "target": "es2020",
         "module": "CommonJS",
@@ -9,12 +8,12 @@
         "resolveJsonModule": true,
         "declaration": true,
         "outDir": "./dist",
+        "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
         "strictPropertyInitialization": false,
         "skipLibCheck": true
     },
-
     "files": [
         "src/index.ts"
     ]
