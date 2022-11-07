@@ -127,6 +127,7 @@ You can check all events on [this page](https://dev.twitch.tv/docs/eventsub/even
 
 ```javascript
 const HelixAPI = require("simple-helix-api"); // you can use import
+const EventSubEvent = require("simple-helix-api/dist/lib/eventsub/event");
 
 // Init Helix instance
 const Helix = new HelixAPI({
