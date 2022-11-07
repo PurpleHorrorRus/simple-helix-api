@@ -2,18 +2,11 @@ import { AxiosRequestHeaders } from "axios";
 import { EventEmitter } from "node:events";
 
 import Websocket from "reconnecting-websocket";
-
-// @ts-ignore
 import ws from "ws";
 
 import EventSubEvent from "./event";
 import Static from "../static";
 import { TEventType } from "./types/events";
-
-const WebsocketEvents = {
-    CONNECTED: "connected",
-    DISCONNECTED: "disconnected"
-};
 
 class EventSub extends Static { 
     private readonly endpoint = "wss://eventsub-beta.wss.twitch.tv/ws";
@@ -25,8 +18,11 @@ class EventSub extends Static {
     };
 
     public client: Websocket; 
-
     public readonly events = new EventEmitter();
+    public readonly WebsocketEvents = {
+        CONNECTED: "connected",
+        DISCONNECTED: "disconnected"
+    };
 
     constructor(headers: AxiosRequestHeaders) { 
         super(headers);
@@ -39,31 +35,44 @@ class EventSub extends Static {
 
     public connect(events: EventSubEvent[]): Promise<EventSub> {
         if (!events || events.length === 0 || !Array.isArray(events)) { 
-            throw new Error();
+            throw new Error(this.ERRORS.INVALID_EVENTS);
         }
 
-        this.client = new Websocket(this.endpoint, undefined, {
-            WebSocket: ws
-        });
+        return new Promise((resolve, reject) => {
+            this.client = new Websocket(this.endpoint, [], {
+                WebSocket: ws,
+                maxReconnectionDelay: 5000,
+                maxRetries: Infinity,
+                connectionTimeout: 2000
+            });
+    
+            this.client.addEventListener("close", reason => {
+                this.onDisconnect(reason);
+                return reject(reason);
+            });
 
-        this.client.onclose = this.onDisconnect;
-        this.client.onerror = this.onDisconnect;
-
-        return new Promise(resolve => { 
-            this.client.onmessage = async message => { 
+            this.client.addEventListener("message", message => {
                 const data = JSON.parse(message.data);
-                
+
                 if (data.metadata.message_type === "session_welcome") {
                     this.onConnect(data);
-
-                    for (const event of events) { 
-                        await this.subscribe(event);
-                    }
-
+                    this.registerEvents(events);
                     return resolve(this);
                 }
-            };
-        });   
+
+                return this.onMessage(data);
+            });
+        });  
+    }
+
+    public disconnect() { 
+        return this.onDisconnect("Manual disconnecting");
+    }
+
+    private async registerEvents(events: EventSubEvent[]) { 
+        for (const event of events) { 
+            await this.subscribe(event);
+        }
     }
 
     private onConnect(data: any): void {
@@ -73,34 +82,29 @@ class EventSub extends Static {
 
         this.transport.session_id = data.payload.session.id;
         this.connected = true;
-        this.events.emit(WebsocketEvents.CONNECTED);
+        this.events.emit(this.WebsocketEvents.CONNECTED);
     }
 
-    public onDisconnect(reason: any): void {
-        if (this.client.OPEN) { 
-            this.client.close();
+    private onDisconnect(reason: any): void {
+        if (!this.connected) {
+            return;
         }
         
+        this.transport.session_id = 0;
         this.connected = false;
-        this.events.emit(WebsocketEvents.DISCONNECTED, reason);
+        this.events.emit(this.WebsocketEvents.DISCONNECTED, reason);
     }
 
-    public listen(): EventSub { 
-        this.client.onmessage = message => {
-            const data = JSON.parse(message.data);
-
-            switch (data.metadata.message_type) { 
-                case "notification": { 
-                    return this.events.emit(data.metadata.subscription_type, data.payload?.event);
-                }
-                    
-                default: { 
-                    return this.events.emit(data.metadata.message_type, data.payload);
-                }
+    private onMessage(data: any): any {
+        switch (data.metadata.message_type) { 
+            case "notification": { 
+                return this.events.emit(data.metadata.subscription_type, data.payload?.event);
+            }
+                
+            default: { 
+                return this.events.emit(data.metadata.message_type, data.payload);
             }
         }
-
-        return this;
     }
 
     public send(message: string): boolean { 
