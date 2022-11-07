@@ -39,6 +39,7 @@
     "moderator:read:chat_settings",
     "moderator:manage:announcements",
     "moderator:manage:chat_messages",
+    "moderator:read:chatters",
 
     "user:edit",
     "user:edit:follows",
