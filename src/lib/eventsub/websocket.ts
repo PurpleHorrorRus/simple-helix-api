@@ -42,9 +42,7 @@ class EventSub extends Static {
         return new Promise((resolve, reject) => {
             this.client = new Websocket(this.endpoint, [], {
                 WebSocket: ws,
-                maxReconnectionDelay: 5000,
-                maxRetries: Infinity,
-                connectionTimeout: 2000
+                maxRetries: Infinity
             });
     
             this.client.addEventListener("close", reason => {
@@ -140,12 +138,6 @@ class EventSub extends Static {
 
     public once(event: TEventType, listener: (...args: any) => void) { 
         return this.events.once(event, listener);
-    }
-
-    public handle() { 
-        return new Promise(resolve => {
-            setTimeout(resolve, 1000 * 60 * 60 * 5);
-        });
     }
 }
 
