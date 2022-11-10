@@ -64,7 +64,11 @@ class EventSub extends Static {
         });  
     }
 
-    public disconnect() { 
+    public disconnect() {
+        if (this.client?.OPEN) { 
+            this.client.close();
+        }
+
         return this.onDisconnect("Manual disconnecting");
     }
 
