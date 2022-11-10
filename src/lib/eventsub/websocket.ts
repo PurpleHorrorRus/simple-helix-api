@@ -11,7 +11,6 @@ import { TEventType } from "./types/events";
 class EventSub extends Static { 
     private readonly endpoint = "wss://eventsub-beta.wss.twitch.tv/ws";
 
-    private connected = false;
     private readonly transport = {
         method: "websocket",
         session_id: 0
@@ -43,6 +42,11 @@ class EventSub extends Static {
             this.client = new Websocket(this.endpoint, [], {
                 WebSocket: ws,
                 maxRetries: Infinity
+            });
+
+            this.client.addEventListener("error", reason => {
+                this.onDisconnect(reason);
+                return this.client.reconnect();
             });
     
             this.client.addEventListener("close", reason => {
@@ -83,23 +87,13 @@ class EventSub extends Static {
     }
 
     private onConnect(data: any): void {
-        if (this.connected) {
-            return;
-        }
-
         this.transport.session_id = data.payload.session.id;
-        this.connected = true;
         this.events.emit(this.WebsocketEvents.CONNECTED);
     }
 
     private onDisconnect(reason: any): void {
-        if (!this.connected) {
-            return;
-        }
-        
         this.transport.session_id = 0;
         this.subscribedEvents = [];
-        this.connected = false;
         this.events.emit(this.WebsocketEvents.DISCONNECTED, reason);
     }
 
@@ -113,15 +107,6 @@ class EventSub extends Static {
                 return this.events.emit(data.metadata.message_type, data.payload);
             }
         }
-    }
-
-    public send(message: string): boolean { 
-        if (!this.client || this.client.CLOSED) {
-            return false;
-        }
-
-        this.client.send(message);
-        return true;
     }
 
     public async subscribe(event: EventSubEvent): Promise<any> {
@@ -142,6 +127,10 @@ class EventSub extends Static {
 
     public once(event: TEventType, listener: (...args: any) => void) { 
         return this.events.once(event, listener);
+    }
+
+    public get connected(): boolean { 
+        return Boolean(this.client?.OPEN);
     }
 }
 

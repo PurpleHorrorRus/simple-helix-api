@@ -134,6 +134,15 @@ const Helix = new HelixAPI({
     client_id: "xxxxxxx"
 });
 
+// Listen connect and disconnect events
+Helix.EventSub.events.on(Helix.EventSub.WebsocketEvents.CONNECTED, () => {
+    console.log("Connected to WebSocket");
+});
+
+Helix.EventSub.events.on(Helix.EventSub.WebsocketEvents.DISCONNECTED, () => {
+    console.log("Disconnected from WebSocket");
+});
+
 // List of conditions. Each event can have different from each other conditions, so please check Twitch docs.
 const conditions = [{
     broadcaster_user_id: String("user_id here") // User ID and other numbers must be converted to string for condition
