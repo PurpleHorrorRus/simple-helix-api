@@ -41,6 +41,7 @@ class EventSub extends Static {
         return new Promise((resolve, reject) => {
             this.client = new Websocket(this.endpoint, [], {
                 WebSocket: ws,
+                startClosed: true,
                 maxRetries: Infinity
             });
 
@@ -65,6 +66,8 @@ class EventSub extends Static {
 
                 return this.onMessage(data);
             });
+
+            return this.client.reconnect();
         });  
     }
 
