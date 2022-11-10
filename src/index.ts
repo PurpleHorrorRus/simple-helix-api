@@ -27,6 +27,7 @@ import Videos from "./lib/requests/videos";
 import EventSub from "./lib/eventsub/websocket";
 
 import Static from "./lib/static";
+import EventSubEvent from "./lib/eventsub/event";
 
 type HelixInitParams = {
     client_id: string
@@ -138,3 +139,4 @@ class Helix extends Static {
 }
 
 export default Helix;
+export { EventSubEvent };
