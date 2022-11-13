@@ -1,4 +1,7 @@
-export type TEventType = "channel.update"
+export type TEventType =
+    | "session_keepalive"
+    | "notification"
+    | "channel.update"
     | "channel.follow"
     | "channel.subscribe"
     | "channel.subscription.end"

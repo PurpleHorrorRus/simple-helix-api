@@ -4,7 +4,6 @@ import { EventEmitter } from "node:events";
 import Websocket from "reconnecting-websocket";
 import ws from "ws";
 
-import EventSubEvent from "./event";
 import Static from "../static";
 import { TEventType } from "./types/events";
 
@@ -17,7 +16,7 @@ class EventSub extends Static {
     };
 
     public client: Websocket;
-    public subscribedEvents: EventSubEvent[] = [];
+    public subscribedEvents: Partial<Record<TEventType, (...args: any) => any>> = {};
     public readonly events = new EventEmitter();
     public readonly WebsocketEvents = {
         CONNECTED: "connected",
@@ -33,11 +32,7 @@ class EventSub extends Static {
         };
     }
 
-    public connect(events: EventSubEvent[]): Promise<EventSub> {
-        if (!events || events.length === 0 || !Array.isArray(events)) { 
-            throw new Error(this.ERRORS.INVALID_EVENTS);
-        }
-
+    public connect(): Promise<EventSub> {
         return new Promise((resolve, reject) => {
             this.client = new Websocket(this.endpoint, [], {
                 WebSocket: ws,
@@ -60,7 +55,6 @@ class EventSub extends Static {
 
                 if (data.metadata.message_type === "session_welcome") {
                     this.onConnect(data);
-                    this.registerEvents(events);
                     return resolve(this);
                 }
 
@@ -79,16 +73,6 @@ class EventSub extends Static {
         return this.onDisconnect("Manual disconnecting");
     }
 
-    private async registerEvents(events: EventSubEvent[]) {
-        this.subscribedEvents = events;
-
-        for (const event of events) { 
-            await this.subscribe(event);
-        }
-
-        return true;
-    }
-
     private onConnect(data: any): void {
         this.transport.session_id = data.payload.session.id;
         this.events.emit(this.WebsocketEvents.CONNECTED);
@@ -96,40 +80,38 @@ class EventSub extends Static {
 
     private onDisconnect(reason: any): void {
         this.transport.session_id = 0;
-        this.subscribedEvents = [];
+        this.subscribedEvents = {};
         this.events.emit(this.WebsocketEvents.DISCONNECTED, reason);
     }
 
     private onMessage(data: any): any {
-        switch (data.metadata.message_type) { 
+        const messageType: TEventType = data.metadata.message_type;
+
+        switch (messageType) { 
             case "notification": { 
-                return this.events.emit(data.metadata.subscription_type, data.payload?.event);
+                const subscriptionType: TEventType = data.metadata.subscription_type;
+                return this.subscribedEvents[subscriptionType]?.(data.payload?.event);
             }
                 
-            default: { 
-                return this.events.emit(data.metadata.message_type, data.payload);
+            default: {
+                return this.subscribedEvents[messageType]?.(data.payload);
             }
         }
     }
 
-    public async subscribe(event: EventSubEvent): Promise<any> {
-        return await this.requestEndpoint("eventsub/subscriptions", "", {
+    public async subscribe(type: TEventType, condition: Record<string, string>, listener: (...args: any) => any, version = 1): Promise<any> {
+        await this.requestEndpoint("eventsub/subscriptions", "", {
             method: "POST",
             data: {
-                type: event.type,
-                version: event.version || 1,
-                condition: event.condition,
+                type,
+                version,
+                condition,
                 transport: this.transport
             }
         });
-    }
 
-    public on(event: TEventType, listener: (...args: any) => void) { 
-        return this.events.on(event, listener);
-    }
-
-    public once(event: TEventType, listener: (...args: any) => void) { 
-        return this.events.once(event, listener);
+        this.subscribedEvents[type] = listener;
+        return true;
     }
 
     public get connected(): boolean { 
