@@ -149,7 +149,7 @@ const conditions = [{
 }];
 
 // Create EventSub client
-const EventSubClient = await Helix.EventSub.connect(events);
+const EventSubClient = await Helix.EventSub.connect();
 
 // Register listeners for events
 EventSubClient.subscribe("channel.follow", conditions[0], follow => {
