@@ -119,7 +119,11 @@ console.log(clips);
 
 # EventSub Websocket
 
-Since 3.1.0 you can receive realtime notifications using Websocket.
+```
+Release version: 3.1.0
+
+Description: You can receive realtime notifications using Websocket.
+```
 
 You can check all events on [this page](https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types#channelsubscribe).
 
@@ -155,6 +159,82 @@ const EventSubClient = await Helix.EventSub.connect();
 EventSubClient.subscribe("channel.follow", conditions[0], follow => {
     console.log(`Thank you for following, ${follow.user_name}`);
 });
+```
+# Chat Client
+
+```
+Release version: 3.3.0
+Description: Create your own chatbot.
+```
+All you need to connecting to chat is [OAuth password](https://twitchapps.com/tmi/).
+
+Available chat events:
+```
+sub, resub, subgift, submysterygift, giftpaidupgrade, rewardgift, anongiftpaidupgrade, raid, unraid, ritual, bitsbadgetier
+```
+
+You can check all available chat events and tags for chat events [here](https://dev.twitch.tv/docs/irc/tags#usernotice-tags).
+
+### Example
+
+```javascript
+const HelixAPI = require("simple-helix-api"); // you can use import
+
+// Init Helix instance
+const Helix = new HelixAPI({
+    access_token: "xxxxxxx",
+    client_id: "xxxxxxx"
+});
+
+const username = "USERRNAME", // Bot or your channel username
+const password = "oauth:PASSWORD", // OAuth password
+const channels = ["channel1"] // Optional. Leave it blank or null to autoconnect to your channel
+
+Helix.tmi.events.on(Helix.tmi.WebsocketEvents.CONNECTED, () => {
+    console.log("Chat client connected");
+});
+
+Helix.tmi.events.on(Helix.tmi.WebsocketEvents.DISCONNECTED, () => {
+    console.log("Chat client disconnected");
+});
+
+const chat = await Helix.tmi.connect(username, password, channels);
+
+// Listen regular messages, highlighted messages or reward messages
+chat.on("message", message => {
+    const username = message["display-name"];
+    console.log(`${username}: ${message.text}`);
+});
+
+/*
+    Listen chat events.
+    Chat events tags can be found here:
+    https://dev.twitch.tv/docs/irc/tags#usernotice-tags
+*/
+
+// Listen sub event
+chat.on("sub", sub => {
+    const subscriber = sub["display-name"];
+    const plan = sub["msg-param-sub-plan-name"];
+    console.log(`${subscriber} has subscribed to the channel with ${plan}`);
+});
+
+// Listen sub event
+chat.on("resub", resub => {
+    const subscriber = resub["display-name"];
+    const streak = resub["msg-param-streak-months"];
+    console.log(`${subscriber} is resubscribed to the channel for the ${streak} month in a row`);
+});
+
+// Listen raid event
+chat.on("raid", raid => {
+    const raider = message["msg-param-displayName"];
+    const viewers = message["msg-param-viewerCount"];
+    console.log(`${raider} raiding with ${viewers} viewers`);
+});
+
+const date = new Date().toLocaleTimeString();
+chat.say(`[Chat Client]: connected at ${date}`, channels);
 ```
 
 # Contribution

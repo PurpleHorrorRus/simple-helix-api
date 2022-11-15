@@ -2,6 +2,7 @@ import HelixAPI from "../src/index"
 import * as dotenv from "dotenv";
 
 import EventSub from "../src/lib/eventsub/websocket";
+import TMIClient from "../src/lib/tmi/websocket";
 
 dotenv.config();
 
@@ -456,7 +457,7 @@ describe.skip("Soundtrack", () => {
     });
 });
 
-describe("Websocket", () => {
+describe("EventSub", () => {
     let client: EventSub = Helix.EventSub;
     const conditions = [{
         broadcaster_user_id: String(user_id)
@@ -485,5 +486,40 @@ describe("Websocket", () => {
         });
 
         expect(response).toBeTruthy();
+    });
+});
+
+describe.only("TMI Client", () => {
+    let client: TMIClient;
+
+    beforeAll(async () => {
+        Helix.tmi.events.on(Helix.tmi.WebsocketEvents.CONNECTED, () => {
+            return console.log("[TMI]: Connected");
+        });
+
+        Helix.tmi.events.on(Helix.tmi.WebsocketEvents.DISCONNECTED, reason => {
+            return console.error("[TMI]: Disconnected", reason);
+        });
+
+        client = await Helix.tmi.connect(
+            process.env.TMI_USERNAME!,
+            process.env.TMI_PASSWORD!,
+            ["InfiniteHorror"]
+        );
+    });
+
+    test("Handle", async () => {
+        const message = await new Promise(resolve => {
+            client.on("message", message => { 
+                return resolve(message);
+            });
+        });
+
+        expect(message).toBeTruthy();
+    });
+
+    test.only("Send Message", async () => {
+        const response = await client.say(new Date().toLocaleTimeString(), "InfiniteHorror");
+        expect(response).toBe(true);
     });
 });

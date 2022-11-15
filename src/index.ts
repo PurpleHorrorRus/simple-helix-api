@@ -25,6 +25,7 @@ import Users from "./lib/requests/users";
 import Videos from "./lib/requests/videos";
 
 import EventSub from "./lib/eventsub/websocket";
+import TMIClient from "./lib/tmi/websocket";
 
 import Static from "./lib/static";
 
@@ -65,6 +66,7 @@ class Helix extends Static {
     videos: Videos;
 
     EventSub: EventSub;
+    tmi: TMIClient;
 
     constructor(params: HelixInitParams) {
         super({
@@ -103,6 +105,7 @@ class Helix extends Static {
             this.videos = new Videos(this.headers);
 
             this.EventSub = new EventSub(this.headers);
+            this.tmi = new TMIClient();
         }
     }
 
