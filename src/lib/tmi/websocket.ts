@@ -5,6 +5,7 @@ import EventEmitter from "events";
 import TMIParser from "./parser";
 import { parse as IRCParser, IRCMessage } from "irc-message-ts";
 
+import { TChatOptions } from "./types/chat";
 import { TChatEvent } from "./types/events";
 
 class TMIClient extends TMIParser { 
@@ -13,6 +14,7 @@ class TMIClient extends TMIParser {
 
     private connection: ReconnectingWebSocket;
     private globalUserState = {};
+    private userState = {};
     private channels: string[];
 
     public readonly events: EventEmitter = new EventEmitter();
@@ -21,12 +23,12 @@ class TMIClient extends TMIParser {
         DISCONNECTED: "disconnected"
     };
     
-    connect(username: string, password: string, channels: string[] = [username], secure = false): Promise<TMIClient> {
+    connect(username: string, password: string, channels: string[] = [username], options: TChatOptions): Promise<TMIClient> {
         if (!username || !password) {
             throw new Error("You must to specify username and password");
         }
 
-        const endpoint = secure
+        const endpoint = options.secure
             ? this.secureEndpoint
             : this.endpoint;
 
@@ -49,7 +51,10 @@ class TMIClient extends TMIParser {
 
             this.connection.addEventListener("message", rawMesage => {
                 const ircMessage = rawMesage.data.trim();
-                console.log(ircMessage);
+                
+                if (options.debug) {
+                    console.log(ircMessage);
+                }
 
                 for (const message of ircMessage.split("\r\n")) { 
                     const parsed = IRCParser(message);
@@ -70,9 +75,19 @@ class TMIClient extends TMIParser {
                             break;
                         }
                             
+                        case "USERSTATE": { 
+                            this.userState = {
+                                ...parsed.tags,
+                                ...this.message(parsed)
+                            };
+
+                            break;
+                        }
+                            
                         case "366": { 
                             this.events.emit(this.WebsocketEvents.CONNECTED);
-                            return resolve(this);
+                            resolve(this);
+                            break;
                         }
                             
                         case "NOTICE": { 
@@ -155,6 +170,7 @@ class TMIClient extends TMIParser {
         this.connection.send(`PRIVMSG ${channel} :${text}`);
         this.events.emit("message", {
             ...this.globalUserState,
+            ...this.userState,
             text
         });
 

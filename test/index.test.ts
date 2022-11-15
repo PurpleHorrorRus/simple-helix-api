@@ -507,7 +507,10 @@ describe("TMI Client", () => {
                 process.env.TMI_USERNAME!,
                 process.env.TMI_PASSWORD!,
                 ["InfiniteHorror"],
-                true
+                {
+                    debug: true,
+                    secure: false
+                }
             );
         });
     });

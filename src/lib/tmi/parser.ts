@@ -60,7 +60,11 @@ class TMIParser {
         return result;
     }
 
-    badges(badges: string): Record<string, number> { 
+    badges(badges: string): Record<string, number> {
+        if (!badges) {
+            return {};
+        }
+
         const result: Record<string, number> = {};
 
         badges.split(",").forEach(badge => {
