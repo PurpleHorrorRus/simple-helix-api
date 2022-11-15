@@ -506,7 +506,8 @@ describe("TMI Client", () => {
             client = await Helix.tmi.connect(
                 process.env.TMI_USERNAME!,
                 process.env.TMI_PASSWORD!,
-                ["InfiniteHorror"]
+                ["InfiniteHorror"],
+                true
             );
         });
     });

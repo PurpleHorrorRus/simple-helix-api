@@ -186,9 +186,10 @@ const Helix = new HelixAPI({
     client_id: "xxxxxxx"
 });
 
-const username = "USERRNAME", // Bot or your channel username
+const username = "USERNAME", // Bot or your channel username
 const password = "oauth:PASSWORD", // OAuth password
 const channels = ["channel1"] // Optional. Leave it blank or null to autoconnect to your channel
+const secure = true; // Optional. Use secure connection (443)
 
 Helix.tmi.events.on(Helix.tmi.WebsocketEvents.CONNECTED, () => {
     console.log("Chat client connected");
@@ -198,7 +199,7 @@ Helix.tmi.events.on(Helix.tmi.WebsocketEvents.DISCONNECTED, () => {
     console.log("Chat client disconnected");
 });
 
-const chat = await Helix.tmi.connect(username, password, channels);
+const chat = await Helix.tmi.connect(username, password, channels, secure);
 
 // Listen regular messages, highlighted messages or reward messages
 chat.on("message", message => {
@@ -228,8 +229,8 @@ chat.on("resub", resub => {
 
 // Listen raid event
 chat.on("raid", raid => {
-    const raider = message["msg-param-displayName"];
-    const viewers = message["msg-param-viewerCount"];
+    const raider = raid["msg-param-displayName"];
+    const viewers = raid["msg-param-viewerCount"];
     console.log(`${raider} raiding with ${viewers} viewers`);
 });
 

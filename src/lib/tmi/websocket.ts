@@ -8,7 +8,8 @@ import { parse as IRCParser, IRCMessage } from "irc-message-ts";
 import { TChatEvent } from "./types/events";
 
 class TMIClient extends TMIParser { 
-    private readonly endpoint = "wss://irc-ws.chat.twitch.tv:443";
+    private readonly endpoint = "ws://irc-ws.chat.twitch.tv:80";
+    private readonly secureEndpoint = "wss://irc-ws.chat.twitch.tv:443";
 
     private connection: ReconnectingWebSocket;
     private globalUserState = {};
@@ -20,12 +21,16 @@ class TMIClient extends TMIParser {
         DISCONNECTED: "disconnected"
     };
     
-    connect(username: string, password: string, channels: string[] = [username]): Promise<TMIClient> {
+    connect(username: string, password: string, channels: string[] = [username], secure = false): Promise<TMIClient> {
         if (!username || !password) {
             throw new Error("You must to specify username and password");
         }
 
-        this.connection = new ReconnectingWebSocket(this.endpoint, "irc", {
+        const endpoint = secure
+            ? this.secureEndpoint
+            : this.endpoint;
+
+        this.connection = new ReconnectingWebSocket(endpoint, "irc", {
             WebSocket: ws,
             maxRetries: Infinity,
             startClosed: true
