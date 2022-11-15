@@ -111,7 +111,7 @@ class Helix extends Static {
 
     async getAuthLink (scopes: string[] = [], redirect_uri: string) {
         if (scopes.length === 0) {
-            scopes = await import("./lib/scopes.json");
+            scopes = (await import("./lib/scopes.json")).default;
         } else if (!Array.isArray(scopes)) {
             return this.handleError("Scopes list must be an array");
         }

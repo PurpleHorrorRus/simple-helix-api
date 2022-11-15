@@ -489,7 +489,7 @@ describe("EventSub", () => {
     });
 });
 
-describe.only("TMI Client", () => {
+describe("TMI Client", () => {
     let client: TMIClient;
 
     beforeAll(async () => {
