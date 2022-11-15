@@ -9,6 +9,7 @@ export type TChatEvent =
     | "CLEARMSG"
     | "USERNOTICE"
     | "PRIVMSG"
+    | "PING"
 
     | "sub"
     | "resub"

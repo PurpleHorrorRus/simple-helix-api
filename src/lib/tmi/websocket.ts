@@ -107,6 +107,11 @@ class TMIClient extends TMIParser {
                             break;
                         }
                             
+                        case "PING": { 
+                            this.connection.send(`PONG :${parsed.param}`);
+                            break;
+                        }
+
                         default: {
                             this.onMessage(parsed as IRCMessage);
                             break;
