@@ -8,9 +8,10 @@ import { parse as IRCParser, IRCMessage } from "irc-message-ts";
 import { TChatEvent } from "./types/events";
 
 class TMIClient extends TMIParser { 
-    private readonly endpoint = "ws://irc-ws.chat.twitch.tv:80";
+    private readonly endpoint = "wss://irc-ws.chat.twitch.tv:443";
 
     private connection: ReconnectingWebSocket;
+    private globalUserState = {};
     private channels: string[];
 
     public readonly events: EventEmitter = new EventEmitter();
@@ -24,7 +25,7 @@ class TMIClient extends TMIParser {
             throw new Error("You must to specify username and password");
         }
 
-        this.connection = new ReconnectingWebSocket(this.endpoint, [], {
+        this.connection = new ReconnectingWebSocket(this.endpoint, "irc", {
             WebSocket: ws,
             maxRetries: Infinity,
             startClosed: true
@@ -43,6 +44,7 @@ class TMIClient extends TMIParser {
 
             this.connection.addEventListener("message", rawMesage => {
                 const ircMessage = rawMesage.data.trim();
+                console.log(ircMessage);
 
                 for (const message of ircMessage.split("\r\n")) { 
                     const parsed = IRCParser(message);
@@ -51,6 +53,15 @@ class TMIClient extends TMIParser {
                         case "001": {
                             this.channels = this.parseChannels(channels);
                             this.connection.send(`JOIN ${this.channels.join(",")}`);
+                            break;
+                        }
+                            
+                        case "GLOBALUSERSTATE": { 
+                            this.globalUserState = {
+                                ...parsed.tags,
+                                ...this.message(parsed)
+                            };
+
                             break;
                         }
                             
@@ -63,7 +74,7 @@ class TMIClient extends TMIParser {
                             return reject(parsed.params[1]);
                         }
                             
-                        default: { 
+                        default: {
                             this.onMessage(parsed as IRCMessage);
                             break;
                         }
@@ -134,7 +145,14 @@ class TMIClient extends TMIParser {
             ? this.parseChannels(channel).join(",")
             : this.parseChannel(channel);
 
+        text = text.substring(0, 500);
+        
         this.connection.send(`PRIVMSG ${channel} :${text}`);
+        this.events.emit("message", {
+            ...this.globalUserState,
+            text
+        });
+
         return Boolean(this.connected);
     }
 

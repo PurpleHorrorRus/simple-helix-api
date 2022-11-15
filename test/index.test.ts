@@ -493,24 +493,27 @@ describe("TMI Client", () => {
     let client: TMIClient;
 
     beforeAll(async () => {
-        Helix.tmi.events.on(Helix.tmi.WebsocketEvents.CONNECTED, () => {
-            return console.log("[TMI]: Connected");
+        return await new Promise(async resolve => { 
+            Helix.tmi.events.on(Helix.tmi.WebsocketEvents.CONNECTED, () => {
+                console.log("[TMI]: Connected");
+                return resolve(client);
+            });
+    
+            Helix.tmi.events.on(Helix.tmi.WebsocketEvents.DISCONNECTED, reason => {
+                return console.error("[TMI]: Disconnected", reason);
+            });
+    
+            client = await Helix.tmi.connect(
+                process.env.TMI_USERNAME!,
+                process.env.TMI_PASSWORD!,
+                ["InfiniteHorror"]
+            );
         });
-
-        Helix.tmi.events.on(Helix.tmi.WebsocketEvents.DISCONNECTED, reason => {
-            return console.error("[TMI]: Disconnected", reason);
-        });
-
-        client = await Helix.tmi.connect(
-            process.env.TMI_USERNAME!,
-            process.env.TMI_PASSWORD!,
-            ["InfiniteHorror"]
-        );
     });
 
     test("Handle", async () => {
         const message = await new Promise(resolve => {
-            client.on("message", message => { 
+            client.on("message", message => {
                 return resolve(message);
             });
         });
