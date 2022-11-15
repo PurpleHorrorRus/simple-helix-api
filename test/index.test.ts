@@ -518,7 +518,7 @@ describe.only("TMI Client", () => {
         expect(message).toBeTruthy();
     });
 
-    test.only("Send Message", async () => {
+    test("Send Message", async () => {
         const response = await client.say(new Date().toLocaleTimeString(), "InfiniteHorror");
         expect(response).toBe(true);
     });

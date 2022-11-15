@@ -30,16 +30,11 @@ class TMIClient extends TMIParser {
             startClosed: true
         });
 
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             this.connection.addEventListener("open", () => {
                 this.connection.send("CAP REQ :twitch.tv/commands twitch.tv/membership twitch.tv/tags");
                 this.connection.send(`PASS ${password}`);
                 this.connection.send(`NICK ${username}`);
-
-                this.channels = this.parseChannels(channels);
-                this.connection.send(`JOIN ${this.channels.join(",")}`);
-                this.events.emit(this.WebsocketEvents.CONNECTED);
-                return resolve(this);
             });
 
             this.connection.addEventListener("close", reason => {
@@ -51,7 +46,28 @@ class TMIClient extends TMIParser {
 
                 for (const message of ircMessage.split("\r\n")) { 
                     const parsed = IRCParser(message);
-                    this.onMessage(parsed as IRCMessage);
+                    
+                    switch (parsed?.command) { 
+                        case "001": {
+                            this.channels = this.parseChannels(channels);
+                            this.connection.send(`JOIN ${this.channels.join(",")}`);
+                            break;
+                        }
+                            
+                        case "366": { 
+                            this.events.emit(this.WebsocketEvents.CONNECTED);
+                            return resolve(this);
+                        }
+                            
+                        case "NOTICE": { 
+                            return reject(parsed.params[1]);
+                        }
+                            
+                        default: { 
+                            this.onMessage(parsed as IRCMessage);
+                            break;
+                        }
+                    }
                 }
             });
 
@@ -76,10 +92,19 @@ class TMIClient extends TMIParser {
             }
                 
             case "CLEARCHAT": { 
-                return this.events.emit("clear", {
+                if (!parsed.params[1]) { 
+                    return this.events.emit("clear", {
+                        ...parsed.tags,
+                        room: parsed.param,
+                        "room-id": this.toNumber(parsed.tags["room-id"]),
+                        date: this.date(parsed.tags["tmi-sent-ts"])
+                    });
+                }
+
+                return this.events.emit("ban", {
                     ...parsed.tags,
-                    room: parsed.param,
                     "room-id": this.toNumber(parsed.tags["room-id"]),
+                    target: this.toNumber(parsed.tags["target-user-id"]),
                     date: this.date(parsed.tags["tmi-sent-ts"])
                 });
             }
@@ -122,7 +147,7 @@ class TMIClient extends TMIParser {
     }
 
     get connected() { 
-        return this.connection?.OPEN;
+        return Boolean(this.connection?.OPEN);
     }
 }
 

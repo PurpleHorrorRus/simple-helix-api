@@ -1,5 +1,6 @@
 export type TChatEvent =
     "message"
+    
     | "sub"
     | "resub"
     | "subgift"
@@ -10,4 +11,8 @@ export type TChatEvent =
     | "raid"
     | "unraid"
     | "ritual"
-    | "bitsbadgetier";
+    | "bitsbadgetier"
+
+    | "clear"
+    | "ban"
+    | "delete";

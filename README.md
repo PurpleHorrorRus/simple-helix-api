@@ -170,7 +170,7 @@ All you need to connecting to chat is [OAuth password](https://twitchapps.com/tm
 
 Available chat events:
 ```
-sub, resub, subgift, submysterygift, giftpaidupgrade, rewardgift, anongiftpaidupgrade, raid, unraid, ritual, bitsbadgetier
+sub, resub, subgift, submysterygift, giftpaidupgrade, rewardgift, anongiftpaidupgrade, raid, unraid, ritual, bitsbadgetier, clear, delete, ban
 ```
 
 You can check all available chat events and tags for chat events [here](https://dev.twitch.tv/docs/irc/tags#usernotice-tags).
