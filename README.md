@@ -233,6 +233,16 @@ chat.on("raid", raid => {
     console.log(`${raider} raiding with ${viewers} viewers`);
 });
 
+// Listen clear chat event
+chat.on("clear", () => {
+    console.log("Chat has been cleared");
+});
+
+// Sending commands
+// chat.command("ban", shine_discord21); // Pass single argumnet to chat command
+// chat.command("ban", ["shine_discord21", "Some bot account"]); // Pass multiple arguments to chat command
+chat.command("clearchat");
+
 const date = new Date().toLocaleTimeString();
 chat.say(`[Chat Client]: connected at ${date}`, channels);
 ```

@@ -522,4 +522,9 @@ describe.only("TMI Client", () => {
         const response = await client.say(new Date().toLocaleTimeString(), "InfiniteHorror");
         expect(response).toBe(true);
     });
+    
+    test("Send Command", async () => {
+        const response = await client.command("ban", ["shine_discord21", "Bot account"]);
+        expect(response).toBe(true);
+    });
 });

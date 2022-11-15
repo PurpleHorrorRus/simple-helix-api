@@ -138,6 +138,16 @@ class TMIClient extends TMIParser {
         return Boolean(this.connected);
     }
 
+    command(command: string, args: string | string[] = [], channel: string | string[] = this.channels[0]) { 
+        command = "/" + command.replace("/", "");
+        
+        if (args.length > 0) { 
+            command += " " + (Array.isArray(args) ? args.join(" ") : args)
+        }
+
+        return this.say(command, channel);
+    }
+
     on(event: TChatEvent, listener: (...args: any) => any) { 
         return this.events.on(event as string, listener);
     }
