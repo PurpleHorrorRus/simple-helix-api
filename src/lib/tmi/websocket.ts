@@ -22,6 +22,11 @@ class TMIClient extends TMIParser {
         CONNECTED: "connected",
         DISCONNECTED: "disconnected"
     };
+
+    private readonly AuthErrors: string[] = [
+        "Login authentication failed",
+        "You don’t have permission to perform that action"
+    ];
     
     connect(username: string, password: string, channels: string[] = [username], options: TChatOptions): Promise<TMIClient> {
         if (!username || !password) {
@@ -58,8 +63,12 @@ class TMIClient extends TMIParser {
 
                 for (const message of ircMessage.split("\r\n")) { 
                     const parsed = IRCParser(message);
+
+                    if (!parsed?.command) {
+                        return;
+                    }
                     
-                    switch (parsed?.command) { 
+                    switch (parsed.command) { 
                         case "001": {
                             this.channels = this.parseChannels(channels);
                             this.connection.send(`JOIN ${this.channels.join(",")}`);
@@ -90,8 +99,12 @@ class TMIClient extends TMIParser {
                             break;
                         }
                             
-                        case "NOTICE": { 
-                            return reject(parsed.params[1]);
+                        case "NOTICE": {
+                            if (this.AuthErrors.includes(parsed.params[1])) {
+                                reject(parsed.params[1]);
+                            }
+
+                            break;
                         }
                             
                         default: {
@@ -99,6 +112,8 @@ class TMIClient extends TMIParser {
                             break;
                         }
                     }
+
+                    this.events.emit(parsed.command, parsed);
                 }
             });
 
@@ -148,10 +163,6 @@ class TMIClient extends TMIParser {
                     "target-msg-id": this.toNumber(parsed.tags["target-msg-id"]),
                     date: this.date(parsed.tags["tmi-sent-ts"])
                 });
-            }
-                
-            default: {
-                return this.events.emit(String(parsed.command), parsed.tags);
             }
         }
     }

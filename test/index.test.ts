@@ -490,7 +490,7 @@ describe("EventSub", () => {
 });
 
 describe("TMI Client", () => {
-    let client: TMIClient;
+    let client: TMIClient | null;
 
     beforeAll(async () => {
         return await new Promise(async resolve => { 
@@ -511,13 +511,16 @@ describe("TMI Client", () => {
                     debug: true,
                     secure: false
                 }
-            );
+            ).catch(e => {
+                console.error(e);
+                return null;
+            });
         });
     });
 
     test("Handle", async () => {
         const message = await new Promise(resolve => {
-            client.on("message", message => {
+            client?.on("message", message => {
                 return resolve(message);
             });
         });
@@ -525,13 +528,23 @@ describe("TMI Client", () => {
         expect(message).toBeTruthy();
     });
 
+    test("Handle Roomstate", async () => {
+        const roomstate = await new Promise(resolve => {
+            client?.on("ROOMSTATE", message => {
+                return resolve(message);
+            });
+        });
+
+        expect(roomstate).toBe(true);
+    });
+
     test("Send Message", async () => {
-        const response = await client.say(new Date().toLocaleTimeString(), "InfiniteHorror");
+        const response = await client?.say(new Date().toLocaleTimeString(), "InfiniteHorror");
         expect(response).toBe(true);
     });
     
     test("Send Command", async () => {
-        const response = await client.command("ban", ["shine_discord21", "Bot account"]);
+        const response = await client?.command("ban", ["shine_discord21", "Bot account"]);
         expect(response).toBe(true);
     });
 });

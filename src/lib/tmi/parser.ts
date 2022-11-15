@@ -31,7 +31,7 @@ class TMIParser {
     }
 
     toNumber(source: string) { 
-        return Number(source) || -1;
+        return Number(source) || source || -1;
     }
 
     state(state: string) { 
