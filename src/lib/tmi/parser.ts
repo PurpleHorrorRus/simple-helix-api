@@ -50,6 +50,7 @@ class TMIParser {
             const [start, end] = position.split("-").map(Number);
             const emoteName = text.substring(start, end + 1);
             result[emoteName] = {
+                code: emoteName,
                 id: Number(id),
                 start,
                 end: end + 1
