@@ -474,7 +474,9 @@ describe("EventSub", () => {
                 console.log("Disconnected");
             });
     
-            await Helix.EventSub.connect();
+            await Helix.EventSub.connect({
+                debug: true
+            });
         });
     });
 
