@@ -522,7 +522,7 @@ describe("TMI Client", () => {
 
     test("Handle", async () => {
         const message = await new Promise(resolve => {
-            client?.on("message", message => {
+            client?.once("message", message => {
                 return resolve(message);
             });
         });
@@ -532,7 +532,7 @@ describe("TMI Client", () => {
 
     test("Handle Roomstate", async () => {
         const roomstate = await new Promise(resolve => {
-            client?.on("ROOMSTATE", message => {
+            client?.once("ROOMSTATE", message => {
                 return resolve(message);
             });
         });
@@ -548,5 +548,19 @@ describe("TMI Client", () => {
     test("Send Command", async () => {
         const response = await client?.command("ban", ["shine_discord21", "Bot account"]);
         expect(response).toBe(true);
+    });
+
+    test("Send Custom Tags", async () => { 
+        const message: any = await new Promise(resolve => {
+            client?.once("message", message => {
+                return resolve(message);
+            });
+        });
+
+        const answer = await client?.say(new Date().toLocaleTimeString(), "InfiniteHorror", {
+            "reply-parent-msg-id": message.id
+        });
+
+        expect(answer).toBe(true);
     });
 });

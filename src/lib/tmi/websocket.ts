@@ -172,7 +172,7 @@ class TMIClient extends TMIParser {
         }
     }
 
-    say(text: string, channel: string | string[] = this.channels[0]) { 
+    say(text: string, channel: string | string[] = this.channels[0], tags?: Record<string, string>) { 
         if (!this.connected || !text) {
             return false;
         }
@@ -182,8 +182,16 @@ class TMIClient extends TMIParser {
             : this.parseChannel(channel);
 
         text = text.substring(0, 500);
+
+        let command: string = `PRIVMSG ${channel} :${text}`;
+
+        if (tags) {
+            command = Object.keys(tags).map(key => { 
+                return `@${key}=${tags[key]}`;
+            }) + " " + command;
+        }
         
-        this.connection.send(`PRIVMSG ${channel} :${text}`);
+        this.connection.send(command.trim());
         this.events.emit("message", {
             ...this.globalUserState,
             ...this.userState,
