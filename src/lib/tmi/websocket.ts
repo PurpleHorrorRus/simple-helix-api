@@ -58,7 +58,7 @@ class TMIClient extends TMIParser {
                 const ircMessage = rawMesage.data.trim();
                 
                 if (options.debug) {
-                    console.log(ircMessage);
+                    console.log("[simple-helix-api] Chat Raw Message:", ircMessage);
                 }
 
                 for (const message of ircMessage.split("\r\n")) { 

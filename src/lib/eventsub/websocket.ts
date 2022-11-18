@@ -5,6 +5,7 @@ import Websocket from "reconnecting-websocket";
 import ws from "ws";
 
 import Static from "../static";
+import { TEventsubConnectOptions } from "./types/eventsub";
 import { TEventType } from "./types/events";
 
 class EventSub extends Static { 
@@ -13,6 +14,10 @@ class EventSub extends Static {
     private readonly transport = {
         method: "websocket",
         session_id: 0
+    };
+
+    private readonly deafultConnectOptions: TEventsubConnectOptions = {
+        debug: false
     };
 
     public client: Websocket;
@@ -32,7 +37,7 @@ class EventSub extends Static {
         };
     }
 
-    public connect(): Promise<EventSub> {
+    public connect(options: TEventsubConnectOptions = this.deafultConnectOptions): Promise<EventSub> {
         return new Promise((resolve, reject) => {
             this.client = new Websocket(this.endpoint, [], {
                 WebSocket: ws,
@@ -52,6 +57,10 @@ class EventSub extends Static {
 
             this.client.addEventListener("message", message => {
                 const data = JSON.parse(message.data);
+
+                if (options.debug) {
+                    console.log("[simple-helix-api] EventSub Data:", data);
+                }
 
                 if (data.metadata.message_type === "session_welcome") {
                     this.onConnect(data);
