@@ -40,21 +40,24 @@ class TMIParser {
 
     emotes(text: string, emotes: string) {
         if (!emotes) { 
-            return {};
+            return [];
         }
 
-        const result: Record<string, Record<string, string | number>> = {};
+        const result: Record<string, any>[] = [];
 
         emotes.split("/").forEach(emote => {
-            const [id, position] = emote.split(":");
-            const [start, end] = position.split("-").map(Number);
-            const emoteName = text.substring(start, end + 1);
-            result[emoteName] = {
-                code: emoteName,
+            const [id, positionsRaw] = emote.split(":");
+
+            const positions = positionsRaw.split(",").map(position => { 
+                const splitted = position.split("-").map(Number);
+                return [splitted[0], splitted[1] + 1];
+            });
+
+            result.push({
+                code: text.substring(positions[0][0], positions[0][1]),
                 id: Number(id),
-                start,
-                end: end + 1
-            };
+                positions
+            });
         });
 
         return result;
