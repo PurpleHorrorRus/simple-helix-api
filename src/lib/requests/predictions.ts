@@ -6,8 +6,10 @@ import Static from "../static";
 const predictionsConfig = {
     MAX_TITLE_LENGTH: 45,
 
+    OUTCOMES_MIN: 2,
+    OUTCOMES_MAX: 10,
     OUTCOMES_ITEM_TITLE_LENGTH: 25,
-
+    
     MIN_TIMEOUT: 1,
     MAX_TIMEOUT: 1800
 };
@@ -25,7 +27,8 @@ class Predictions extends Static {
         this.ERRORS = {
             ...this.ERRORS,
             INVALID_TITLE: "Invalid prediction title",
-            OUTCOMES_LENGTH: "Prediction must contain two outcomes",
+            OUTCOMES_MIN: "Prediction must have at least 2 outcomes",
+            OUTCOMES_MAX: "Preidction can have a maximum of 10 outcomes",
             INVALID_OUTCOME: "Outcomes must be an array",
             INVALID_OUTCOME_ITEM: "One of choise items is invalid",
             MISSING_ID: "Missing prediction ID",
@@ -50,12 +53,16 @@ class Predictions extends Static {
         if (!Array.isArray(outcomes)) {
             return this.handleError(this.ERRORS.INVALID_OUTCOME);
         }
-
-        if (outcomes.length !== 2) {
-            return this.handleError(this.ERRORS.OUTCOMES_LENGTH);
+         
+         if (outcomes.length < predictionsConfig.OUTCOMES_MIN) { 
+            return this.handleError(this.ERRORS.OUTCOMES_MIN);
         }
 
-        if (~outcomes.findIndex(item => !item.title)) {
+        if (outcomes.length > predictionsConfig.OUTCOMES_MAX) {
+            return this.handleError(this.ERRORS.OUTCOMES_MAX);
+        }
+
+        if (outcomes.some(item => !item.title)) {
             return this.handleError(this.ERRORS.INVALID_OUTCOME_ITEM);
         }
 
@@ -63,16 +70,19 @@ class Predictions extends Static {
             title: o.title.substring(0, predictionsConfig.OUTCOMES_ITEM_TITLE_LENGTH)
         }));
 
-         return await this.requestEndpoint("predictions", {}, {
-             method: "POST",
+        return await this.requestEndpoint("predictions", {}, {
+            method: "POST",
 
-             data: {
+            data: {
                 broadcaster_id,
                 title: title.substring(0, predictionsConfig.MAX_TITLE_LENGTH),
                 outcomes,
-                prediction_window: Math.max(Math.min(prediction_window, predictionsConfig.MAX_TIMEOUT), predictionsConfig.MIN_TIMEOUT)
+                prediction_window: Math.max(
+                    Math.min(prediction_window, predictionsConfig.MAX_TIMEOUT),
+                    predictionsConfig.MIN_TIMEOUT
+                )
             }
-         });
+        });
     }
 
     async end(broadcaster_id: number, id: number, status: TStatus, winning_outcome_id?: number) {
