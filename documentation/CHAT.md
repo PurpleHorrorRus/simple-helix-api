@@ -4,7 +4,6 @@
 Release version: 3.3.0
 Description: Create your own chatbot.
 ```
-All you need to connecting to chat is [OAuth password](https://twitchapps.com/tmi/).
 
 Available chat events:
 ```
@@ -18,16 +17,17 @@ You can check all available chat events and tags for chat events [here](https://
 ```javascript
 const HelixAPI = require("simple-helix-api"); // you can use import
 
+const access_token = "xxxxxxxx";
+
 // Init Helix instance
 const Helix = new HelixAPI({
-    access_token: "xxxxxxx",
+    access_token,
     client_id: "xxxxxxx"
 });
 
-const username = "USERNAME", // Bot or your channel username
-const password = "oauth:PASSWORD", // OAuth password
-const channels = ["channel1"] // Optional. Leave it blank or null to autoconnect to your channel
-const secure = true; // Optional. Use secure connection (443)
+const username = "USERNAME"; // Bot or your channel username
+const channels = ["channel1"]; // Optional. Leave it blank or null to autoconnect to your channel
+const secure = true; // Optional. Use secure connection (Connection via 443 port)
 
 Helix.tmi.events.on(Helix.tmi.WebsocketEvents.CONNECTED, () => {
     console.log("Chat client connected");
@@ -37,7 +37,7 @@ Helix.tmi.events.on(Helix.tmi.WebsocketEvents.DISCONNECTED, () => {
     console.log("Chat client disconnected");
 });
 
-const chat = await Helix.tmi.connect(username, password, channels, secure);
+const chat = await Helix.tmi.connect(username, access_token, channels, secure);
 
 // Listen regular messages, highlighted messages or reward messages
 chat.on("message", message => {
@@ -78,8 +78,8 @@ chat.on("clear", () => {
 });
 
 // Sending commands
-// chat.command("ban", shine_discord21); // Pass single argumnet to chat command
-// chat.command("ban", ["shine_discord21", "Some bot account"]); // Pass multiple arguments to chat command
+// chat.command("ban", "shine_discord21"); // Pass single argumnet to chat command
+// chat.command("ban", ["shine_discord21", "shine_discord22"]); // Passing multiple arguments to chat command
 chat.command("clearchat");
 
 const date = new Date().toLocaleTimeString();

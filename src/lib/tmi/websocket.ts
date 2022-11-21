@@ -33,6 +33,10 @@ class TMIClient extends TMIParser {
             throw new Error("You must to specify username and password");
         }
 
+        if (!password.startsWith("oauth")) { 
+            password = `oauth:${password}`;
+        }
+
         const endpoint = options.secure
             ? this.secureEndpoint
             : this.endpoint;
