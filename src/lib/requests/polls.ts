@@ -53,7 +53,7 @@ class Polls extends Static {
             return this.handleError(this.ERRORS.CHOICES_LENGTH);
         }
 
-        if (~choices.findIndex(item => !item.title)) {
+        if (choices.some(item => !item || !item.title)) {
             return this.handleError(this.ERRORS.INVALID_CHOICE_ITEM);
         }
 

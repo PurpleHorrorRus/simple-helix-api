@@ -62,7 +62,7 @@ class Predictions extends Static {
             return this.handleError(this.ERRORS.OUTCOMES_MAX);
         }
 
-        if (outcomes.some(item => !item.title)) {
+        if (outcomes.some(item => !item || !item?.title)) {
             return this.handleError(this.ERRORS.INVALID_OUTCOME_ITEM);
         }
 
