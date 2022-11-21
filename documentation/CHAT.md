@@ -26,8 +26,7 @@ const Helix = new HelixAPI({
 });
 
 const username = "username"; // Required. Username of bot account or your channel.
-const channels = ["username"]; // Optional. Leave it blank or null to autoconnect to your channel
-const secure = true;
+const channels = [username]; // Optional. Leave it blank or null to autoconnect to your channel
 
 const options = { // Optional. Configuration of chat
     debug: false, // Optional. Log raw messages. Default: false
