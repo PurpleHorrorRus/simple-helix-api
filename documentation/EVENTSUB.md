@@ -30,11 +30,15 @@ Helix.EventSub.events.on(Helix.EventSub.WebsocketEvents.DISCONNECTED, () => {
 
 // List of conditions. Each event can have different from each other conditions, so please check Twitch docs.
 const conditions = [{
-    broadcaster_user_id: String("user_id here") // User ID and other numbers must be converted to string for condition
+    broadcaster_user_id: String(0123456789) // User ID and other numbers must be converted to string for condition
 }];
 
+const options = { // Optional. Configuration of connection
+    debug: false // Optional. Log all EventSub messages. Default: false
+};
+
 // Create EventSub client
-const EventSubClient = await Helix.EventSub.connect();
+const EventSubClient = await Helix.EventSub.connect(options);
 
 // Register listeners for events
 EventSubClient.subscribe("channel.follow", conditions[0], follow => {

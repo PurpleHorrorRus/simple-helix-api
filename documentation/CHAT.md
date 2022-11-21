@@ -25,9 +25,14 @@ const Helix = new HelixAPI({
     client_id: "xxxxxxx"
 });
 
-const username = "USERNAME"; // Bot or your channel username
-const channels = ["channel1"]; // Optional. Leave it blank or null to autoconnect to your channel
-const secure = true; // Optional. Use secure connection (Connection via 443 port)
+const username = "username"; // Required. Username of bot account or your channel.
+const channels = ["username"]; // Optional. Leave it blank or null to autoconnect to your channel
+const secure = true;
+
+const options = { // Optional. Configuration of chat
+    debug: false, // Optional. Log raw messages. Default: false
+    secure: true // Optional. Use secure connection (Connection via 443 port). Default: false
+};
 
 Helix.tmi.events.on(Helix.tmi.WebsocketEvents.CONNECTED, () => {
     console.log("Chat client connected");
@@ -37,7 +42,7 @@ Helix.tmi.events.on(Helix.tmi.WebsocketEvents.DISCONNECTED, () => {
     console.log("Chat client disconnected");
 });
 
-const chat = await Helix.tmi.connect(username, access_token, channels, secure);
+const chat = await Helix.tmi.connect(username, access_token, channels, options);
 
 // Listen regular messages, highlighted messages or reward messages
 chat.on("message", message => {
