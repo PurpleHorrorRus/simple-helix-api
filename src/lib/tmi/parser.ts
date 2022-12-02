@@ -1,5 +1,7 @@
 import { IRCMessage } from "irc-message-ts";
 
+import { TEmote } from "./types/chat";
+
 class TMIParser { 
     parseChannels(channels: string[]): string[] { 
         return channels.map(channel => {
@@ -38,12 +40,12 @@ class TMIParser {
         return Boolean(Number(state));
     }
 
-    emotes(text: string, emotes: string) {
+    emotes(text: string, emotes: string): TEmote[] {
         if (!emotes) { 
             return [];
         }
 
-        const result: Record<string, any>[] = [];
+        const result: TEmote = [];
 
         emotes.split("/").forEach(emote => {
             const [id, positionsRaw] = emote.split(":");
