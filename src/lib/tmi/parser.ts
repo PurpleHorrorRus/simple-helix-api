@@ -45,7 +45,7 @@ class TMIParser {
             return [];
         }
 
-        const result: TEmote = [];
+        const result: TEmote[] = [];
 
         emotes.split("/").forEach(emote => {
             const [id, positionsRaw] = emote.split(":");
