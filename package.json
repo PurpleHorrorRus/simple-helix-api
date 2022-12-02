@@ -1,9 +1,9 @@
 {
     "name": "simple-helix-api",
-    "version": "3.3.1",
+    "version": "3.3.2",
     "description": "The Simple Helix API allows developers to easily develop applications for Twitch",
-    "main": "dist/index.js",
-    "types": "types",
+    "main": "./dist/index.js",
+    "types": "./types",
     "author": "Maxim <purplehorrorrus@gmail.com>",
     "license": "MIT",
     "dependencies": {

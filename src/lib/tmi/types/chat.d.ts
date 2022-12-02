@@ -5,6 +5,6 @@ export type TChatOptions = {
 
 export type TEmote = {
     code: string
-    id: Number
-    positions: Number[][]
+    id: number | string
+    positions: number[][]
 };
