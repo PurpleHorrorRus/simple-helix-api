@@ -55,7 +55,7 @@ class TMIParser {
 
             result.push({
                 code: text.substring(positions[0][0], positions[0][1]),
-                id: Number(id),
+                id: parseInt(id),
                 positions
             });
         });

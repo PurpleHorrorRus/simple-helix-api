@@ -521,6 +521,8 @@ describe("TMI Client", () => {
     });
 
     test("Handle", async () => {
+        console.log("Waiting for a message...");
+
         const message = await new Promise(resolve => {
             client?.once("message", message => {
                 return resolve(message);
