@@ -535,7 +535,7 @@ describe("TMI Client", () => {
                 ["InfiniteHorror"],
                 {
                     debug: true,
-                    secure: false
+                    secure: true
                 }
             ).catch(e => {
                 console.error(e);

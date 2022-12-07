@@ -1,5 +1,5 @@
 import ReconnectingWebSocket from "reconnecting-websocket";
-import ws from "ws";
+import WebSocket, { Data } from "ws";
 import EventEmitter from "events";
 
 import TMIParser from "./parser";
@@ -11,6 +11,13 @@ import { TChatEvent } from "./types/events";
 class TMIClient extends TMIParser { 
     private readonly endpoint = "ws://irc-ws.chat.twitch.tv:80";
     private readonly secureEndpoint = "wss://irc-ws.chat.twitch.tv:443";
+    
+    private defaultOptions: TChatOptions = {
+        debug: false,
+        secure: true
+    };
+
+    public options: TChatOptions = this.defaultOptions;
 
     private connection: ReconnectingWebSocket;
     private globalUserState = {};
@@ -28,7 +35,12 @@ class TMIClient extends TMIParser {
         "You don’t have permission to perform that action"
     ];
     
-    connect(username: string, password: string, channels: string[] = [username], options: TChatOptions): Promise<TMIClient> {
+    connect(
+        username: string,
+        password: string,
+        channels: string[] = [username],
+        options: TChatOptions = this.defaultOptions
+    ): Promise<TMIClient> {
         if (!username || !password) {
             throw new Error("You must to specify username and password");
         }
@@ -37,100 +49,137 @@ class TMIClient extends TMIParser {
             password = `oauth:${password}`;
         }
 
+        this.options = options;
+        this.channels = channels;
+
         const endpoint = options.secure
             ? this.secureEndpoint
             : this.endpoint;
 
         this.connection = new ReconnectingWebSocket(endpoint, "irc", {
-            WebSocket: ws,
+            WebSocket,
             maxRetries: Infinity,
             startClosed: true
         });
 
         return new Promise((resolve, reject) => {
-            this.connection.addEventListener("open", () => {
-                this.connection.send("CAP REQ :twitch.tv/commands twitch.tv/membership twitch.tv/tags");
-                this.connection.send(`PASS ${password}`);
-                this.connection.send(`NICK ${username}`);
-            });
-
-            this.connection.addEventListener("close", reason => {
-                this.events.emit(this.WebsocketEvents.DISCONNECTED, reason);
-            });
-
-            this.connection.addEventListener("message", rawMesage => {
-                const ircMessage = rawMesage.data.trim();
-                
-                if (options.debug) {
-                    console.log("[simple-helix-api] Chat Raw Message:", ircMessage);
-                }
-
-                for (const message of ircMessage.split("\r\n")) { 
-                    const parsed = IRCParser(message);
-
-                    if (!parsed?.command) {
-                        return;
-                    }
-                    
-                    switch (parsed.command) { 
-                        case "001": {
-                            this.channels = this.parseChannels(channels);
-                            this.connection.send(`JOIN ${this.channels.join(",")}`);
-                            break;
-                        }
-                            
-                        case "GLOBALUSERSTATE": { 
-                            this.globalUserState = {
-                                ...parsed.tags,
-                                ...this.message(parsed)
-                            };
-
-                            break;
-                        }
-                            
-                        case "USERSTATE": { 
-                            this.userState = {
-                                ...parsed.tags,
-                                ...this.message(parsed)
-                            };
-
-                            break;
-                        }
-                            
-                        case "366": { 
-                            this.events.emit(this.WebsocketEvents.CONNECTED);
-                            resolve(this);
-                            break;
-                        }
-                            
-                        case "NOTICE": {
-                            if (this.AuthErrors.includes(parsed.params[1])) {
-                                reject(parsed.params[1]);
-                            }
-
-                            break;
-                        }
-                            
-                        case "PING": { 
-                            this.connection.send(`PONG :${parsed.param}`);
-                            break;
-                        }
-
-                        default: {
-                            this.onMessage(parsed as IRCMessage);
-                            break;
-                        }
-                    }
-
-                    this.events.emit(parsed.command, parsed);
-                }
-            });
-
+            this.connection.onopen = () => this.auth(username, password);
+            this.connection.onclose = ({ reason }) => this.onDisconnect(reason, reject);
+            this.connection.onmessage = ({ data }) => this.onMessage(data, resolve, reject);
             return this.connection.reconnect();
         });
     }
 
-    onMessage(parsed: IRCMessage) { 
+    private prepareMessage(data: Data) { 
+        const ircMessage = (data as string).trim();
+                
+        if (this.options.debug) {
+            console.log("[simple-helix-api] Chat Raw Message:", ircMessage);
+        }
+
+        return ircMessage.split("\r\n").map(IRCParser);
+    }
+
+    private auth(username: string, password: string) {
+        this.connection.send("CAP REQ :twitch.tv/commands twitch.tv/membership twitch.tv/tags");
+        this.connection.send(`PASS ${password}`);
+        this.connection.send(`NICK ${username}`);
+    } 
+
+    private join(channels: string[]): void { 
+        this.channels = this.parseChannels(channels);
+        this.connection.send(`JOIN ${this.channels.join(",")}`);
+    }
+
+    private initGlobalState(parsed: IRCMessage): void {
+        this.globalUserState = {
+            ...parsed.tags,
+            ...this.message(parsed)
+        };
+    }
+
+    private initUserState(parsed: IRCMessage): void {
+        this.userState = {
+            ...parsed.tags,
+            ...this.message(parsed)
+        };
+    }
+
+    private ping(parsed: IRCMessage): void { 
+        this.connection.send(`PONG :${parsed.param}`);
+    }
+
+    private onConnected(): TMIClient { 
+        this.events.emit(this.WebsocketEvents.CONNECTED);
+        return this;
+    }
+
+    private onDisconnect(reason: string, reject: (...args: any) => void): void { 
+        if (this.connection.readyState === this.connection.CLOSING) { 
+            return reject(false);
+        }
+
+        this.events.emit(this.WebsocketEvents.DISCONNECTED, reason);
+        return reject(reason);
+    }
+
+    private onMessage(
+        data: Data, 
+        resolve: (...args: any) => void,
+        reject: (...args: any) => void
+    ): boolean { 
+        for (const parsed of this.prepareMessage(data)) { 
+            if (!(parsed?.command)) {
+                return false;
+            }
+            
+            switch (parsed.command) { 
+                case "001": {
+                    this.join(this.channels)
+                    break;
+                }
+                    
+                case "GLOBALUSERSTATE": { 
+                    this.initGlobalState(parsed);
+                    break;
+                }
+                    
+                case "USERSTATE": { 
+                    this.initUserState(parsed);
+                    break;
+                }
+                    
+                case "366": { 
+                    resolve(this.onConnected());
+                    break;
+                }
+                    
+                case "NOTICE": {
+                    if (this.AuthErrors.includes(parsed.params[1])) {
+                        reject(parsed.params[1]);
+                    }
+
+                    break;
+                }
+                    
+                case "PING": { 
+                    this.ping(parsed);
+                    break;
+                }
+
+                default: {
+                    this.onChatMessage(parsed as IRCMessage);
+                    break;
+                }
+            }
+
+            this.events.emit(parsed.command, parsed);
+        }
+
+        return true;
+    }
+
+    private onChatMessage(parsed: IRCMessage) { 
         switch (parsed.command) {
             case "PRIVMSG": { 
                 return this.events.emit("message", {
@@ -176,7 +225,11 @@ class TMIClient extends TMIParser {
         }
     }
 
-    say(text: string, channel: string | string[] = this.channels[0], tags?: Record<string, string>) { 
+    public say(
+        text: string,
+        channel: string | string[] = this.channels[0],
+        tags?: Record<string, string>
+    ) { 
         if (!this.connected || !text) {
             return false;
         }
@@ -205,26 +258,34 @@ class TMIClient extends TMIParser {
         return Boolean(this.connected);
     }
 
-    command(command: string, args: string | string[] = [], channel: string | string[] = this.channels[0]) { 
-        command = "/" + command.replace("/", "");
+    public command(
+        command: string,
+        args: string | string[] = [],
+        channel: string | string[] = this.channels[0]
+    ): boolean { 
+        if (!command.startsWith("/")) {
+            command = "/" + command;
+        }
         
         if (args.length > 0) { 
-            command += " " + (Array.isArray(args) ? args.join(" ") : args)
+            command += " " + (Array.isArray(args)
+                ? args.join(" ")
+                : args)
         }
 
         return this.say(command, channel);
     }
 
-    on(event: TChatEvent, listener: (...args: any) => any) { 
+    public on(event: TChatEvent, listener: (...args: any) => any): EventEmitter { 
         return this.events.on(event as string, listener);
     }
 
-    once(event: TChatEvent, listener: (...args: any) => any) { 
+    public once(event: TChatEvent, listener: (...args: any) => any): EventEmitter { 
         return this.events.once(event as string, listener);
     }
 
-    get connected() { 
-        return Boolean(this.connection?.OPEN);
+    get connected(): boolean { 
+        return this.connection.readyState === this.connection.OPEN;
     }
 }
 
