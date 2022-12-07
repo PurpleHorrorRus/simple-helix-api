@@ -1,8 +1,8 @@
 import { AxiosRequestHeaders } from "axios";
 import { EventEmitter } from "node:events";
 
-import Websocket from "reconnecting-websocket";
-import ws from "ws";
+import ReconnectingWebsocket from "reconnecting-websocket";
+import WebSocket, { Data } from "ws";
 
 import Static from "../static";
 import { TEventsubConnectOptions } from "./types/eventsub";
@@ -13,14 +13,17 @@ class EventSub extends Static {
 
     private readonly transport = {
         method: "websocket",
-        session_id: 0
+        session_id: 0,
+        connected_at: ""
     };
 
-    private readonly deafultConnectOptions: TEventsubConnectOptions = {
+    private readonly defaultConnectionOptions: TEventsubConnectOptions = {
         debug: false
     };
 
-    public client: Websocket;
+    public options: TEventsubConnectOptions = this.defaultConnectionOptions;
+
+    public connection: ReconnectingWebsocket;
     public subscribedEvents: Partial<Record<TEventType, (...args: any) => any>> = {};
     public readonly events = new EventEmitter();
     public readonly WebsocketEvents = {
@@ -37,63 +40,64 @@ class EventSub extends Static {
         };
     }
 
-    public connect(options: TEventsubConnectOptions = this.deafultConnectOptions): Promise<EventSub> {
+    public connect(options: TEventsubConnectOptions = this.defaultConnectionOptions): Promise<EventSub> {
+        this.options = options;
+
+        this.connection = new ReconnectingWebsocket(this.endpoint, [], {
+            WebSocket,
+            startClosed: true,
+            maxRetries: Infinity
+        });
+
         return new Promise((resolve, reject) => {
-            this.client = new Websocket(this.endpoint, [], {
-                WebSocket: ws,
-                startClosed: true,
-                maxRetries: Infinity
-            });
-
-            this.client.addEventListener("error", reason => {
-                this.onDisconnect(reason);
-                return this.client.reconnect();
-            });
-    
-            this.client.addEventListener("close", reason => {
-                this.onDisconnect(reason);
-                return reject(reason);
-            });
-
-            this.client.addEventListener("message", message => {
-                const data = JSON.parse(message.data);
-
-                if (options.debug) {
-                    console.log("[simple-helix-api] EventSub Data:", data);
-                }
-
-                if (data.metadata.message_type === "session_welcome") {
-                    this.onConnect(data);
-                    return resolve(this);
-                }
-
-                return this.onMessage(data);
-            });
-
-            return this.client.reconnect();
+            this.connection.onclose = ({ reason }) => this.onDisconnect(reason, reject);
+            this.connection.onmessage = ({ data }) => this.onMessage(data, resolve);
+            return this.connection.reconnect();
         });  
     }
 
     public disconnect() {
-        if (this.client?.OPEN) { 
-            this.client.close();
+        if (this.connection.readyState === this.connection.OPEN) { 
+            this.connection.close(4003, "Manual disconnecting");
         }
 
-        return this.onDisconnect("Manual disconnecting");
+        return this.onDisconnect("Manual Disconnecting", () => (false));
     }
 
     private onConnect(data: any): void {
         this.transport.session_id = data.payload.session.id;
+        this.transport.connected_at = data.payload.connected_at;
         this.events.emit(this.WebsocketEvents.CONNECTED);
     }
 
-    private onDisconnect(reason: any): void {
+    private onDisconnect(reason: string, reject: (...args: any) => void): void {
+        if (this.connection.readyState === this.connection.CLOSING) {
+            return reject(false);
+        }
+
         this.transport.session_id = 0;
         this.subscribedEvents = {};
         this.events.emit(this.WebsocketEvents.DISCONNECTED, reason);
+
+        return reject(reason)
     }
 
-    private onMessage(data: any): any {
+    private onMessage(data: Data, resolve: (...args: any) => void) { 
+        const parsed: any = JSON.parse((data as string));
+
+        if (this.options.debug) {
+            console.log("[simple-helix-api] EventSub Data:", parsed);
+        }
+
+        if (parsed.metadata.message_type === "session_welcome") {
+            resolve(this);
+            return this.onConnect(parsed);
+        }
+
+        return this.onEventMessage(parsed);
+    }
+
+    private onEventMessage(data: any): any {
         const messageType: TEventType = data.metadata.message_type;
 
         switch (messageType) { 
@@ -108,7 +112,12 @@ class EventSub extends Static {
         }
     }
 
-    public async subscribe(type: TEventType, condition: Record<string, string>, listener: (...args: any) => any, version = 1): Promise<any> {
+    public async subscribe(
+        type: TEventType,
+        condition: Record<string, string>,
+        listener: (...args: any) => any,
+        version = 1
+    ) {
         await this.requestEndpoint("eventsub/subscriptions", "", {
             method: "POST",
             data: {
@@ -124,7 +133,7 @@ class EventSub extends Static {
     }
 
     public get connected(): boolean { 
-        return Boolean(this.client?.OPEN);
+        return this.connection.readyState === this.connection.OPEN;
     }
 }
 

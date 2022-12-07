@@ -465,12 +465,12 @@ describe("EventSub", () => {
 
     beforeAll(async () => {
         client = await new Promise(async resolve => {
-            Helix.EventSub.events.on(Helix.EventSub.WebsocketEvents.CONNECTED, () => {
-                console.log("Connected");
+            Helix.EventSub.events.once(Helix.EventSub.WebsocketEvents.CONNECTED, () => {
+                console.log("Connected", Boolean(client));
                 return resolve(client);
             });
     
-            Helix.EventSub.events.on(Helix.EventSub.WebsocketEvents.DISCONNECTED, () => {
+            Helix.EventSub.events.once(Helix.EventSub.WebsocketEvents.DISCONNECTED, () => {
                 console.log("Disconnected");
             });
     
@@ -485,9 +485,33 @@ describe("EventSub", () => {
             client.subscribe("channel.update", conditions[0], data => { 
                 return resolve(data);
             });
+
+            console.log("Subscribed, waiting for an event...");
         });
 
         expect(response).toBeTruthy();
+    });
+
+    test.skip("Handle Reconnect", async () => {
+        client.events.on(client.WebsocketEvents.CONNECTED, async () => {
+            console.log("Connected, registering events..");
+
+            await client.subscribe("channel.update", conditions[0], data => {
+                console.log(data);
+                return data;
+            });
+
+            return client;
+        });
+
+        client.events.on(client.WebsocketEvents.DISCONNECTED, reason => {
+            console.log("Disconnected", reason);
+        });
+
+        client.connection.reconnect();
+
+        await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 60));
+        expect(true).toBe(true);
     });
 });
 
