@@ -7,19 +7,20 @@
     "author": "Maxim <purplehorrorrus@gmail.com>",
     "license": "MIT",
     "dependencies": {
-        "axios": "^1.2.0",
+        "axios": "^1.2.1",
         "irc-message": "^3.0.2",
         "irc-message-ts": "^3.0.6",
         "reconnecting-websocket": "^4.4.0",
         "ws": "^8.11.0"
     },
     "devDependencies": {
-        "@types/jest": "^29.2.3",
+        "@types/bluebird": "^3.5.38",
+        "@types/jest": "^29.2.4",
         "@types/ws": "^8.5.3",
-        "@typescript-eslint/eslint-plugin": "^5.45.0",
-        "@typescript-eslint/parser": "^5.45.0",
+        "@typescript-eslint/eslint-plugin": "^5.45.1",
+        "@typescript-eslint/parser": "^5.45.1",
         "dotenv": "^16.0.3",
-        "eslint": "^8.28.0",
+        "eslint": "^8.29.0",
         "jest": "^29.3.1",
         "ts-jest": "^29.0.3",
         "typescript": "^4.9.3"
