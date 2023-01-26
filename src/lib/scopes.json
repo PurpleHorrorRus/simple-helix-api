@@ -40,6 +40,8 @@
     "moderator:manage:announcements",
     "moderator:manage:chat_messages",
     "moderator:read:chatters",
+    "moderator:read:shield_mode",
+    "moderator:manage:shield_mode",
 
     "user:edit",
     "user:edit:follows",

@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 
 import EventSub from "../src/lib/eventsub/websocket";
 import TMIClient from "../src/lib/tmi/websocket";
+import { TShieldMode } from "../src/types/requests/moderation";
 
 dotenv.config();
 
@@ -234,6 +235,17 @@ describe("Moderation", () => {
     test("Remove Moderator", async () => {
         const result = await Helix.moderation.removeModerator(user_id, users[1]);
         expect(result).toBeTruthy();
+    });
+
+    test("Get Shield Mode", async () => {
+        const shieldMode = await Helix.moderation.getShieldMode(user_id, user_id);
+        expect(shieldMode).toBeTruthy();
+    });
+
+    test("Turn Shield Mode", async () => {
+        const shieldModeStatus = await Helix.moderation.getShieldMode(user_id, user_id) as TShieldMode;
+        const shieldMode = await Helix.moderation.updateShieldMode(user_id, user_id, !shieldModeStatus.is_active);
+        expect(shieldMode).toBe(true);
     });
 });
 

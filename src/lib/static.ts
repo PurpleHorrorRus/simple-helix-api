@@ -110,7 +110,7 @@ class Static {
         }, requestOptions);
     }
 
-    handleError (error: string) {
+    handleError (error: string): Error {
         throw new Error(error);
     }
 }
