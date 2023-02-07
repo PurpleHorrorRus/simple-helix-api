@@ -10,7 +10,6 @@ import Events from "./lib/requests/events";
 import Games from "./lib/requests/games";
 import Markers from "./lib/requests/markers";
 import Moderation from "./lib/requests/moderation";
-import Other from "./lib/requests/other";
 import Polls from "./lib/requests/polls";
 import Predictions from "./lib/requests/predictions";
 import Rewards from "./lib/requests/rewards";
@@ -51,7 +50,6 @@ class Helix extends Static {
     games: Games;
     markers: Markers;
     moderation: Moderation;
-    other: Other;
     polls: Polls;
     predictions: Predictions;
     rewards: Rewards;
@@ -90,7 +88,6 @@ class Helix extends Static {
             this.games = new Games(this.headers);
             this.markers = new Markers(this.headers);
             this.moderation = new Moderation(this.headers);
-            this.other = new Other(this.headers);
             this.polls = new Polls(this.headers);
             this.predictions = new Predictions(this.headers);
             this.rewards = new Rewards(this.headers);
