@@ -74,7 +74,7 @@ describe("Channel", () => {
         expect(allFollowed.length).toBeGreaterThan(0);
     });
 
-    test.only("Get Followers", async () => { 
+    test("Get Followers", async () => { 
         const followers = await Helix.channel.followers(user_id);
         expect(followers.data.length).toBeGreaterThan(0);
 
@@ -98,9 +98,8 @@ describe("Channel", () => {
     });
 
     test("Update Stream Title/Game", async () => {
-        const response = await Helix.games.getByName("League of Legends");
-        const updated = await Helix.channel.modify(user_id, response.data[0].name, "en", "test");
-        expect(updated).toBeTruthy();
+        const updated = await Helix.updateStream(user_id, "Test", "League of Legends");
+        expect(updated).toBe(true);
     });
 
     test.skip("Get Markers", async () => {
@@ -161,7 +160,7 @@ describe("Games", () => {
         expect(top).toBeTruthy();
     });
 
-    test.only("Get Games", async () => {
+    test("Get Games", async () => {
         const game = await Helix.games.get("League of Legends");
         expect(game).toBeTruthy();
     });

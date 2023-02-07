@@ -127,16 +127,8 @@ class Helix extends Static {
     }
 
     async updateStream(broadcaster_id: string, title: string, game: string) {
-        if (!this.headers) {
-            return this.handleError("Provide access_token");
-        }
-
-        if (!broadcaster_id || !title || !game) {
-            return this.handleError("You must to specify all fields");
-        }
-
         const response = await this.games.get(game);
-        return await this.channel.modify(broadcaster_id, response.data[0].name, this.language, title);
+        return await this.channel.modify(broadcaster_id, response.data[0].id, this.language, title);
     }
 }
 
