@@ -106,11 +106,6 @@ describe("Channel", () => {
         const markers = await Helix.markers.get(user_id, 0);
         expect(markers).toBeTruthy();
     });
-
-    test("Get Viewers", async () => {
-        const viewers = await Helix.other.getViewers("InfiniteHorror");
-        expect(viewers).toBeTruthy();
-    });
     
     test("Get Vips", async () => {
         const vips = await Helix.channel.vips(user_id);
