@@ -5,6 +5,10 @@ import Static from "../static";
 import {
     TChannel,
     TEditor,
+    TGetFollowedParams,
+    TGetFollowedResponse,
+    TGetFollowedUser,
+    TGetFollowersParams,
     TGetVipsRequestParams,
     TGetVipsResponse,
 } from "./types/channel";
@@ -64,6 +68,28 @@ class Channel extends Static {
 
     async allVips(broadcaster_id: string, limit = Infinity): Promise<TUser[]> { 
         return await this.requestAll(broadcaster_id, this, "vips", limit);
+    }
+
+    async followed(user_id: string, params?: TGetFollowedParams): Promise<TGetFollowedResponse> { // Can be deprecated by Twitch soon
+        return await this.getRequest("channels/followed", {
+            user_id,
+            ...params
+        });
+    }
+
+    async allFollowed(user_id: string, limit = Infinity): Promise<TGetFollowedUser[]> {
+        return await this.requestAll(user_id, this, "followed", limit);
+    }
+
+    async followers(broadcaster_id: string, params?: TGetFollowersParams): Promise<TGetFollowedResponse> {
+        return await this.getRequest("channels/followers", {
+            broadcaster_id,
+            ...params
+        });
+    }
+
+    async allFollowers(broadcaster_id: string, limit = Infinity): Promise<TGetFollowedUser[]> {
+        return await this.requestAll(broadcaster_id, this, "followers", limit);
     }
 
     async whisper(from_user_id: number, to_user_id: number, message: string) {

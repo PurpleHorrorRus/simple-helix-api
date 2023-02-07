@@ -66,6 +66,22 @@ describe("Channel", () => {
         expect(chatters).toBeTruthy();
     });
 
+    test("Get Followed", async () => { 
+        const followed = await Helix.channel.followed(user_id);
+        expect(followed.data.length).toBeGreaterThan(0);
+
+        const allFollowed = await Helix.channel.allFollowed(user_id);
+        expect(allFollowed.length).toBeGreaterThan(0);
+    });
+
+    test.only("Get Followers", async () => { 
+        const followers = await Helix.channel.followers(user_id);
+        expect(followers.data.length).toBeGreaterThan(0);
+
+        const allFollowers = await Helix.channel.allFollowers(user_id);
+        expect(allFollowers.length).toBeGreaterThan(0);
+    });
+
     test("Get Emotes", async () => {
         const emotes = await Helix.chat.emotes(user_id);
         expect(emotes).toBeTruthy();
@@ -463,7 +479,7 @@ describe.skip("Soundtrack", () => {
 
     test("Get Playlist", async () => {
         const playlists = await Helix.soundtrack.playlists();
-        const playlist = await Helix.soundtrack.playlist(playlists[0].id);
+        const playlist = await Helix.soundtrack.playlist(playlists.data[0].id);
         expect(playlist).toBeTruthy();
     });
 });

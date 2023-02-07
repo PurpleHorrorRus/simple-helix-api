@@ -1,5 +1,5 @@
 import { TUser } from "./chat"
-import { TFirst, TList } from "./common"
+import { TBroadcaster, TFirst, TList } from "./common"
 
 export type TChannel = {
     broadcaster_id: string
@@ -26,3 +26,20 @@ export type TGetVipsRequestParams = Partial<TFirst & {
 export type TGetVipsResponse = TList & {
     data: TUser[]
 }
+
+export type TGetFollowedParams = Partial<TFirst & {
+    broadcaster_id: string
+}>
+
+export type TGetFollowedUser = TBroadcaster & {
+    followed_at: string
+}
+
+export type TGetFollowedResponse = TList & {
+    data: TGetFollowedUser[]
+    total: number
+}
+
+export type TGetFollowersParams = Partial<TFirst & {
+    user_id: string
+}>

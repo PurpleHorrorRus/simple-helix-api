@@ -42,6 +42,7 @@
     "moderator:read:chatters",
     "moderator:read:shield_mode",
     "moderator:manage:shield_mode",
+    "moderator:read:followers",
 
     "user:edit",
     "user:edit:follows",

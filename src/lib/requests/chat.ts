@@ -58,6 +58,14 @@ class Chat extends Static {
         });
     }
 
+    async shoutout(broadcaster_id: string, to_broadcaster_id: string, moderator_id?: string) {
+        return await this.post("chat/shoutouts", {
+            broadcaster_id,
+            to_broadcaster_id,
+            moderator_id: moderator_id || broadcaster_id
+        });
+    }
+
     async badges(broadcaster_id: string): Promise<TBadge[]> {
         return await this.getRequest("chat/badges", { broadcaster_id });
     }
