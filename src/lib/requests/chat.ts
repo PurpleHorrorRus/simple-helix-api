@@ -28,11 +28,12 @@ class Chat extends Static {
         });
     }
 
-    async allChatters(broadcaster_id: string, moderator_id?: string): Promise<TUser[]> { 
+    async allChatters(broadcaster_id: string, limit = Infinity, moderator_id?: string): Promise<TUser[]> {
         return await this.requestAll([
             broadcaster_id,
+            {},
             moderator_id || broadcaster_id
-        ], this, "chatters", Infinity, 1000);
+        ], this, "chatters", limit, 1000);
     }
 
     async globalEmotes(): Promise<TEmote[]> {

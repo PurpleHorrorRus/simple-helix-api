@@ -14,7 +14,7 @@ const Helix = new HelixAPI({
 });
 
 const user_id = "66312032";
-const users = [user_id, "83817298"];
+const users = [user_id, "30814134"];
 
 const timeout = 5; // mins
 jest.setTimeout(timeout * 60 * 1000);
@@ -59,11 +59,9 @@ describe("Channel", () => {
     test("Get Chatters", async () => { 
         const chatters = await Helix.chat.chatters(user_id);
         expect(chatters).toBeTruthy();
-    });
 
-    test("Get All Chatters", async () => {
-        const chatters = await Helix.chat.allChatters(user_id, user_id);
-        expect(chatters).toBeTruthy();
+        const allChatters = await Helix.chat.allChatters(user_id);
+        expect(allChatters).toBeTruthy();
     });
 
     test("Get Followed", async () => { 
