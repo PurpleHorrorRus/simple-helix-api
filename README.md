@@ -105,10 +105,8 @@ await Helix.commercial.start(user_id, 30);
 
 ### Update chat settings
 
-Some requests requires moderator ID. Moderator ID can be equal to the user ID.
-
 ```javascript
-await Helix.chat.updateSettings(user_id, moderator_id, {
+await Helix.chat.updateSettings(user_id, {
     follower_mode: true,
     follower_mode_duration: 10
 });
@@ -118,7 +116,7 @@ await Helix.chat.updateSettings(user_id, moderator_id, {
 
 ```javascript
 const user = await Helix.users.get("anyToxicPerson");
-await Helix.moderation.ban(user_id, user_id, {
+await Helix.moderation.ban(user_id, {
     user_id: user.id,
     reason: "Friendship is Magic"
 });
