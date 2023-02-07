@@ -1,29 +1,27 @@
-import { AxiosStatic, AxiosRequestHeaders, AxiosRequestConfig } from "axios";
-const axios = require("axios") as AxiosStatic;
+import {
+    RawAxiosRequestHeaders,
+    AxiosRequestConfig
+} from "axios";
+
+import axios from "axios";
 
 export type TRequestConfig = AxiosRequestConfig & {
     ignoreStatus?: boolean
 }
 
 class Static {
-    headers: any;
+    private root: string = "https://api.twitch.tv/helix";
+    public headers: RawAxiosRequestHeaders;
 
-    ERRORS: {
-        [x: string]: string
-    } = {
-        MISSING_BROADCASTER_ID: "You must to specify broadcaster_id",
-        MISSING_MODERATOR_ID: "You must to specify moderator_id"
-    }
-
-    constructor (headers: any) {
+    constructor (headers: RawAxiosRequestHeaders) {
         this.headers = headers;
     }
 
-    async request(url: string, data?: any, requestOptions: TRequestConfig = { method: "GET" }) {
+    async request(endpoint: string, data?: any, requestOptions: TRequestConfig = { method: "GET" }) {
         const response = await axios({
-            url,
+            url: `${this.root}/${endpoint}`,
             data,
-            headers: this.headers as AxiosRequestHeaders,
+            headers: this.headers as RawAxiosRequestHeaders,
             ...requestOptions
         });
 
@@ -43,26 +41,40 @@ class Static {
             : ok;
     }
 
-    async requestEndpoint(endpoint: string, data?: any, requestOptions?: AxiosRequestConfig, raw = false) {
-        const query: string = typeof data === "object"
-            ? new URLSearchParams(data).toString()
-            : data
-        
-        const body = requestOptions?.data || undefined;
-        delete requestOptions?.data;
-
-        const response = await this.request(`https://api.twitch.tv/helix/${endpoint}?${query}`, body, requestOptions)
-            .catch(this.handleError);
-        
-        if (raw) {
-            return response.data;
+    async requestEndpoint(
+        endpoint: string,
+        query?: Record<string, any>,
+        method: string = "GET",
+        data?: Record<string, any>
+    ) {
+        if (query) {
+            endpoint += "?"
+                + (typeof query === "object"
+                    ? new URLSearchParams(query).toString()
+                    : query);
         }
 
-        return response.pagination?.cursor || !response.data 
-            ? response 
-            : response.data.length === 1 
-                ? response.data[0] 
-                : response.data;
+        return await this.request(endpoint, data, { method });
+    }
+
+    async getRequest(endpoint: string, query?: Record<string, any>) {
+        return await this.requestEndpoint(endpoint, query);
+    }
+
+    async post(endpoint: string, query?: Record<string, any>, data?: Record<string, any>) {
+        return await this.requestEndpoint(endpoint, query, "POST", data)
+    }
+
+    async put(endpoint: string, query?: Record<string, any>, data?: Record<string, any>) {
+        return await this.requestEndpoint(endpoint, query, "PUT", data)
+    }
+
+    async patch(endpoint: string, query?: Record<string, any>, data?: Record<string, any>) {
+        return await this.requestEndpoint(endpoint, query, "PATCH", data)
+    }
+
+    async delete(endpoint: string, query?: Record<string, any>, data?: Record<string, any>) {
+        return await this.requestEndpoint(endpoint, query, "DELETE", data)
     }
 
     async requestAll(broadcaster_id: any | any[], context: any, builder: string, limit = Infinity, first = 100) {
@@ -77,8 +89,8 @@ class Static {
         }
 
         let response = await request({ first });
-        let list = response.data || response;
-        let cursor = response.pagination?.cursor;
+        let list: any[] = response.data || response;
+        let cursor: string = response.pagination?.cursor;
         const isNotInfinity = limit !== Infinity;
 
         let iter = Number(isNotInfinity);
@@ -97,17 +109,6 @@ class Static {
         }
 
         return list;
-    }
-
-    async requestCustom(endpoint: string, broadcaster_id: number, params = {}, requestOptions: TRequestConfig = { method: "GET" }) {
-        if (!broadcaster_id) {
-            return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
-        }
-
-        return await this.requestEndpoint(endpoint, {
-            broadcaster_id,
-            ...params
-        }, requestOptions);
     }
 
     handleError (error: string): Error {

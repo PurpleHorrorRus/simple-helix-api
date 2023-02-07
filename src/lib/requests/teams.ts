@@ -1,29 +1,25 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Static from "../static";
 
+import {
+    TGetChannelTeamsResponse,
+    TGetTeamsResponse
+} from "./types/teams";
+
 class Teams extends Static {
-    constructor(headers: AxiosRequestHeaders) {
+    constructor(headers: RawAxiosRequestHeaders) {
         super(headers);
-
-        this.ERRORS = {
-            ...this.ERRORS,
-            MISSING_FIELDS: "You must to specify team name or ID"
-        };
     }
 
-    async channel(broadcaster_id: number) {
-        return await this.requestCustom("teams/channel", broadcaster_id);
+    async channel(broadcaster_id: string): Promise<TGetChannelTeamsResponse> {
+        return await this.getRequest("teams/channel", { broadcaster_id });
     }
 
-    async get(id: number, name: string) {
-        if (!id && !name) {
-            return this.handleError(this.ERRORS.MISSING_FIELDS);
-        }
-
-        const params: any = {};
-        id ? params.id = id : params.name = name;
-        return await this.requestEndpoint("teams", params);
+    async get(team?: string | number): Promise<TGetTeamsResponse> {
+        return await this.getRequest("teams", {
+            [Number(team) ? "id" : "name"]: team
+        });
     }
 }
 

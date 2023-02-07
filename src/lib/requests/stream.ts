@@ -1,37 +1,40 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Static from "../static";
+import { TFirst } from "./types/common";
+
+import {
+    TGetStreamsParams,
+    TGetStreamsResponse,
+    TStream
+} from "./types/stream";
 
 class Stream extends Static {
-    constructor(headers: AxiosRequestHeaders) {
+    constructor(headers: RawAxiosRequestHeaders) {
         super(headers);
     }
 
-    async key(broadcaster_id: number) {
-        const { stream_key } = await this.requestCustom("streams/key", broadcaster_id);
-        return stream_key;
+    async key(broadcaster_id: string): Promise<string> {
+        const response = await this.getRequest("streams/key", { broadcaster_id });
+        return response?.stream_key;
     }
 
-    async streams(params = {}) {
-        return await this.requestEndpoint("streams", params);
+    async streams(params?: TGetStreamsParams): Promise<TGetStreamsResponse> {
+        return await this.getRequest("streams", params);
     }
 
-    async allStreams(limit = Infinity) {
+    async all(limit = Infinity): Promise<TStream[]> {
         return await this.requestAll(1, this, "streams", limit);
     }
 
-    async followedStreams(user_id: number, params = {}) {
-        if (!user_id) {
-            return this.handleError(this.ERRORS.MISSING_USER_ID);
-        }
-
-        return await this.requestEndpoint("streams/followed", {
+    async followed(user_id: string, params?: TFirst): Promise<TGetStreamsResponse> {
+        return await this.getRequest("streams/followed", {
             user_id,
             ...params
         });
     }
 
-    async allFollowedStreams(user_id: number, limit = Infinity) {
+    async allFollowed(user_id: string, limit = Infinity): Promise<TStream[]> {
         return await this.requestAll(user_id, this, "followedStreams", limit);
     }
 }

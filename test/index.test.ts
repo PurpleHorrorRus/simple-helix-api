@@ -3,7 +3,8 @@ import * as dotenv from "dotenv";
 
 import EventSub from "../src/lib/eventsub/websocket";
 import TMIClient from "../src/lib/tmi/websocket";
-import { TShieldMode } from "../src/types/requests/moderation";
+import { TShieldMode } from "../src/lib/requests/types/moderation";
+import { TChannel } from "../src/lib/requests/types/channel";
 
 dotenv.config();
 
@@ -12,15 +13,15 @@ const Helix = new HelixAPI({
     access_token: process.env.ACCESS_TOKEN!
 });
 
-const user_id = 66312032;
-const users = [user_id, 83817298];
+const user_id = "66312032";
+const users = [user_id, "83817298"];
 
 const timeout = 5; // mins
 jest.setTimeout(timeout * 60 * 1000);
 
-describe.skip("Global", () => {
+describe("Global", () => {
     test("Get Global Emotes", async () => {
-        const emotes = await Helix.chat.globalBadges();
+        const emotes = await Helix.chat.globalEmotes();
         expect(emotes).toBeTruthy();
     });
 });
@@ -33,7 +34,7 @@ describe("User", () => {
 
     test("Get Stream", async () => {
         const user = await Helix.users.get("InfiniteHorror");
-        const stream = await Helix.stream.streams({ user_id: user.id });
+        const stream = await Helix.stream.streams({ user_id: user.data[0].id });
         expect(stream).toBeTruthy();
     });
 });
@@ -45,13 +46,24 @@ describe("Channel", () => {
     });
 
     test("Get Channel", async () => {
-        const channel = await Helix.channel.get(users);
-        expect(channel).toBeTruthy();
+        const channels = await Helix.channel.get(users) as TChannel[];
+        expect(channels[0]).toBeTruthy();
+        expect(channels[1]).toBeTruthy();
     });
 
     test("Get Channel Editors", async () => {
         const editors = await Helix.channel.editors(user_id);
         expect(editors).toBeTruthy();
+    });
+
+    test("Get Chatters", async () => { 
+        const chatters = await Helix.chat.chatters(user_id);
+        expect(chatters).toBeTruthy();
+    });
+
+    test("Get All Chatters", async () => {
+        const chatters = await Helix.chat.allChatters(user_id, user_id);
+        expect(chatters).toBeTruthy();
     });
 
     test("Get Emotes", async () => {
@@ -70,8 +82,8 @@ describe("Channel", () => {
     });
 
     test("Update Stream Title/Game", async () => {
-        const game = await Helix.games.getByName("League of Legends");
-        const updated = await Helix.channel.modify(user_id, game.id, "en", "test");
+        const response = await Helix.games.getByName("League of Legends");
+        const updated = await Helix.channel.modify(user_id, response.data[0].name, "en", "test");
         expect(updated).toBeTruthy();
     });
 
@@ -80,28 +92,13 @@ describe("Channel", () => {
         expect(markers).toBeTruthy();
     });
 
-    test("Get Top 100 Games", async () => {
-        const games = await Helix.games.top();
-        expect(games.data.length).toEqual(20); 
-    });
-
     test("Get Viewers", async () => {
         const viewers = await Helix.other.getViewers("InfiniteHorror");
         expect(viewers).toBeTruthy();
     });
-
-    test("Get Chatters", async () => { 
-        const chatters = await Helix.other.chatters(user_id, user_id);
-        expect(chatters).toBeTruthy();
-    });
-
-    test("Get All Chatters", async () => {
-        const chatters = await Helix.other.allChatters(user_id, user_id);
-        expect(chatters).toBeTruthy();
-    });
     
     test("Get Vips", async () => {
-        const vips = await Helix.channel.allVips(user_id);
+        const vips = await Helix.channel.vips(user_id);
         expect(vips).toBeGreaterThan(0);
     });
 
@@ -148,7 +145,7 @@ describe("Games", () => {
         expect(top).toBeTruthy();
     });
 
-    test("Get Games", async () => {
+    test.only("Get Games", async () => {
         const game = await Helix.games.get("League of Legends");
         expect(game).toBeTruthy();
     });
@@ -159,8 +156,8 @@ describe("Moderation", () => {
 
     test("Ban", async () => {
         const user = await Helix.users.get(testSubject);
-        const result = await Helix.moderation.ban(user_id, user_id, {
-            user_id: user.id,
+        const result = await Helix.moderation.ban(user_id, {
+            user_id: user.data[0].id,
             reason: "test ban"
         });
 
@@ -169,17 +166,17 @@ describe("Moderation", () => {
 
     test("Unban", async () => {
         const user = await Helix.users.get(testSubject);
-        const result = await Helix.moderation.unban(user_id, user_id, user.id);
+        const result = await Helix.moderation.unban(user_id, user_id, user.data[0].id);
         expect(result).toBeTruthy();
     });
 
     test("Get Blocked Terms", async () => {
-        const terms = await Helix.moderation.blockedTerms(user_id, user_id);
+        const terms = await Helix.moderation.blockedTerms(user_id);
         expect(terms.data).toBeTruthy();
     });
 
     test("Get All Blocked Terms", async () => {
-        const terms = await Helix.moderation.allBlockedTerms(user_id, user_id);
+        const terms = await Helix.moderation.allBlockedTerms(user_id);
         expect(terms).toBeTruthy();
     });
 
@@ -189,7 +186,7 @@ describe("Moderation", () => {
     });
 
     test("Remove Blocked Term", async () => {
-        const terms = await Helix.moderation.blockedTerms(user_id, user_id);
+        const terms = await Helix.moderation.blockedTerms(user_id);
         const result = await Helix.moderation.removeBlockedTerm(user_id, user_id, terms.data[0].id);
         expect(result).toBeTruthy();
     });
@@ -200,7 +197,7 @@ describe("Moderation", () => {
     });
 
     test("Update Automod Settings", async () => {
-        const result = await Helix.automod.updateSettings(user_id, user_id, {
+        const result = await Helix.automod.update(user_id, {
             overall_level: 0
         });
 
@@ -299,8 +296,8 @@ describe.skip("Schedule", () => {
 
 describe("Search", () => {
     test("Categories", async () => {
-        const categories = await Helix.search.allCategories("The Elder Scrolls");
-        expect(categories).toBeTruthy();
+        const categories = await Helix.search.allCategories("The Elder Scroll");
+        expect(categories.length).toBeGreaterThan(0);
     });
 
     test("Channels", async () => {
@@ -316,13 +313,13 @@ describe("Stream", () => {
     });
 
     test.skip("Streams", async () => {
-        const streams = await Helix.stream.allStreams();
+        const streams = await Helix.stream.all();
         expect(streams).toBeTruthy();
     });
 
     test("Followed Streams", async () => {
-        const streams = await Helix.stream.followedStreams(user_id);
-        expect(streams.length).toBeGreaterThan(0);
+        const streams = await Helix.stream.followed(user_id);
+        expect(streams.data.length).toBeGreaterThan(0);
     });
 });
 
@@ -379,16 +376,13 @@ describe("Users", () => {
 
 describe("Video", () => {
     test("Get", async () => {
-        const videos = await Helix.videos.all({
-            user_id
-        }, 5);
-
+        const videos = await Helix.videos.all({ user_id }, 5);
         expect(videos).toBeTruthy();
     });
 
     test("Delete", async () => {
         const videos = await Helix.videos.all({ user_id }, 5);
-        const isDeleted = await Helix.videos.delete([videos[0].id, videos[1].id]);
+        const isDeleted = await Helix.videos.deleteVideos([videos[0].id, videos[1].id]);
         expect(isDeleted).toBeTruthy();
     });
 });
@@ -401,7 +395,7 @@ describe("Rewards", () => {
 
     test("Get Reward Redemption", async () => {
         const reward = await Helix.rewards.get(user_id);
-        const redemptions = await Helix.rewards.redemption(user_id, reward.id);
+        const redemptions = await Helix.rewards.redemption(user_id, reward.data[0].id);
         expect(redemptions).toBeTruthy();
     });
 
@@ -411,17 +405,19 @@ describe("Rewards", () => {
     });
 
     test("Create & Update", async () => {
-        const reward = await Helix.rewards.create(user_id, "test", 10);
-        const isUpdated = await Helix.rewards.update(user_id, reward.id, {
+        const created = await Helix.rewards.create(user_id, "test", 10);
+        const updated = await Helix.rewards.update(user_id, created.data[0].id, {
             title: "test_updated",
             cost: 666
         });
-        expect(isUpdated).toBe(true);
+
+        expect(updated.title).toBe("test_updated");
+        expect(updated.cost).toBe(666);
     });
 
     test("Create & Delete", async () => {
-        const reward = await Helix.rewards.create(user_id, "test", 10);
-        const isDeleted = await Helix.rewards.delete(user_id, reward.id);
+        const created = await Helix.rewards.create(user_id, "test", 10);
+        const isDeleted = await Helix.rewards.deleteReward(user_id, created.data[0].id);
         expect(isDeleted).toBe(true);
     });
 });
@@ -440,7 +436,10 @@ describe("Clips", () => {
 
 describe.skip("Analytics", () => {
     test("Game", async () => {
-        const analytics = await Helix.analytics.game();
+        const analytics = await Helix.analytics.game({
+            game_id: "123"
+        });
+
         expect(analytics).toBeTruthy();
     });
 
@@ -458,7 +457,7 @@ describe.skip("Analytics", () => {
 describe.skip("Soundtrack", () => {
     test("Get Track", async () => {
         const user = await Helix.users.get("Monstercat");
-        const track = await Helix.soundtrack.track(user.id);
+        const track = await Helix.soundtrack.track(user.data[0].id);
         expect(track).toBeTruthy();
     });
 

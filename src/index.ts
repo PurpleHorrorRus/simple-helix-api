@@ -1,4 +1,4 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Analytics from "./lib/requests/analytics";
 import Automod from "./lib/requests/automod";
@@ -39,7 +39,7 @@ class Helix extends Static {
     private client_id: string;
     private language?: string;
 
-    headers: AxiosRequestHeaders;
+    headers: RawAxiosRequestHeaders;
 
     analytics: Analytics;
     automod: Automod;
@@ -126,7 +126,7 @@ class Helix extends Static {
         return `https://id.twitch.tv/oauth2/authorize?${query}`;
     }
 
-    async updateStream(broadcaster_id: number, title: string, game: string) {
+    async updateStream(broadcaster_id: string, title: string, game: string) {
         if (!this.headers) {
             return this.handleError("Provide access_token");
         }
@@ -135,8 +135,8 @@ class Helix extends Static {
             return this.handleError("You must to specify all fields");
         }
 
-        const { id } = await this.games.get(game);
-        return await this.channel.modify(broadcaster_id, id, this.language, title);
+        const response = await this.games.get(game);
+        return await this.channel.modify(broadcaster_id, response.data[0].name, this.language, title);
     }
 }
 

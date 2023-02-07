@@ -1,28 +1,31 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Static from "../static";
+import { TFirstBefore } from "./types/common";
+
+import { TGamesResponse } from "./types/games";
 
 class Games extends Static {
-    constructor(headers: AxiosRequestHeaders) {
+    constructor(headers: RawAxiosRequestHeaders) {
         super(headers);
     }
 
-    async getByID(id: number) {
-        return await this.requestEndpoint("games", { id });
+    async getById(id: string): Promise<TGamesResponse> {
+        return await this.getRequest("games", { id });
     }
 
-    async getByName(name: string) {
-        return await this.requestEndpoint("games", { name });
+    async getByName(name: string): Promise<TGamesResponse> {
+        return await this.getRequest("games", { name });
     }
 
-    async get(game: number | string) {
-        return typeof game === "number"
-            ? await this.getByID(game)
+    async get(game: string): Promise<TGamesResponse> {
+        return Number(game)
+            ? await this.getById(game)
             : await this.getByName(game);
     }
 
-    async top() {
-        return await this.requestEndpoint("games/top");
+    async top(params?: TFirstBefore): Promise<TGamesResponse> {
+        return await this.getRequest("games/top", params);
     }
 }
 

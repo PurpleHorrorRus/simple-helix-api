@@ -1,86 +1,76 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Static from "../static";
 
-class Channel extends Static {
-    constructor(headers: AxiosRequestHeaders) {
-        super(headers);
+import {
+    TChannel,
+    TEditor,
+    TGetVipsRequestParams,
+    TGetVipsResponse,
+} from "./types/channel";
 
-        this.ERRORS = {
-            ...this.ERRORS,
-            EMPTY_TITLE_OR_GAME_ID: "You must to specify the title and game_id of stream"
-        };
+import { TUser } from "./types/chat";
+
+class Channel extends Static {
+    constructor(headers: RawAxiosRequestHeaders) {
+        super(headers);
     }
 
-    async get(broadcaster_id: (string | number)[]) {
+    async get(broadcaster_id: string | string[]): Promise<TChannel | TChannel[]> {
         if (Array.isArray(broadcaster_id)) {
             const broadcaster_ids = broadcaster_id.map(id => {
                 return `broadcaster_id=${id}`;
             }).join("&");
 
-            return await this.requestEndpoint("channels", broadcaster_ids, { method: "GET" });
+            return await this.getRequest("channels", { broadcaster_ids });
         }
 
-        return await this.requestCustom("channels", broadcaster_id);
+        return await this.getRequest("channels", { broadcaster_id });
     }
 
-    async modify(broadcaster_id: number, game_id: string = "", broadcaster_language: string = "en", title: string, delay: number = 0) {
-        if (!broadcaster_id) {
-            return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
-        }
-
-        if (!title || !game_id) {
-            return this.handleError(this.ERRORS.EMPTY_TITLE_OR_GAME_ID);
-        }
-
-        return await this.requestEndpoint("channels", { broadcaster_id }, {
-            method: "PATCH",
-            data: {
-                game_id,
-                broadcaster_language,
-                title,
-                ...delay ? { delay } : {} // Notice: delay works only for partners
-            }
+    async modify(
+        broadcaster_id: string,
+        game_id: string = "",
+        broadcaster_language: string = "en",
+        title: string,
+        delay: number = 0
+    ): Promise<TChannel> {
+        return await this.patch("channels", { broadcaster_id }, {
+            game_id,
+            broadcaster_language,
+            title,
+            ...(delay ? { delay } : {}) // Notice: delay works only for Twitch partners
         });
     }
 
-    async editors(broadcaster_id: number) {
-        return await this.requestCustom("channels/editors", broadcaster_id);
+    async editors(broadcaster_id: string): Promise<TEditor[]> {
+        return await this.getRequest("channels/editors", { broadcaster_id });
     }
 
-    async addVip(broadcaster_id: number, user_id: number) {
-        return await this.requestEndpoint("channels/vips", {
-            broadcaster_id,
-            user_id
-        }, { method: "POST" });
+    async addVip(broadcaster_id: string, user_id: string) {
+        return await this.post("channels/vips", { broadcaster_id }, { user_id });
     }
 
-    async removeVip(broadcaster_id: number, user_id: number) {
-        return await this.requestEndpoint("channels/vips", {
-            broadcaster_id,
-            user_id
-        }, { method: "DELETE" });
+    async removeVip(broadcaster_id: string, user_id: string) {
+        return await this.delete("channels/vips", { broadcaster_id }, { user_id });
     }
 
-    async vips(broadcaster_id: number, params = {}) { 
-        return await this.requestEndpoint("channels/vips", {
+    async vips(broadcaster_id: string, params?: TGetVipsRequestParams): Promise<TGetVipsResponse> { 
+        return await this.getRequest("channels/vips", {
             broadcaster_id,
             ...params
         });
     }
 
-    async allVips(broadcaster_id: number, limit = Infinity) { 
+    async allVips(broadcaster_id: string, limit = Infinity): Promise<TUser[]> { 
         return await this.requestAll(broadcaster_id, this, "vips", limit);
     }
 
     async whisper(from_user_id: number, to_user_id: number, message: string) {
-        return await this.requestEndpoint("whispers", {
+        return await this.post("whispers", {
             from_user_id,
             to_user_id
-        }, { 
-            method: "POST",
-            data: { message }
-        })
+        }, { message });
     }
 }
 

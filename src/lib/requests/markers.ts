@@ -1,42 +1,29 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Static from "../static";
 
+import {
+    TCreateMarkerParams,
+    TGetMarkersParams,
+    TGetMarkersResponse,
+    TMarker
+} from "./types/markers";
+
 class Markers extends Static {
-    constructor(headers: AxiosRequestHeaders) {
+    constructor(headers: RawAxiosRequestHeaders) {
         super(headers);
-
-        this.ERRORS = {
-            ...this.ERRORS,
-            MISSING_VIDEO_ID: "Missing video ID"
-        };
     }
 
-    async create(user_id: number, params = {}) {
-        if (!user_id) {
-            return this.handleError(this.ERRORS.MISSING_USER_ID);
-        }
+    async create(user_id: string, params?: TCreateMarkerParams): Promise<TMarker> {
+        return await this.post("streams/markers", { user_id }, params);
+    }
 
-        return await this.requestEndpoint("streams/markers", undefined, {
-            method: "POST",
-
-            data: {
-                user_id,
-                ...params
-            }
+    async get(user_id: string, video_id: number, params?: TGetMarkersParams): Promise<TGetMarkersResponse[]> {
+        return await this.getRequest("streams/markers", {
+            user_id,
+            video_id,
+            ...params
         });
-    }
-
-    async get(user_id: number, video_id: number, params = {}) {
-        if (!user_id) {
-            return this.handleError(this.ERRORS.MISSING_USER_ID);
-        }
-
-        if (!video_id) {
-            return this.handleError(this.ERRORS.MISSING_VIDEO_ID);
-        }
-
-        return await this.requestEndpoint("streams/markers", { user_id, video_id, ...params });
     }
 }
 

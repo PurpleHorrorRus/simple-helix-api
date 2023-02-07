@@ -1,22 +1,22 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Static from "../static";
 
+import {
+    TEventsHypetrain,
+    TEventsHypetrainParams
+} from "./types/events";
+
 class Events extends Static {
-    constructor(headers: AxiosRequestHeaders) {
+    constructor(headers: RawAxiosRequestHeaders) {
         super(headers);
     }
 
-    async hypetrain(broadcaster_id: number, params = {}) {
-        return await this.requestCustom("hypetrain/events", broadcaster_id, params);
-    }
-
-    async banned(broadcaster_id: number, params = {}) {
-        return await this.requestCustom("moderation/banned", broadcaster_id, params);
-    }
-
-    async moderator(broadcaster_id: number, params = {}) {
-        return await this.requestCustom("moderation/moderators", broadcaster_id, params);
+    async hypetrain(broadcaster_id: string, params?: TEventsHypetrainParams): Promise<TEventsHypetrain> {
+        return await this.getRequest("hypetrain/events", {
+            broadcaster_id,
+            ...params
+        });
     }
 }
 

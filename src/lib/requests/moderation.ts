@@ -1,135 +1,121 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Static from "../static";
+import { TUser } from "./types/chat";
+import { TFirst } from "./types/common";
 
-import { TShieldMode } from "../../types/requests/moderation";
+import {
+    TBannedUser,
+    TBanUserParams,
+    TBanUserResponse,
+    TBlockedTerm,
+    TBlockedTermsResponse,
+    TGetBannedUsersParams,
+    TGetBannedUsersResponse,
+    TGetModeratorsResponse,
+    TShieldMode
+} from "./types/moderation";
 
 class Moderation extends Static {
-    constructor(headers: AxiosRequestHeaders) {
+    constructor(headers: RawAxiosRequestHeaders) {
         super(headers);
-
-        this.ERRORS = {
-            ...this.ERRORS,
-            MISSING_USER_ID: "You must to specify user_id",
-            BAN_USER_ID_NOT_SPECIFIED: "You must to specify user_id which you want to ban or data[] list of user names",
-            BAN_USERS_LIST_INVALID: "The list is invalid",
-            REASON_NOT_SPECIFIED: "You must to specify reason of ban",
-            TERM_TEXT_EMPTY: "Term is empty",
-            TERM_ID_NOT_SPECIFIED: "You must to specify term ID"
-        };
     }
 
-    async ban(broadcaster_id: number, moderator_id?: number, data: any = {}) {
-        if (!data?.user_id) {
-            return this.handleError(this.ERRORS.BAN_USER_ID_NOT_SPECIFIED);
-        }
-        
-        if (!data?.reason) {
-            return this.handleError(this.ERRORS.REASON_NOT_SPECIFIED);
-        }
-
-        return await this.requestCustom("moderation/bans", broadcaster_id, {
-            moderator_id: moderator_id || broadcaster_id
-        }, { 
-            method: "POST", 
-            data: { data }
+    async ban(broadcaster_id: string, data: TBanUserParams, moderator_id?: number): Promise<TBanUserResponse> {
+        return await this.post("moderation/bans", {
+            broadcaster_id,
+            moderator_id: moderator_id || broadcaster_id,
+            ...data
         });
     }
 
-    async unban(broadcaster_id: number, moderator_id: number, user_id: number) {
-        if (!user_id) {
-            return this.handleError(this.ERRORS.MISSING_USER_ID);
-        }
-
-        return await this.requestCustom("moderation/bans", broadcaster_id, {
+    async unban(broadcaster_id: string, user_id: string, moderator_id?: string) {
+        return await this.delete("moderation/bans", {
+            broadcaster_id,
             moderator_id: moderator_id || broadcaster_id,
             user_id
-        }, { method: "DELETE" });
+        });
     }
 
-    async bannedUsers(broadcaster_id: number, params = {}) {
-        return await this.requestCustom("moderation/banned", broadcaster_id, params);
+    async bannedUsers(broadcaster_id: string, params?: TGetBannedUsersParams): Promise<TGetBannedUsersResponse> {
+        return await this.getRequest("moderation/banned", {
+            broadcaster_id,
+            ...params
+        });
     }
 
-    async allBannedUsers(broadcaster_id: number, limit = Infinity) {
+    async allBannedUsers(broadcaster_id: string, limit = Infinity): Promise<TBannedUser[]> {
         return await this.requestAll(broadcaster_id, this, "bannedUsers", limit);
     }
 
-    async moderators(broadcaster_id: number, params = {}) {
-        return await this.requestCustom("moderation/moderators", broadcaster_id, params);
+    async moderators(broadcaster_id: string, params?: TFirst): Promise<TGetModeratorsResponse> {
+        return await this.getRequest("moderation/moderators", {
+            broadcaster_id,
+            ...params
+        });
     }
 
-    async allModerators(broadcaster_id: number, limit = Infinity) {
+    async allModerators(broadcaster_id: string, limit = Infinity): Promise<TUser[]> {
         return await this.requestAll(broadcaster_id, this, "moderators", limit);
     }
 
-    async addModerator(broadcaster_id: number, user_id: number) { 
-        return await this.requestEndpoint("moderation/moderators", {
+    async addModerator(broadcaster_id: string, user_id: string) {
+        return await this.post("moderation/moderators", {
             broadcaster_id,
             user_id
-        }, { method: "POST" });
+        });
     }
 
-    async removeModerator(broadcaster_id: number, user_id: number) { 
-        return await this.requestEndpoint("moderation/moderators", {
+    async removeModerator(broadcaster_id: string, user_id: string) { 
+        return await this.delete("moderation/moderators", {
             broadcaster_id,
             user_id
-        }, { method: "DELETE" });
+        });
     }
 
-    async blockedTerms(broadcaster_id: number, moderator_id: number, params = {}) {
-        return await this.requestCustom("moderation/blocked_terms", broadcaster_id, {
+    async blockedTerms(broadcaster_id: string, params?: TFirst, moderator_id?: string): Promise<TBlockedTermsResponse> {
+        return await this.getRequest("moderation/blocked_terms", {
+            broadcaster_id,
             moderator_id: moderator_id || broadcaster_id,
             ...params
         });
     }
 
-    async allBlockedTerms(broadcaster_id: number, moderator_id: number, limit = Infinity) {
+    async allBlockedTerms(broadcaster_id: string, limit = Infinity, moderator_id?: string): Promise<TBlockedTerm[]> {
         return await this.requestAll([
             broadcaster_id,
             moderator_id || broadcaster_id
         ], this, "blockedTerms", limit);
     }
 
-    async addBlockedTerm(broadcaster_id: number, moderator_id: number, text: string) {
-        if (!text) {
-            return this.handleError(this.ERRORS.TERM_TEXT_EMPTY);
-        }
-
-        return await this.requestCustom("moderation/blocked_terms", broadcaster_id, {
-            moderator_id: moderator_id || broadcaster_id
-        }, {
-            method: "POST",
-            data: { text }
+    async addBlockedTerm(broadcaster_id: string, text?: string, moderator_id?: string,) {
+        return await this.post("moderation/blocked_terms", {
+            broadcaster_id,
+            moderator_id: moderator_id || broadcaster_id,
+            text
         });
     }
 
-    async removeBlockedTerm(broadcaster_id: number, moderator_id: number, id: number) {
-        if (!id) {
-            return this.handleError(this.ERRORS.TERM_ID_NOT_SPECIFIED);
-        }
-
-        return await this.requestCustom("moderation/blocked_terms", broadcaster_id, { 
+    async removeBlockedTerm(broadcaster_id: string, id: string, moderator_id?: string) {
+        return await this.delete("moderation/blocked_terms", {
+            broadcaster_id,
             moderator_id: moderator_id || broadcaster_id,
             id
-        }, { method: "DELETE" });
+        });
     }
 
-    async getShieldMode(broadcaster_id: number, moderator_id: number): Promise<TShieldMode | Error> { 
-        return await this.requestCustom("moderation/shield_mode", broadcaster_id, { 
+    async getShieldMode(broadcaster_id: string, moderator_id?: string): Promise<TShieldMode> { 
+        return await this.getRequest("moderation/shield_mode", {
+            broadcaster_id,
             moderator_id: moderator_id || broadcaster_id
         });
     }
 
-    async updateShieldMode(broadcaster_id: number, moderator_id: number, is_active: boolean = false): Promise<boolean | Error> { 
-        return await this.requestCustom("moderation/shield_mode", broadcaster_id, { 
-            moderator_id: moderator_id || broadcaster_id
-        }, {
-            method: "PUT",
-
-            data: {
-                is_active
-            }
+    async updateShieldMode(broadcaster_id: string, moderator_id?: string, is_active = false): Promise<boolean> {
+        return await this.put("moderation/shield_mode", {
+            broadcaster_id,
+            moderator_id: moderator_id || broadcaster_id,
+            is_active
         });
     }
 }

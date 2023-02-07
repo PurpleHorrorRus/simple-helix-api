@@ -1,26 +1,20 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Static from "../static";
 
-class Commercial extends Static {
-    constructor(headers: AxiosRequestHeaders) {
-        super(headers);
+import {
+    TCommercial
+} from "./types/commercial";
 
-        this.ERRORS = {
-            ...this.ERRORS,
-            INVALID_LENGTH: "Invalid commercial length"
-        };
+class Commercial extends Static {
+    constructor(headers: RawAxiosRequestHeaders) {
+        super(headers);
     }
 
-    async start(broadcaster_id: number, length = 30) {
-        if (length % 30 !== 0) {
-            return this.handleError(this.ERRORS.INVALID_LENGTH);
-        }
-
-        return this.requestEndpoint("channels/commercial", {
-            broadcaster_id,
+    async start(broadcaster_id: string, length = 30): Promise<TCommercial> {
+        return await this.post("channels/commercial", { broadcaster_id }, {
             length: Math.max(Math.min(length, 180), 30)
-        }, { method: "POST" })
+        });
     }
 }
 

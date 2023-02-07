@@ -1,4 +1,4 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 import { EventEmitter } from "node:events";
 
 import ReconnectingWebsocket from "reconnecting-websocket";
@@ -31,13 +31,8 @@ class EventSub extends Static {
         DISCONNECTED: "disconnected"
     };
 
-    constructor(headers: AxiosRequestHeaders) { 
+    constructor(headers: RawAxiosRequestHeaders) { 
         super(headers);
-
-        this.ERRORS = {
-            ...this.ERRORS,
-            INVALID_EVENTS: "Invalid array of events"
-        };
     }
 
     public connect(options: TEventsubConnectOptions = this.defaultConnectionOptions): Promise<EventSub> {
@@ -118,14 +113,11 @@ class EventSub extends Static {
         listener: (...args: any) => any,
         version = 1
     ) {
-        await this.requestEndpoint("eventsub/subscriptions", "", {
-            method: "POST",
-            data: {
-                type,
-                version,
-                condition,
-                transport: this.transport
-            }
+        await this.post("eventsub/subscriptions", {}, {
+            type,
+            version,
+            condition,
+            transport: this.transport
         });
 
         this.subscribedEvents[type] = listener;

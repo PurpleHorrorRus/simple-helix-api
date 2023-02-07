@@ -1,45 +1,35 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Static from "../static";
 
+import {
+    TGetTagsParams,
+    TGetTagsResponse,
+    TTag
+} from "./types/tags";
+
 class Tags extends Static {
-    constructor(headers: AxiosRequestHeaders) {
+    constructor(headers: RawAxiosRequestHeaders) {
         super(headers);
-
-        this.ERRORS = {
-            ...this.ERRORS,
-            INVALID_TAG_IDS: "tag_ids must be an array"
-        };
     }
 
-    async get(broadcaster_id: number) {
-        return await this.requestCustom("streams/tags", broadcaster_id);
+    async get(broadcaster_id: string): Promise<TGetTagsResponse> {
+        return await this.getRequest("streams/tags", { broadcaster_id });
     }
 
-    async replace(broadcaster_id: number, tag_ids: string[] | number[]) {
-        if (!broadcaster_id) {
-            return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
-        }
-
-        if (!Array.isArray(tag_ids)) {
-            return this.handleError(this.ERRORS.INVALID_TAG_IDS);
-        }
-
+    async replace(broadcaster_id: string, tag_ids: string[] | number[]) {
         if (tag_ids.length > 5) {
-            tag_ids = tag_ids.splice(0, 5);
+            tag_ids = tag_ids.slice(0, 5);
         }
 
-        return await this.requestEndpoint("streams/tags", { broadcaster_id }, {
-            method: "PUT",
-            data: { tag_ids }
-        });
+        return await this.put("streams/tags", { broadcaster_id }, { tag_ids });
     }
 
-    async getTags(params = {}) {
-        return await this.requestEndpoint("tags/streams", params);
+    async getTags(params?: TGetTagsParams): Promise<TGetTagsResponse> {
+        return await this.getRequest("tags/streams", params);
     }
 
-    async all(limit = Infinity) {
+    async all(limit = Infinity): Promise<TTag[]> {
         return await this.requestAll(1, this, "getTags", limit);
     }
 }

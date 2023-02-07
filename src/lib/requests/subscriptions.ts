@@ -1,30 +1,32 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Static from "../static";
 
+import {
+    TCheckUserResponse,
+    TGetSubscriptionsParams,
+    TGetSubscriptionsResponse,
+    TSubscriber
+} from "./types/subscriptions";
+
 class Subscriptions extends Static {
-    constructor(headers: AxiosRequestHeaders) {
+    constructor(headers: RawAxiosRequestHeaders) {
         super(headers);
     }
 
-    async broadcaster(broadcaster_id: number, params = {}) {
-        return await this.requestCustom("subscriptions", broadcaster_id, params);
+    async broadcaster(broadcaster_id: string, params?: TGetSubscriptionsParams): Promise<TGetSubscriptionsResponse> {
+        return await this.getRequest("subscriptions", {
+            broadcaster_id,
+            ...params
+        });
     }
 
-    async allBroadcaster(broadcaster_id: number, limit = Infinity) {
+    async allBroadcaster(broadcaster_id: string, limit = Infinity): Promise<TSubscriber[]> {
         return await this.requestAll(broadcaster_id, this, "broadcaster", limit);
     }
 
-    async checkUser(broadcaster_id: number, user_id: number) {
-        if (!broadcaster_id) {
-            return this.handleError(this.ERRORS.MISSING_BROADCASTER_ID);
-        }
-
-        if (!user_id) {
-            return this.handleError(this.ERRORS.MISSING_USER_ID);
-        }
-
-        return await this.requestEndpoint("subscriptions/user", {
+    async checkUser(broadcaster_id: string, user_id: string): Promise<TCheckUserResponse> {
+        return await this.getRequest("subscriptions/user", {
             broadcaster_id,
             user_id
         });

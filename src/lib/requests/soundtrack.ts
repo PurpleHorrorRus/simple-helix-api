@@ -1,31 +1,33 @@
-import { AxiosRequestHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 
 import Static from "../static";
 
+import { TFirst } from "./types/common";
+
+import {
+    TCurrentTrackResponse,
+    TPlaylistResponse,
+    TPlaylistsResponse
+} from "./types/soundtrack";
+
 class Soundtrack extends Static {
-    constructor(headers: AxiosRequestHeaders) {
+    constructor(headers: RawAxiosRequestHeaders) {
         super(headers);
-
-        this.ERRORS = {
-            ...this.ERRORS,
-            PLAYLIST_ID_NOT_SPECIFIED: "You must to specify playlist id"
-        };
     }
 
-    async track(broadcaster_id: number) {
-        return await this.requestCustom("soundtrack/current_track", broadcaster_id);
+    async track(broadcaster_id: string): Promise<TCurrentTrackResponse> {
+        return await this.getRequest("soundtrack/current_track", { broadcaster_id });
     }
 
-    async playlist(id: number) {
-        if (!id) {
-            return this.handleError(this.ERRORS.PLAYLIST_ID_NOT_SPECIFIED);
-        }
-        
-        return await this.requestEndpoint("soundtrack/playlist", { id });
+    async playlist(id: string, params?: TFirst): Promise<TPlaylistResponse> {
+        return await this.getRequest("soundtrack/playlist", {
+            id,
+            ...params
+        });
     }
 
-    async playlists() {
-        return await this.requestEndpoint("soundtrack/playlists");
+    async playlists(): Promise<TPlaylistsResponse> {
+        return await this.getRequest("soundtrack/playlists");
     }
 }
 
