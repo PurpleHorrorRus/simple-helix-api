@@ -10,7 +10,7 @@ class Users extends Static {
         super(headers);
     }
 
-    async getByID(id: string): Promise<TGetUserResponse> {
+    async getById(id: string): Promise<TGetUserResponse> {
         return await this.getRequest("users", { id });
     }
 
@@ -20,7 +20,7 @@ class Users extends Static {
 
     async get(user: string): Promise<TGetUserResponse> {
         return Number(user)
-            ? await this.getByID(user)
+            ? await this.getById(user)
             : await this.getByLogin(user);
     }
 
