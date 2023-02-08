@@ -24,9 +24,8 @@ class Moderation extends Static {
     async ban(broadcaster_id: string, data: TBanUserParams, moderator_id?: number): Promise<TBanUserResponse> {
         return await this.post("moderation/bans", {
             broadcaster_id,
-            moderator_id: moderator_id || broadcaster_id,
-            ...data
-        });
+            moderator_id: moderator_id || broadcaster_id
+        }, data);
     }
 
     async unban(broadcaster_id: string, user_id: string, moderator_id?: string) {
