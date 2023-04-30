@@ -1,6 +1,6 @@
 {
     "name": "simple-helix-api",
-    "version": "4.0.3",
+    "version": "4.0.4",
     "description": "The Simple Helix API allows developers to easily develop applications for Twitch",
     "main": "./dist/index.js",
     "types": "./types",
