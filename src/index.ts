@@ -18,7 +18,6 @@ import Search from "./lib/requests/search";
 import Soundtrack from "./lib/requests/soundtrack";
 import Stream from "./lib/requests/stream";
 import Subscriptions from "./lib/requests/subscriptions";
-import Tags from "./lib/requests/tags";
 import Teams from "./lib/requests/teams";
 import Users from "./lib/requests/users";
 import Videos from "./lib/requests/videos";
@@ -58,7 +57,6 @@ class Helix extends Static {
     soundtrack: Soundtrack;
     stream: Stream;
     subscriptions: Subscriptions;
-    tags: Tags;
     teams: Teams;
     users: Users;
     videos: Videos;
@@ -96,7 +94,6 @@ class Helix extends Static {
             this.soundtrack = new Soundtrack(this.headers);
             this.stream = new Stream(this.headers);
             this.subscriptions = new Subscriptions(this.headers);
-            this.tags = new Tags(this.headers);
             this.teams = new Teams(this.headers);
             this.users = new Users(this.headers);
             this.videos = new Videos(this.headers);

@@ -331,30 +331,6 @@ describe("Stream", () => {
     });
 });
 
-describe("Tags", () => {
-    test("Get Stream Tags", async () => {
-        const tags = await Helix.tags.get(user_id);
-        expect(tags).toBeTruthy();
-    });
-
-    test("Get All Tags", async () => {
-        const tags = await Helix.tags.all(5);
-        expect(tags).toBeTruthy();
-    });
-
-    test("Replace Tags", async () => {
-        let tags = await Helix.tags.all(1);
-        tags = tags.splice(0, 1);
-
-        const tags_ids = tags.map((tag: any) => { 
-            return tag.tag_id
-        });
-
-        const replaced = await Helix.tags.replace(user_id, tags_ids);
-        expect(replaced).toBeTruthy();
-    });
-});
-
 describe("Users", () => {
     test("Get", async () => {
         const user = await Helix.users.get(user_id);
