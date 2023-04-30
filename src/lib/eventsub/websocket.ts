@@ -9,7 +9,7 @@ import { TEventsubConnectOptions } from "./types/eventsub";
 import { TEventType } from "./types/events";
 
 class EventSub extends Static { 
-    private readonly endpoint = "wss://eventsub-beta.wss.twitch.tv/ws";
+    private readonly endpoint = "wss://eventsub.wss.twitch.tv/ws";
 
     private readonly transport = {
         method: "websocket",
