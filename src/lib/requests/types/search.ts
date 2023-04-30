@@ -26,7 +26,6 @@ export type TSearchChannel = {
     game_name: string
     id: string
     is_live: boolean
-    tag_ids: string[]
     tags: string[]
     thumbnail_url: string
     title: string

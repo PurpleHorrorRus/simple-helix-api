@@ -20,10 +20,14 @@ export type TEmote = {
 }
 
 type TBadgeVersion = {
+    click_action: string | null
+    click_url: string | null
+    description: string
     id: string
     image_url_1x: string
     image_url_2x: string
     image_url_4x: string
+    title: string
 }
 
 export type TBadge = {
