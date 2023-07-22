@@ -17,7 +17,7 @@ export type TStream = TUser & {
     language: string
     thumbnail_url: string
     tag_ids: string[]
-    is_mature: boolean
+    content_classification_labels?: []
 }
 
 export type TGetStreamsParams = TFirstBefore & Partial<{
