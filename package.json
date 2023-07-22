@@ -7,22 +7,22 @@
     "author": "Maxim <purplehorrorrus@gmail.com>",
     "license": "MIT",
     "dependencies": {
-        "axios": "^1.4.0",
+        "axios": "1.4.0",
         "irc-message": "^3.0.2",
         "irc-message-ts": "^3.0.6",
         "reconnecting-websocket": "^4.4.0",
         "ws": "^8.13.0"
     },
     "devDependencies": {
-        "@types/jest": "^29.5.1",
-        "@types/ws": "^8.5.4",
-        "@typescript-eslint/eslint-plugin": "^5.59.1",
-        "@typescript-eslint/parser": "^5.59.1",
-        "dotenv": "^16.0.3",
-        "eslint": "^8.39.0",
-        "jest": "^29.5.0",
-        "ts-jest": "^29.1.0",
-        "typescript": "^5.0.4"
+        "@types/jest": "^29.5.3",
+        "@types/ws": "^8.5.5",
+        "@typescript-eslint/eslint-plugin": "^6.1.0",
+        "@typescript-eslint/parser": "^6.1.0",
+        "dotenv": "^16.3.1",
+        "eslint": "^8.45.0",
+        "jest": "^29.6.1",
+        "ts-jest": "^29.1.1",
+        "typescript": "^5.1.6"
     },
     "resolutions": {
         "minimist": "^1.2.6",
