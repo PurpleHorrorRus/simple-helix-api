@@ -8,6 +8,7 @@ import Clips from "./lib/requests/clips";
 import Commercial from "./lib/requests/commercial";
 import Events from "./lib/requests/events";
 import Games from "./lib/requests/games";
+import GuestStar from "./lib/requests/guest_star";
 import Markers from "./lib/requests/markers";
 import Moderation from "./lib/requests/moderation";
 import Polls from "./lib/requests/polls";
@@ -46,6 +47,7 @@ class Helix extends Static {
     commercial: Commercial;
     events: Events;
     games: Games;
+	guest: GuestStar;
     markers: Markers;
     moderation: Moderation;
     polls: Polls;
@@ -82,6 +84,7 @@ class Helix extends Static {
             this.commercial = new Commercial(this.headers);
             this.events = new Events(this.headers);
             this.games = new Games(this.headers);
+			this.guest = new GuestStar(this.headers);
             this.markers = new Markers(this.headers);
             this.moderation = new Moderation(this.headers);
             this.polls = new Polls(this.headers);

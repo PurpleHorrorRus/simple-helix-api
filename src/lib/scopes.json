@@ -23,6 +23,8 @@
     "channel:read:subscriptions",
     "channel:read:vips",
     "channel:moderate",
+	"channel:read:guest_star",
+	"channel:manage:guest_star",
 
     "chat:read",
     "chat:edit",
@@ -43,6 +45,8 @@
     "moderator:read:shield_mode",
     "moderator:manage:shield_mode",
     "moderator:read:followers",
+	"moderator:read:guest_star",
+	"moderator:manage:guest_star",
 
     "user:edit",
     "user:edit:follows",
