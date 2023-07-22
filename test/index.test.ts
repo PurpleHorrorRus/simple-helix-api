@@ -465,7 +465,7 @@ describe("EventSub", () => {
         const response = await new Promise(resolve => {
             client.subscribe("channel.update", conditions[0], data => { 
                 return resolve(data);
-            });
+            }, 2);
 
             console.log("Subscribed, waiting for an event...");
         });
