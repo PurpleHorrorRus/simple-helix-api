@@ -438,20 +438,6 @@ describe.skip("Analytics", () => {
     });
 });
 
-describe.skip("Soundtrack", () => {
-    test("Get Track", async () => {
-        const user = await Helix.users.get("Monstercat");
-        const track = await Helix.soundtrack.track(user.data[0].id);
-        expect(track).toBeTruthy();
-    });
-
-    test("Get Playlist", async () => {
-        const playlists = await Helix.soundtrack.playlists();
-        const playlist = await Helix.soundtrack.playlist(playlists.data[0].id);
-        expect(playlist).toBeTruthy();
-    });
-});
-
 describe("EventSub", () => {
     let client: EventSub = Helix.EventSub;
     const conditions = [{

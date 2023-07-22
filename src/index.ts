@@ -15,7 +15,6 @@ import Predictions from "./lib/requests/predictions";
 import Rewards from "./lib/requests/rewards";
 import Schedule from "./lib/requests/schedule";
 import Search from "./lib/requests/search";
-import Soundtrack from "./lib/requests/soundtrack";
 import Stream from "./lib/requests/stream";
 import Subscriptions from "./lib/requests/subscriptions";
 import Teams from "./lib/requests/teams";
@@ -54,7 +53,6 @@ class Helix extends Static {
     rewards: Rewards;
     schedule: Schedule;
     search: Search;
-    soundtrack: Soundtrack;
     stream: Stream;
     subscriptions: Subscriptions;
     teams: Teams;
@@ -91,7 +89,6 @@ class Helix extends Static {
             this.rewards = new Rewards(this.headers);
             this.schedule = new Schedule(this.headers);
             this.search = new Search(this.headers);
-            this.soundtrack = new Soundtrack(this.headers);
             this.stream = new Stream(this.headers);
             this.subscriptions = new Subscriptions(this.headers);
             this.teams = new Teams(this.headers);
