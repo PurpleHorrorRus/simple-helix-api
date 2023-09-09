@@ -1,4 +1,4 @@
-import { TFirst, TList } from "./common"
+import { TList } from "./common"
 
 type TGetUser = {
     id: string
@@ -19,24 +19,6 @@ export type TGetUserResponse = {
 
 export type TUpdateUserParams = {
     description?: string
-}
-
-export type TFollow = {
-    from_id: string
-    from_login: string
-    from_name: string
-    to_id: string
-    to_name: string
-    followed_at: string
-}
-
-export type TGetUserFollowsParams = TFirst & {
-    to_id?: string
-}
-
-export type TGetUserFollowsResponse = TList & {
-    data: TFollow[]
-    total: number
 }
 
 type TBlockedUser = {

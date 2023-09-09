@@ -3,7 +3,7 @@ import { RawAxiosRequestHeaders } from "axios";
 import Static from "../static";
 import { TFirst } from "./types/common";
 
-import { TFollow, TGetBlockedResponse, TGetUserFollowsParams, TGetUserFollowsResponse, TGetUserResponse, TUpdateUserParams } from "./types/users";
+import { TGetBlockedResponse, TGetUserResponse, TUpdateUserParams } from "./types/users";
 
 class Users extends Static {
     constructor(headers: RawAxiosRequestHeaders) {
@@ -26,17 +26,6 @@ class Users extends Static {
 
     async update(params?: TUpdateUserParams) {
         return await this.put("users", params);
-    }
-
-    async follows(to_id?: string, params?: TGetUserFollowsParams): Promise<TGetUserFollowsResponse> {
-        return await this.getRequest("users/follows", {
-            to_id,
-            ...params
-        });
-    }
-
-    async allFollows(to_id: string, limit = Infinity): Promise<TFollow[]> {
-        return await this.requestAll(to_id, this, "follows", limit);
     }
 
     async blocklist(broadcaster_id: string, params?: TFirst): Promise<TGetBlockedResponse> {

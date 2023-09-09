@@ -1,5 +1,5 @@
 import { TUser } from "./chat"
-import { TBroadcaster, TFirst, TList } from "./common"
+import { TBroadcaster, TFirst, TList, TPagination } from "./common"
 
 export type TChannel = {
     broadcaster_id: string
@@ -11,6 +11,13 @@ export type TChannel = {
     title: string
     delay: number
     tags: string[]
+}
+
+export type TFollow = {
+	user_id: string
+	user_login: string
+	user_name: string
+	followed_at: string
 }
 
 export type TEditor = {
@@ -43,3 +50,8 @@ export type TGetFollowedResponse = TList & {
 export type TGetFollowersParams = Partial<TFirst & {
     user_id: string
 }>
+
+export type TGetFollowersResponse = {
+	data: TFollow[]
+	pagination: TPagination
+}

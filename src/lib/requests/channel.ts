@@ -5,10 +5,12 @@ import Static from "../static";
 import {
     TChannel,
     TEditor,
+    TFollow,
     TGetFollowedParams,
     TGetFollowedResponse,
     TGetFollowedUser,
     TGetFollowersParams,
+    TGetFollowersResponse,
     TGetVipsRequestParams,
     TGetVipsResponse,
 } from "./types/channel";
@@ -47,6 +49,17 @@ class Channel extends Static {
         });
     }
 
+	async followers(broadcaster_id: string, params?: TGetFollowersParams): Promise<TGetFollowersResponse> {
+        return await this.getRequest("channels/followers", {
+			broadcaster_id,
+			...params
+		});
+    }
+
+	async allFollowers(to_id: string, limit = Infinity): Promise<TFollow[]> {
+        return await this.requestAll(to_id, this, "followers", limit);
+    }
+
     async editors(broadcaster_id: string): Promise<TEditor[]> {
         return await this.getRequest("channels/editors", { broadcaster_id });
     }
@@ -79,17 +92,6 @@ class Channel extends Static {
 
     async allFollowed(user_id: string, limit = Infinity): Promise<TGetFollowedUser[]> {
         return await this.requestAll(user_id, this, "followed", limit);
-    }
-
-    async followers(broadcaster_id: string, params?: TGetFollowersParams): Promise<TGetFollowedResponse> {
-        return await this.getRequest("channels/followers", {
-            broadcaster_id,
-            ...params
-        });
-    }
-
-    async allFollowers(broadcaster_id: string, limit = Infinity): Promise<TGetFollowedUser[]> {
-        return await this.requestAll(broadcaster_id, this, "followers", limit);
     }
 
     async whisper(from_user_id: number, to_user_id: number, message: string) {

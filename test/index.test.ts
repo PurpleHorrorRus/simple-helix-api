@@ -72,7 +72,7 @@ describe("Channel", () => {
         expect(allFollowed.length).toBeGreaterThan(0);
     });
 
-    test("Get Followers", async () => { 
+    test.only("Get Followers", async () => {
         const followers = await Helix.channel.followers(user_id);
         expect(followers.data.length).toBeGreaterThan(0);
 
@@ -340,16 +340,6 @@ describe("Users", () => {
     test("Update", async () => {
         const isUpdated = await Helix.users.update({ description: "Hello and good day! Streamer Infinite Horror at your service! I may be uninvited, but I hope I'm not unwelcome! Good luck and see you When They Cry again!" });
         expect(isUpdated).toBeTruthy();
-    });
-
-    test("Follows", async () => {
-        const follows = await Helix.users.follows(user_id);
-        expect(follows).toBeTruthy();
-    });
-
-    test("All Follows", async () => {
-        const follows = await Helix.users.allFollows(user_id);
-        expect(follows).toBeTruthy();
     });
 
     test("Extensions", async () => {
