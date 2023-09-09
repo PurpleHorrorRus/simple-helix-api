@@ -72,7 +72,7 @@ describe("Channel", () => {
         expect(allFollowed.length).toBeGreaterThan(0);
     });
 
-    test.only("Get Followers", async () => {
+    test("Get Followers", async () => {
         const followers = await Helix.channel.followers(user_id);
         expect(followers.data.length).toBeGreaterThan(0);
 

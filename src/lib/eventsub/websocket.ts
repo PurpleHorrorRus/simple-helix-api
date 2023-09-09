@@ -61,7 +61,7 @@ class EventSub extends Static {
 
     private onConnect(data: any): void {
         this.transport.session_id = data.payload.session.id;
-        this.transport.connected_at = data.payload.connected_at;
+        this.transport.connected_at = data.payload.session.connected_at;
         this.events.emit(this.WebsocketEvents.CONNECTED);
     }
 
