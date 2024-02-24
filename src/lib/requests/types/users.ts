@@ -1,9 +1,9 @@
 import { TList } from "./common";
 
-type TGetUser = {
+export type TGetUser = {
     id: string
     login: string
-    display_nmae: string
+    display_name: string
     type: "admin" | "global_mod" | "staff" | ""
     broadcaster_type: "affiliate" | "partner" | ""
     description: string
