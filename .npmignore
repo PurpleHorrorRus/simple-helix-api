@@ -1,0 +1,11 @@
+.vscode
+documentation
+node_modules
+src
+test
+.eslintrc.json
+.gitignore
+.npmignore
+jest.config.js
+tsconfig.json
+yarn.lock
