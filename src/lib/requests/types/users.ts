@@ -1,4 +1,4 @@
-import { TList } from "./common"
+import { TList } from "./common";
 
 type TGetUser = {
     id: string

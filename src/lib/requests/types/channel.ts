@@ -1,5 +1,5 @@
-import { TUser } from "./chat"
-import { TBroadcaster, TFirst, TList, TPagination } from "./common"
+import { TUser } from "./chat";
+import { TBroadcaster, TFirst, TList, TPagination } from "./common";
 
 export type TChannel = {
     broadcaster_id: string

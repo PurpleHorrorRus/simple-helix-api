@@ -1,9 +1,9 @@
-import { TUser } from "./chat"
+import { TUser } from "./chat";
 
 import {
-    TFirstBefore,
-    TList
-} from "./common"
+	TFirstBefore,
+	TList
+} from "./common";
 
 export type TStream = TUser & {
     id: string

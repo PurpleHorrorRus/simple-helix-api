@@ -1,7 +1,7 @@
 import {
-    TFirst,
-    TList,
-    TPagination
+	TFirst,
+	TList,
+	TPagination
 } from "./common";
 
 export type TSearchCategory = {

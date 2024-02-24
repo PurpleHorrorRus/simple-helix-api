@@ -1,4 +1,4 @@
-import { TFirst, TList } from "./common"
+import { TFirst, TList } from "./common";
 
 export type TPollStatus =
     "ACTIVE" |
@@ -8,9 +8,7 @@ export type TPollStatus =
     "MODERATED" |
     "INVALID"
 
-export type TEndPollStatus =
-    "ARCHIVED"
-    "TERMINATED"
+export type TEndPollStatus = "ARCHIVED" | "TERMINATED"
 
 type TPollChoiceNative = {
     id: string

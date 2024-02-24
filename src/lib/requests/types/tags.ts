@@ -1,4 +1,4 @@
-import { TFirst } from "./common"
+import { TFirst } from "./common";
 
 export type TTag = {
     tag_id: string

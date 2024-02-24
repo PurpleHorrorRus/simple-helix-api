@@ -1,5 +1,5 @@
-import { TUser } from "./chat"
-import { TFirstBefore, TList } from "./common"
+import { TUser } from "./chat";
+import { TFirstBefore, TList } from "./common";
 
 export type TGetVideosParams = TFirstBefore & {
     id?: string

@@ -1,4 +1,4 @@
-import { TFirst, TList } from "./common"
+import { TFirst, TList } from "./common";
 
 export type TGetRewardsParams = Partial<{
     id: string

@@ -1,5 +1,5 @@
-import { TUser } from "./chat"
-import { TFirstBefore, TList, TModerator } from "./common"
+import { TUser } from "./chat";
+import { TFirstBefore, TList, TModerator } from "./common";
 
 export type TShieldMode = {
     is_active: boolean

@@ -1,8 +1,8 @@
 import {
-    TBroadcaster,
-    TFirst,
-    TPagination
-} from "./common"
+	TBroadcaster,
+	TFirst,
+	TPagination
+} from "./common";
 
 type TVacation = {
     start_time: string

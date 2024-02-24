@@ -1,8 +1,8 @@
 import {
-    TDate,
-    TFirstBefore,
-    TList
-} from "./common"
+	TDate,
+	TFirstBefore,
+	TList
+} from "./common";
 
 export type TClip = {
     id: string
