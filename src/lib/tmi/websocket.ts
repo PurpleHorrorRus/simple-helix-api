@@ -57,7 +57,7 @@ class TMIClient extends TMIParser {
 			: this.endpoint;
 
 		this.connection = new ReconnectingWebSocket(endpoint, "irc", {
-			WebSocket: global.WebSocket || WebSocket,
+			WebSocket: global?.WebSocket || WebSocket,
 			maxRetries: Infinity,
 			startClosed: true
 		});

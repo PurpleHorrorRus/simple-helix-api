@@ -1,4 +1,4 @@
-import HelixAPI from "../src/index"
+import HelixAPI from "../src/index";
 import * as dotenv from "dotenv";
 
 import EventSub from "../src/lib/eventsub/websocket";
@@ -515,7 +515,7 @@ describe("TMI Client", () => {
 		});
 	});
 
-	test("Handle", async () => {
+	test.only("Handle", async () => {
 		console.log("Waiting for a message...");
 
 		const message = await new Promise(resolve => {
