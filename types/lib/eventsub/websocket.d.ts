@@ -12,7 +12,7 @@ declare class EventSub extends Static {
     options: TEventsubConnectOptions;
     connection: ReconnectingWebsocket;
     subscribedEvents: Partial<Record<TEventType, (...args: any) => any>>;
-    readonly events: EventEmitter;
+    readonly events: EventEmitter<[never]>;
     readonly WebsocketEvents: {
         CONNECTED: string;
         DISCONNECTED: string;
