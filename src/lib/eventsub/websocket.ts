@@ -39,7 +39,7 @@ class EventSub extends Static {
 		this.options = options;
 
 		this.connection = new ReconnectingWebsocket(this.endpoint, [], {
-			WebSocket,
+			WebSocket: global?.WebSocket || WebSocket,
 			startClosed: true,
 			maxRetries: Infinity
 		});
