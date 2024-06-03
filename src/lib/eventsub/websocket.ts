@@ -26,6 +26,7 @@ class EventSub extends Static {
 	public connection: ReconnectingWebsocket;
 	public subscribedEvents: Partial<Record<TEventType, (...args: any) => any>> = {};
 	public readonly events = new EventEmitter();
+
 	public readonly WebsocketEvents = {
 		CONNECTED: "connected",
 		DISCONNECTED: "disconnected"
@@ -40,15 +41,13 @@ class EventSub extends Static {
 
 		this.connection = new ReconnectingWebsocket(this.endpoint, [], {
 			WebSocket: global?.WebSocket || WebSocket,
-			startClosed: true,
 			maxRetries: Infinity
 		});
 
 		return new Promise((resolve, reject) => {
 			this.connection.onclose = ({ reason }) => this.onDisconnect(reason, reject);
 			this.connection.onmessage = ({ data }) => this.onMessage(data, resolve);
-			return this.connection.reconnect();
-		});  
+		});
 	}
 
 	public disconnect() {
