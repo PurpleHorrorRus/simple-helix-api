@@ -20,8 +20,8 @@ class TMIClient extends TMIParser {
 	public options: TChatOptions = this.defaultOptions;
 
 	private connection: ReconnectingWebSocket;
-	private globalUserState = {};
-	private userState = {};
+	private globalUserState: any = {};
+	private userState: any = {};
 	private channels: string[];
 
 	public readonly events: EventEmitter = new EventEmitter();
@@ -256,9 +256,16 @@ class TMIClient extends TMIParser {
 		}
         
 		this.connection.send(command.trim());
+
+		const effectiveUserId = tags?.["user-id"]
+			|| (this.globalUserState?.["user-id"] && this.globalUserState?.["user-id"] !== -1 ? this.globalUserState["user-id"] : undefined)
+			|| (this.userState?.["user-id"] && this.userState?.["user-id"] !== -1 ? this.userState["user-id"] : undefined);
+
 		this.events.emit("message", {
 			...this.globalUserState,
 			...this.userState,
+			...(tags ?? {}),
+			...(effectiveUserId ? { "user-id": effectiveUserId } : {}),
 			text
 		});
 
