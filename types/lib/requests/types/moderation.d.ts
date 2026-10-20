@@ -41,3 +41,43 @@ export type TBlockedTerm = {
 export type TBlockedTermsResponse = TList & {
     data: TBlockedTerm[];
 };
+export type TUnbanRequest = {
+    id: string;
+    broadcaster_id: string;
+    broadcaster_name: string;
+    broadcaster_login: string;
+    moderator_id: string;
+    moderator_name: string;
+    moderator_login: string;
+    user_id: string;
+    user_name: string;
+    user_login: string;
+    text: string;
+    status: "pending" | "approved" | "denied" | "canceled" | string;
+    created_at: string;
+    resolved_at: string | null;
+    resolution_text: string | null;
+};
+export type TGetUnbanRequestsResponse = TList & {
+    data: TUnbanRequest[];
+};
+export type TGetUnbanRequestsParams = Partial<TFirstBefore & {
+    status?: "pending" | "approved" | "denied" | "canceled";
+    user_id?: string;
+}>;
+export type TWarnUserResponse = {
+    data: {
+        broadcaster_id: string;
+        moderator_id: string;
+        user_id: string;
+        reason: string;
+    }[];
+};
+export type TModeratedChannel = {
+    broadcaster_id: string;
+    broadcaster_login: string;
+    broadcaster_name: string;
+};
+export type TGetModeratedChannelsResponse = TList & {
+    data: TModeratedChannel[];
+};

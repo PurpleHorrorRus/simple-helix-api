@@ -45,3 +45,23 @@ export type TGetFollowersResponse = {
     data: TFollow[];
     pagination: TPagination;
 };
+export type TContentClassificationLabel = {
+    id: string;
+    description: string;
+    name: string;
+};
+export type TContentClassificationLabelsResponse = {
+    data: TContentClassificationLabel[];
+};
+export type TModifyChannelData = {
+    game_id?: string;
+    broadcaster_language?: string;
+    title?: string;
+    delay?: number;
+    tags?: string[];
+    content_classification_labels?: {
+        id: string;
+        is_enabled: boolean;
+    }[];
+    is_branded_content?: boolean;
+};

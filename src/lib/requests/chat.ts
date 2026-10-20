@@ -9,8 +9,11 @@ import {
 	TColor,
 	TColorResponse,
 	TEmote,
+	TSendChatMessageResponse,
+	TSharedChatSessionResponse,
 	TUser,
-	TUserColor
+	TUserColor,
+	TUserEmotesResponse
 } from "./types/chat";
 
 import { TFirst } from "./types/common";
@@ -44,22 +47,54 @@ class Chat extends Static {
 		return await this.getRequest("chat/emotes", { broadcaster_id });
 	}
 
-	async emoteSets(emote_set_id: number): Promise<TEmote[] > {
-		return await this.getRequest("helix/chat/emotes/set", { emote_set_id });
+	async emoteSets(emote_set_id: string | number | (string | number)[]): Promise<TEmote[]> {
+		return await this.getRequest("chat/emotes/set", { emote_set_id });
+	}
+
+	async userEmotes(user_id: string, broadcaster_id?: string): Promise<TUserEmotesResponse> {
+		return await this.getRequest("chat/emotes/user", {
+			user_id,
+			broadcaster_id
+		});
 	}
 
 	async globalBadges(): Promise<TBadge[]> {
 		return await this.getRequest("chat/badges/global");
 	}
 
-	async announcement(broadcaster_id: string, moderator_id: string, message: string, color: TColor = "primary") {
+	async announcement(
+		broadcaster_id: string,
+		moderator_id: string,
+		message: string,
+		color: TColor = "primary",
+		for_source_only?: boolean
+	) {
 		return await this.post("chat/announcements", {
 			broadcaster_id,
 			moderator_id
 		}, {
 			message: message.substring(0, 500),
-			color
+			color,
+			...(for_source_only !== undefined ? { for_source_only } : {})
 		});
+	}
+
+	async sendChatMessage(
+		broadcaster_id: string,
+		sender_id: string,
+		message: string,
+		reply_parent_message_id?: string
+	): Promise<TSendChatMessageResponse> {
+		return await this.post("chat/messages", {}, {
+			broadcaster_id,
+			sender_id,
+			message,
+			...(reply_parent_message_id ? { reply_parent_message_id } : {})
+		});
+	}
+
+	async sharedChatSession(broadcaster_id: string): Promise<TSharedChatSessionResponse> {
+		return await this.getRequest("chat/shared_chat_session", { broadcaster_id });
 	}
 
 	async shoutout(broadcaster_id: string, to_broadcaster_id: string, moderator_id?: string) {

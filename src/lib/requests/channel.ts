@@ -4,6 +4,7 @@ import Static from "../static";
 
 import {
 	TChannel,
+	TContentClassificationLabelsResponse,
 	TEditor,
 	TFollow,
 	TGetFollowedParams,
@@ -13,6 +14,7 @@ import {
 	TGetFollowersResponse,
 	TGetVipsRequestParams,
 	TGetVipsResponse,
+	TModifyChannelData
 } from "./types/channel";
 
 import { TUser } from "./types/chat";
@@ -23,14 +25,6 @@ class Channel extends Static {
 	}
 
 	async get(broadcaster_id: string | string[]): Promise<TChannel | TChannel[]> {
-		if (Array.isArray(broadcaster_id)) {
-			const broadcaster_ids = broadcaster_id.map(id => {
-				return `broadcaster_id=${id}`;
-			}).join("&");
-
-			return await this.getRequest("channels", { broadcaster_ids });
-		}
-
 		return await this.getRequest("channels", { broadcaster_id });
 	}
 
@@ -38,15 +32,21 @@ class Channel extends Static {
 		broadcaster_id: string,
 		game_id: string = "",
 		broadcaster_language: string = "en",
-		title: string,
-		delay: number = 0
+		title?: string,
+		delay: number = 0,
+		options?: Partial<TModifyChannelData>
 	): Promise<TChannel> {
 		return await this.patch("channels", { broadcaster_id }, {
 			game_id,
 			broadcaster_language,
-			title,
-			...(delay ? { delay } : {}) // Notice: delay works only for Twitch partners
+			...(title !== undefined ? { title } : {}),
+			...(delay ? { delay } : {}), // Notice: delay works only for Twitch partners
+			...options
 		});
+	}
+
+	async contentClassificationLabels(locale?: string): Promise<TContentClassificationLabelsResponse> {
+		return await this.getRequest("content_classification_labels", locale ? { locale } : undefined);
 	}
 
 	async followers(broadcaster_id: string, params?: TGetFollowersParams): Promise<TGetFollowersResponse> {
@@ -94,7 +94,7 @@ class Channel extends Static {
 		return await this.requestAll(user_id, this, "followed", limit);
 	}
 
-	async whisper(from_user_id: number, to_user_id: number, message: string) {
+	async whisper(from_user_id: string | number, to_user_id: string | number, message: string) {
 		return await this.post("whispers", {
 			from_user_id,
 			to_user_id

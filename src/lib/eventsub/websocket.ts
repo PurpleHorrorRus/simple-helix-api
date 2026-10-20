@@ -11,11 +11,15 @@ import { TEventType } from "./types/events";
 class EventSub extends Static { 
 	private readonly endpoint = "wss://eventsub.wss.twitch.tv/ws";
 
-	private readonly transport = {
-		method: "websocket",
-		session_id: 0,
-		connected_at: ""
-	};
+	private readonly transport: {
+		method: string;
+		session_id: string;
+		connected_at: string;
+	} = {
+			method: "websocket",
+			session_id: "",
+			connected_at: ""
+		};
 
 	private readonly defaultConnectionOptions: TEventsubConnectOptions = {
 		debug: false
@@ -69,7 +73,7 @@ class EventSub extends Static {
 			return reject(false);
 		}
 
-		this.transport.session_id = 0;
+		this.transport.session_id = "";
 		this.subscribedEvents = {};
 		this.events.emit(this.WebsocketEvents.DISCONNECTED, reason);
 
@@ -97,7 +101,10 @@ class EventSub extends Static {
 		switch (messageType) { 
 		case "notification": { 
 			const subscriptionType: TEventType = data.metadata.subscription_type;
-			return this.subscribedEvents[subscriptionType]?.(data.payload?.event);
+			const listener = this.subscribedEvents[subscriptionType]
+				|| (subscriptionType === "channel.shoutout.create" ? this.subscribedEvents["channel.shotout.create"] : undefined)
+				|| (subscriptionType === "channel.shoutout.receive" ? this.subscribedEvents["channel.shotout.receive"] : undefined);
+			return listener?.(data.payload?.event);
 		}
                 
 		default: {
@@ -110,11 +117,11 @@ class EventSub extends Static {
 		type: TEventType,
 		condition: Record<string, string>,
 		listener: (...args: any) => any,
-		version = 1
+		version: number | string = 1
 	) {
 		await this.post("eventsub/subscriptions", {}, {
 			type,
-			version,
+			version: String(version),
 			condition,
 			transport: this.transport
 		});

@@ -65,12 +65,16 @@ class Helix extends Static {
 	tmi: TMIClient;
 
 	constructor(params: HelixInitParams) {
-		super({
-			"Authorization": `Bearer ${params.access_token}`,
+		const headers: RawAxiosRequestHeaders = {
 			"Client-Id": params.client_id,
-			"Accept": "application/vnd.twitchtv.v5+json",
 			"Content-Type": "application/json"
-		});
+		};
+
+		if (params.access_token) {
+			headers["Authorization"] = `Bearer ${params.access_token}`;
+		}
+
+		super(headers);
 
 		this.client_id = params.client_id;
 		this.language = params.language || "";

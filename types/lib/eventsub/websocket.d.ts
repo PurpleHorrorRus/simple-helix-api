@@ -24,7 +24,7 @@ declare class EventSub extends Static {
     private onDisconnect;
     private onMessage;
     private onEventMessage;
-    subscribe(type: TEventType, condition: Record<string, string>, listener: (...args: any) => any, version?: number): Promise<boolean>;
+    subscribe(type: TEventType, condition: Record<string, string>, listener: (...args: any) => any, version?: number | string): Promise<boolean>;
     get connected(): boolean;
 }
 export default EventSub;

@@ -12,8 +12,12 @@ import {
 	TBlockedTermsResponse,
 	TGetBannedUsersParams,
 	TGetBannedUsersResponse,
+	TGetModeratedChannelsResponse,
 	TGetModeratorsResponse,
-	TShieldMode
+	TGetUnbanRequestsParams,
+	TGetUnbanRequestsResponse,
+	TShieldMode,
+	TWarnUserResponse
 } from "./types/moderation";
 
 class Moderation extends Static {
@@ -21,7 +25,7 @@ class Moderation extends Static {
 		super(headers);
 	}
 
-	async ban(broadcaster_id: string, data: TBanUserParams, moderator_id?: number): Promise<TBanUserResponse> {
+	async ban(broadcaster_id: string, data: TBanUserParams, moderator_id?: string | number): Promise<TBanUserResponse> {
 		return await this.post("moderation/bans", {
 			broadcaster_id,
 			moderator_id: moderator_id || broadcaster_id
@@ -115,6 +119,58 @@ class Moderation extends Static {
 			broadcaster_id,
 			moderator_id: moderator_id || broadcaster_id,
 			is_active
+		});
+	}
+
+	async unbanRequests(
+		broadcaster_id: string,
+		moderator_id?: string,
+		params?: TGetUnbanRequestsParams
+	): Promise<TGetUnbanRequestsResponse> {
+		return await this.getRequest("moderation/unban_requests", {
+			broadcaster_id,
+			moderator_id: moderator_id || broadcaster_id,
+			...params
+		});
+	}
+
+	async resolveUnbanRequest(
+		broadcaster_id: string,
+		moderator_id: string,
+		unban_request_id: string,
+		status: "approved" | "denied",
+		resolution_text?: string
+	): Promise<TGetUnbanRequestsResponse> {
+		return await this.patch("moderation/unban_requests", {
+			broadcaster_id,
+			moderator_id,
+			unban_request_id,
+			status,
+			...(resolution_text ? { resolution_text } : {})
+		});
+	}
+
+	async warnUser(
+		broadcaster_id: string,
+		moderator_id: string,
+		user_id: string,
+		reason: string
+	): Promise<TWarnUserResponse> {
+		return await this.post("moderation/warnings", {
+			broadcaster_id,
+			moderator_id
+		}, {
+			data: {
+				user_id,
+				reason
+			}
+		});
+	}
+
+	async moderatedChannels(user_id: string, params?: TFirst): Promise<TGetModeratedChannelsResponse> {
+		return await this.getRequest("moderation/channels", {
+			user_id,
+			...params
 		});
 	}
 }

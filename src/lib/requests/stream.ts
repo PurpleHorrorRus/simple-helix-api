@@ -35,7 +35,7 @@ class Stream extends Static {
 	}
 
 	async allFollowed(user_id: string, limit = Infinity): Promise<TStream[]> {
-		return await this.requestAll(user_id, this, "followedStreams", limit);
+		return await this.requestAll(user_id, this, "followed", limit);
 	}
 }
 

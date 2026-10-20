@@ -1,5 +1,5 @@
-type TEventsHypetrainLastContributionType = "BITS" | "SUBS" | "OTHER";
-type TEventsHypetrainLastContribution = {
+export type TEventsHypetrainLastContributionType = "BITS" | "SUBS" | "OTHER";
+export type TEventsHypetrainLastContribution = {
     total: number;
     type: TEventsHypetrainLastContributionType;
     user: string;
@@ -26,4 +26,23 @@ export type TEventsHypetrain = {
         total: number;
     };
 };
-export {};
+export type THypetrainContribution = {
+    total: number;
+    type: "BITS" | "SUBS" | "OTHER";
+    user: string;
+};
+export type THypetrainStatus = {
+    id: string;
+    broadcaster_id: string;
+    total: number;
+    progress: number;
+    goal: number;
+    level: number;
+    started_at: string;
+    expires_at: string;
+    last_contribution: THypetrainContribution;
+    top_contributions: THypetrainContribution[];
+};
+export type THypetrainStatusResponse = {
+    data: THypetrainStatus[];
+};

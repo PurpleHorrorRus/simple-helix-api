@@ -1,6 +1,6 @@
 import { RawAxiosRequestHeaders } from "axios";
 import Static from "../static";
-import { TBadge, TChatSettings, TChattersResponse, TColor, TColorResponse, TEmote, TUser, TUserColor } from "./types/chat";
+import { TBadge, TChatSettings, TChattersResponse, TColor, TColorResponse, TEmote, TSendChatMessageResponse, TSharedChatSessionResponse, TUser, TUserColor, TUserEmotesResponse } from "./types/chat";
 import { TFirst } from "./types/common";
 declare class Chat extends Static {
     constructor(headers: RawAxiosRequestHeaders);
@@ -8,9 +8,12 @@ declare class Chat extends Static {
     allChatters(broadcaster_id: string, limit?: number, moderator_id?: string): Promise<TUser[]>;
     globalEmotes(): Promise<TEmote[]>;
     emotes(broadcaster_id: string): Promise<TEmote[]>;
-    emoteSets(emote_set_id: number): Promise<TEmote[]>;
+    emoteSets(emote_set_id: string | number | (string | number)[]): Promise<TEmote[]>;
+    userEmotes(user_id: string, broadcaster_id?: string): Promise<TUserEmotesResponse>;
     globalBadges(): Promise<TBadge[]>;
-    announcement(broadcaster_id: string, moderator_id: string, message: string, color?: TColor): Promise<any>;
+    announcement(broadcaster_id: string, moderator_id: string, message: string, color?: TColor, for_source_only?: boolean): Promise<any>;
+    sendChatMessage(broadcaster_id: string, sender_id: string, message: string, reply_parent_message_id?: string): Promise<TSendChatMessageResponse>;
+    sharedChatSession(broadcaster_id: string): Promise<TSharedChatSessionResponse>;
     shoutout(broadcaster_id: string, to_broadcaster_id: string, moderator_id?: string): Promise<any>;
     badges(broadcaster_id: string): Promise<TBadge[]>;
     deleteMessage(broadcaster_id: string, moderator_id: string, message_id: string): Promise<any>;

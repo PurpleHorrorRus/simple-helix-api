@@ -48,9 +48,27 @@ class Static {
 		data?: Record<string, any>
 	) {
 		if (query) {
-			endpoint += "?" + (typeof query === "object"
-				? new URLSearchParams(query).toString()
-				: query);
+			if (typeof query === "object") {
+				const params = new URLSearchParams();
+				for (const [key, value] of Object.entries(query)) {
+					if (value === undefined || value === null) {
+						continue;
+					}
+					if (Array.isArray(value)) {
+						for (const item of value) {
+							params.append(key, String(item));
+						}
+					} else {
+						params.set(key, String(value));
+					}
+				}
+				const queryString = params.toString();
+				if (queryString) {
+					endpoint += "?" + queryString;
+				}
+			} else {
+				endpoint += "?" + query;
+			}
 		}
 
 		return await this.request(endpoint, data, { method });

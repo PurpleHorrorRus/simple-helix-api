@@ -85,3 +85,42 @@ export type TChattersResponse = {
     pagination: TPagination
     total: number
 }
+
+export type TSendChatMessageResponse = {
+    data: {
+        message_id: string
+        is_sent: boolean
+        drop_reason: {
+            code: string
+            message: string
+        } | null
+    }[]
+}
+
+export type TSharedChatParticipant = {
+    broadcaster_id: string
+}
+
+export type TSharedChatSession = {
+    session_id: string
+    host_broadcaster_id: string
+    participants: TSharedChatParticipant[]
+    created_at: string
+    updated_at: string
+}
+
+export type TSharedChatSessionResponse = {
+    data: TSharedChatSession[]
+}
+
+export type TUserEmote = TEmote & {
+    emote_type: "subscriptions" | "bitstier" | "follower" | string
+    emote_set_id: string
+    owner_id: string
+}
+
+export type TUserEmotesResponse = {
+    data: TUserEmote[]
+    template: string
+    pagination: TPagination
+}
